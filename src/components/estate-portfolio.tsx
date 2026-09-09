@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Building2, CircleDollarSign, Gauge, LineChart, Plus, Wallet } from "lucide-react";
+import { ArrowRight, Building2, CircleDollarSign, LineChart, Wallet } from "lucide-react";
 import type { SavedDeal } from "@/lib/estate-store";
 import {
   dealInput,
