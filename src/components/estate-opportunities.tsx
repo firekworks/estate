@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, CheckCircle2, ClipboardCheck, GitCompareArrows, MoreHorizontal, Plus, ShieldAlert } from "lucide-react";
+import { ArrowRight, CheckCircle2, ClipboardCheck, MoreHorizontal, Plus, ShieldAlert } from "lucide-react";
 import type { EstateStage, SavedDeal } from "@/lib/estate-store";
 import {
   completenessForDeal,
@@ -11,7 +11,6 @@ import {
   Panel,
   ScoreDial,
   SectionHead,
-  stageLabel,
 } from "@/components/estate-primitives";
 
 const COLUMNS: Array<{ key: EstateStage; label: string; prompt: string }> = [
