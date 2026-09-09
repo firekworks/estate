@@ -14,6 +14,8 @@ export type EstateStage =
 
 export type EvidenceKind = "fact" | "estimate" | "assumption";
 
+export type ZoneEvidence = { label: string; url: string };
+
 export type ZoneAssessment = {
   mobility?: number | null;
   amenities?: number | null;
@@ -24,6 +26,10 @@ export type ZoneAssessment = {
   liquidity?: number | null;
   nearby?: string[];
   notes?: string;
+  confidence?: number;
+  evidence?: ZoneEvidence[];
+  researchedAt?: string;
+  tenantProfiles?: string[];
 };
 
 export type PropertyFeatures = {
@@ -44,6 +50,7 @@ export type PropertyFeatures = {
   zone?: ZoneAssessment;
   evidence?: Record<string, { kind: EvidenceKind; source?: string; observedAt?: string }>;
   source?: string;
+  sourceImageUrls?: string[];
   data_confidence?: number;
 };
 
@@ -199,6 +206,11 @@ function throwIfError(error: { message?: string } | null) {
   if (error) throw new Error(error.message ?? "Error de Supabase");
 }
 
+async function bearerToken() {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token ?? null;
+}
+
 function propertyPayload(user: User, draft: PropertyDraft, input: DealInputs) {
   return {
     user_id: user.id,
@@ -234,12 +246,7 @@ function propertyPayload(user: User, draft: PropertyDraft, input: DealInputs) {
   };
 }
 
-async function writeListingSnapshot(
-  user: User,
-  propertyId: string,
-  draft: PropertyDraft,
-  input: DealInputs,
-) {
+async function writeListingSnapshot(user: User, propertyId: string, draft: PropertyDraft, input: DealInputs) {
   const { data: existing, error: existingError } = await supabase
     .from("estate_listings")
     .select("id")
@@ -260,10 +267,7 @@ async function writeListingSnapshot(
         url: draft.listingUrl?.trim() || null,
         asking_price: input.purchasePrice,
         last_seen_at: new Date().toISOString(),
-        provenance: {
-          entry: draft.listingUrl ? "url+manual" : "manual",
-          captured_at: new Date().toISOString(),
-        },
+        provenance: { entry: draft.listingUrl ? "url+assisted" : "manual", captured_at: new Date().toISOString() },
       })
       .eq("id", listingId)
       .eq("user_id", user.id);
@@ -278,10 +282,7 @@ async function writeListingSnapshot(
         url: draft.listingUrl?.trim() || null,
         asking_price: input.purchasePrice,
         seller_type: null,
-        provenance: {
-          entry: draft.listingUrl ? "url+manual" : "manual",
-          captured_at: new Date().toISOString(),
-        },
+        provenance: { entry: draft.listingUrl ? "url+assisted" : "manual", captured_at: new Date().toISOString() },
       })
       .select("id")
       .single();
@@ -295,19 +296,13 @@ async function writeListingSnapshot(
     listing_id: listingId,
     asking_price: input.purchasePrice,
     event_type: "snapshot",
-    payload: { source: "estate_workspace" },
+    payload: { source: draft.features?.source ?? "estate_workspace" },
   });
   throwIfError(historyError);
-
   return listingId;
 }
 
-async function writeAnalysisSnapshot(
-  user: User,
-  propertyId: string,
-  input: DealInputs,
-  analysis: DealAnalysis,
-) {
+async function writeAnalysisSnapshot(user: User, propertyId: string, input: DealInputs, analysis: DealAnalysis) {
   const { error: financeError } = await supabase.from("estate_financing_scenarios").insert({
     user_id: user.id,
     property_id: propertyId,
@@ -347,10 +342,10 @@ async function writeAnalysisSnapshot(
       value_mid: input.monthlyRent,
       value_high: input.monthlyRent + rentSpread,
       confidence: input.dataConfidence,
-      method: "user_input_v1",
+      method: "evidence_input_v1_3",
       source_count: 0,
       sources: [],
-      model_version: "estate_market_v1_manual",
+      model_version: "estate_market_v1_3",
     });
     throwIfError(error);
   }
@@ -365,31 +360,96 @@ async function writeAnalysisSnapshot(
       value_mid: input.marketValueEstimate,
       value_high: input.marketValueEstimate + saleSpread,
       confidence: input.dataConfidence,
-      method: "user_input_v1",
+      method: "evidence_input_v1_3",
       source_count: 0,
       sources: [],
-      model_version: "estate_market_v1_manual",
+      model_version: "estate_market_v1_3",
     });
     throwIfError(error);
   }
 }
 
-export async function saveDeal(
-  user: User,
-  draft: PropertyDraft,
-  input: DealInputs,
-  analysis: DealAnalysis,
-  existingPropertyId?: string | null,
-) {
+async function syncRemoteImages(user: User, propertyId: string, urls: string[]) {
+  const clean = [...new Set(urls.filter((url) => /^https?:\/\//i.test(url)))].slice(0, 12);
+  if (!clean.length) return;
+  const { data: existing, error } = await supabase
+    .from("estate_property_images")
+    .select("source_url")
+    .eq("user_id", user.id)
+    .eq("property_id", propertyId);
+  throwIfError(error);
+  const known = new Set((existing ?? []).map((row) => row.source_url).filter(Boolean));
+  const pending = clean.filter((url) => !known.has(url));
+  if (!pending.length) return;
+  const { error: insertError } = await supabase.from("estate_property_images").insert(
+    pending.map((url) => ({
+      user_id: user.id,
+      property_id: propertyId,
+      source_url: url,
+      room_type: "unknown",
+      analysis: { source: "listing_research", status: "pending_ai_review" },
+      confidence: 0.45,
+    })),
+  );
+  throwIfError(insertError);
+}
+
+async function enrichZone(user: User, propertyId: string, draft: PropertyDraft, input: DealInputs) {
+  if (!draft.municipality.trim() || typeof draft.features?.zone?.rentalDemand === "number") return;
+  const token = await bearerToken();
+  if (!token) return;
+  const response = await fetch("/api/zone", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({
+      address: draft.address,
+      municipality: draft.municipality,
+      province: draft.province,
+      strategy: draft.features?.rentalStrategy ?? "long_term",
+      rent: input.monthlyRent || undefined,
+      bedrooms: draft.bedrooms,
+    }),
+  });
+  if (!response.ok) return;
+  const data = (await response.json()) as {
+    zone?: ZoneAssessment & { tenantChannels?: string[]; summary?: string };
+    researched_at?: string;
+  };
+  if (!data.zone) return;
+  const zone: ZoneAssessment = {
+    mobility: data.zone.mobility ?? null,
+    amenities: data.zone.amenities ?? null,
+    safety: data.zone.safety ?? null,
+    noise: data.zone.noise ?? null,
+    rentalDemand: data.zone.rentalDemand ?? null,
+    liquidity: data.zone.liquidity ?? null,
+    nearby: data.zone.nearby ?? [],
+    confidence: data.zone.confidence ?? 0.45,
+    evidence: data.zone.evidence ?? [],
+    researchedAt: data.researched_at ?? new Date().toISOString(),
+    tenantProfiles: data.zone.tenantProfiles ?? [],
+    notes: data.zone.summary ?? "",
+  };
+  const features: PropertyFeatures = {
+    ...(draft.features ?? {}),
+    zone,
+    tenantChannels: data.zone.tenantChannels ?? draft.features?.tenantChannels ?? [],
+    tenantProfile: draft.features?.tenantProfile || data.zone.tenantProfiles?.[0] || "",
+  };
+  const { error } = await supabase
+    .from("estate_properties")
+    .update({ features })
+    .eq("id", propertyId)
+    .eq("user_id", user.id);
+  throwIfError(error);
+}
+
+export async function saveDeal(user: User, draft: PropertyDraft, input: DealInputs, analysis: DealAnalysis, existingPropertyId?: string | null) {
   let propertyId = existingPropertyId ?? null;
   let created = false;
 
   if (propertyId) {
-    const { error } = await supabase
-      .from("estate_properties")
-      .update(propertyPayload(user, draft, input))
-      .eq("id", propertyId)
-      .eq("user_id", user.id);
+    const { error } = await supabase.from("estate_properties").update(propertyPayload(user, draft, input)).eq("id", propertyId).eq("user_id", user.id);
     throwIfError(error);
   } else {
     const { data: property, error } = await supabase
@@ -406,30 +466,24 @@ export async function saveDeal(
   try {
     await writeListingSnapshot(user, propertyId, draft, input);
     await writeAnalysisSnapshot(user, propertyId, input, analysis);
+    await syncRemoteImages(user, propertyId, draft.features?.sourceImageUrls ?? []).catch(() => undefined);
 
     const { error: auditError } = await supabase.from("estate_audit_events").insert({
       user_id: user.id,
       property_id: propertyId,
       event_type: created ? "analysis_created" : "analysis_version_created",
       entity_type: "deal_analysis",
-      source: "estate_web_v1_2",
+      source: "estate_web_v1_3",
       model_version: analysis.engineVersion,
-      payload: {
-        score: analysis.score,
-        score_coverage: analysis.scoreCoverage,
-        verdict: analysis.verdict,
-      },
+      payload: { score: analysis.score, score_coverage: analysis.scoreCoverage, verdict: analysis.verdict },
     });
     throwIfError(auditError);
 
+    await enrichZone(user, propertyId, draft, input).catch(() => undefined);
     return propertyId;
   } catch (error) {
     if (created) {
-      await supabase
-        .from("estate_properties")
-        .delete()
-        .eq("id", propertyId)
-        .eq("user_id", user.id);
+      await supabase.from("estate_properties").delete().eq("id", propertyId).eq("user_id", user.id);
     }
     throw error;
   }
@@ -446,42 +500,26 @@ function verdictToDb(verdict: DealAnalysis["verdict"]) {
 export async function loadSavedDeals(user: User): Promise<SavedDeal[]> {
   const { data, error } = await supabase
     .from("estate_properties")
-    .select(
-      "id,title,municipality,province,address,stage,latitude,longitude,built_area_m2,usable_area_m2,bedrooms,bathrooms,floor_label,has_elevator,has_terrace,has_balcony,has_garage,has_storage,has_pool,orientation,year_built,energy_rating,condition,features,notes,updated_at,estate_listings(id,asking_price,portal,url,description,agency_name,seller_type,first_seen_at,last_seen_at,is_active),estate_market_estimates(id,estimate_type,value_low,value_mid,value_high,confidence,method,source_count,observed_at),estate_property_images(id,source_url,storage_path,room_type,condition_score,analysis,confidence,created_at,updated_at),estate_renovation_items(id,category,description,mode,pro_cost,diy_material_cost,hybrid_cost,diy_hours,difficulty,professional_required,estimated_rent_uplift_monthly,estimated_value_uplift,confidence,created_at,updated_at),estate_risks(id,category,severity,confidence,title,description,source,is_kill_switch,resolved_at,created_at,updated_at),estate_deal_analyses(score,verdict,inputs,outputs,data_confidence,created_at)",
-    )
+    .select("id,title,municipality,province,address,stage,latitude,longitude,built_area_m2,usable_area_m2,bedrooms,bathrooms,floor_label,has_elevator,has_terrace,has_balcony,has_garage,has_storage,has_pool,orientation,year_built,energy_rating,condition,features,notes,updated_at,estate_listings(id,asking_price,portal,url,description,agency_name,seller_type,first_seen_at,last_seen_at,is_active),estate_market_estimates(id,estimate_type,value_low,value_mid,value_high,confidence,method,source_count,observed_at),estate_property_images(id,source_url,storage_path,room_type,condition_score,analysis,confidence,created_at,updated_at),estate_renovation_items(id,category,description,mode,pro_cost,diy_material_cost,hybrid_cost,diy_hours,difficulty,professional_required,estimated_rent_uplift_monthly,estimated_value_uplift,confidence,created_at,updated_at),estate_risks(id,category,severity,confidence,title,description,source,is_kill_switch,resolved_at,created_at,updated_at),estate_deal_analyses(score,verdict,inputs,outputs,data_confidence,created_at)")
     .eq("user_id", user.id)
     .order("updated_at", { ascending: false })
     .limit(150);
-
   throwIfError(error);
 
   const deals = (data ?? []) as unknown as SavedDeal[];
-  const paths = deals.flatMap((deal) =>
-    (deal.estate_property_images ?? [])
-      .map((image) => image.storage_path)
-      .filter((path): path is string => Boolean(path)),
-  );
-
+  const paths = deals.flatMap((deal) => (deal.estate_property_images ?? []).map((image) => image.storage_path).filter((path): path is string => Boolean(path)));
   const signedByPath = new Map<string, string>();
   if (paths.length) {
-    const uniquePaths = [...new Set(paths)];
-    const { data: signed } = await supabase.storage
-      .from("estate-property-images")
-      .createSignedUrls(uniquePaths, 60 * 60);
-    for (const item of signed ?? []) {
-      if (item.path && item.signedUrl) signedByPath.set(item.path, item.signedUrl);
-    }
+    const { data: signed } = await supabase.storage.from("estate-property-images").createSignedUrls([...new Set(paths)], 60 * 60);
+    for (const item of signed ?? []) if (item.path && item.signedUrl) signedByPath.set(item.path, item.signedUrl);
   }
 
   return deals.map((deal) => ({
     ...deal,
     features: deal.features ?? {},
-    estate_deal_analyses: (deal.estate_deal_analyses ?? [])
-      .slice()
-      .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)),
-    estate_market_estimates: (deal.estate_market_estimates ?? [])
-      .slice()
-      .sort((a, b) => Date.parse(b.observed_at) - Date.parse(a.observed_at)),
+    estate_listings: (deal.estate_listings ?? []).slice().sort((a, b) => Date.parse(b.last_seen_at) - Date.parse(a.last_seen_at)),
+    estate_deal_analyses: (deal.estate_deal_analyses ?? []).slice().sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)),
+    estate_market_estimates: (deal.estate_market_estimates ?? []).slice().sort((a, b) => Date.parse(b.observed_at) - Date.parse(a.observed_at)),
     estate_property_images: (deal.estate_property_images ?? []).map((image) => ({
       ...image,
       preview_url: image.storage_path ? signedByPath.get(image.storage_path) ?? null : image.source_url,
@@ -490,19 +528,14 @@ export async function loadSavedDeals(user: User): Promise<SavedDeal[]> {
 }
 
 export async function updateDealStage(user: User, propertyId: string, stage: EstateStage) {
-  const { error } = await supabase
-    .from("estate_properties")
-    .update({ stage })
-    .eq("id", propertyId)
-    .eq("user_id", user.id);
+  const { error } = await supabase.from("estate_properties").update({ stage }).eq("id", propertyId).eq("user_id", user.id);
   throwIfError(error);
-
   const { error: auditError } = await supabase.from("estate_audit_events").insert({
     user_id: user.id,
     property_id: propertyId,
     event_type: "stage_changed",
     entity_type: "property",
-    source: "estate_web_v1_2",
+    source: "estate_web_v1_3",
     payload: { stage },
   });
   throwIfError(auditError);
@@ -533,29 +566,54 @@ export async function updatePropertyWorkspace(
     notes: string | null;
   }>,
 ) {
-  const { error } = await supabase
-    .from("estate_properties")
-    .update(patch)
-    .eq("id", propertyId)
-    .eq("user_id", user.id);
+  const { error } = await supabase.from("estate_properties").update(patch).eq("id", propertyId).eq("user_id", user.id);
   throwIfError(error);
 }
+
+type VisionAnalysis = {
+  room_type?: string;
+  condition_score?: number;
+  confidence?: number;
+  summary?: string;
+  positives?: string[];
+  issues?: unknown[];
+  renovation_signals?: unknown[];
+  manual_checks?: string[];
+};
 
 export async function uploadPropertyImage(user: User, propertyId: string, file: File) {
   const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]+/g, "-").slice(-80);
   const path = `${user.id}/${propertyId}/${crypto.randomUUID()}-${safeName || "photo.jpg"}`;
-  const { error: uploadError } = await supabase.storage
-    .from("estate-property-images")
-    .upload(path, file, { cacheControl: "3600", upsert: false });
+  const { error: uploadError } = await supabase.storage.from("estate-property-images").upload(path, file, { cacheControl: "3600", upsert: false });
   throwIfError(uploadError);
+
+  let vision: VisionAnalysis | null = null;
+  try {
+    const token = await bearerToken();
+    const { data: signed } = await supabase.storage.from("estate-property-images").createSignedUrl(path, 10 * 60);
+    if (token && signed?.signedUrl) {
+      const response = await fetch("/api/vision", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ imageUrl: signed.signedUrl }),
+      });
+      if (response.ok) {
+        const payload = (await response.json()) as { analysis?: VisionAnalysis };
+        vision = payload.analysis ?? null;
+      }
+    }
+  } catch {
+    vision = null;
+  }
 
   const { error: rowError } = await supabase.from("estate_property_images").insert({
     user_id: user.id,
     property_id: propertyId,
     storage_path: path,
-    room_type: "unknown",
-    analysis: { source: "manual_upload", status: "pending_review" },
-    confidence: 1,
+    room_type: vision?.room_type ?? "unknown",
+    condition_score: typeof vision?.condition_score === "number" ? vision.condition_score : null,
+    analysis: vision ? { source: "openai_vision", status: "ai_reviewed", ...vision } : { source: "manual_upload", status: "pending_review" },
+    confidence: typeof vision?.confidence === "number" ? vision.confidence : 0.5,
   });
 
   if (rowError) {
@@ -564,39 +622,46 @@ export async function uploadPropertyImage(user: User, propertyId: string, file: 
   }
 }
 
-export async function updatePropertyImageAssessment(
-  user: User,
-  imageId: string,
-  patch: Partial<Pick<PropertyImage, "room_type" | "condition_score" | "analysis" | "confidence">>,
-) {
-  const { error } = await supabase
-    .from("estate_property_images")
-    .update(patch)
-    .eq("id", imageId)
-    .eq("user_id", user.id);
+export async function analyzeStoredPropertyImage(user: User, image: PropertyImage) {
+  const token = await bearerToken();
+  if (!token) throw new Error("Sesión requerida.");
+  let imageUrl = image.preview_url ?? image.source_url;
+  if (!imageUrl && image.storage_path) {
+    const { data } = await supabase.storage.from("estate-property-images").createSignedUrl(image.storage_path, 10 * 60);
+    imageUrl = data?.signedUrl ?? null;
+  }
+  if (!imageUrl) throw new Error("La imagen no está disponible para análisis.");
+  const response = await fetch("/api/vision", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ imageUrl }),
+  });
+  const payload = (await response.json()) as { analysis?: VisionAnalysis; error?: string };
+  if (!response.ok || !payload.analysis) throw new Error(payload.error || "No se pudo analizar la imagen.");
+  const analysis = payload.analysis;
+  await updatePropertyImageAssessment(user, image.id, {
+    room_type: analysis.room_type ?? image.room_type,
+    condition_score: typeof analysis.condition_score === "number" ? analysis.condition_score : image.condition_score,
+    analysis: { source: "openai_vision", status: "ai_reviewed", ...analysis },
+    confidence: typeof analysis.confidence === "number" ? analysis.confidence : image.confidence,
+  });
+}
+
+export async function updatePropertyImageAssessment(user: User, imageId: string, patch: Partial<Pick<PropertyImage, "room_type" | "condition_score" | "analysis" | "confidence">>) {
+  const { error } = await supabase.from("estate_property_images").update(patch).eq("id", imageId).eq("user_id", user.id);
   throwIfError(error);
 }
 
 export async function deletePropertyImage(user: User, image: PropertyImage) {
   if (image.storage_path) {
-    const { error: storageError } = await supabase.storage
-      .from("estate-property-images")
-      .remove([image.storage_path]);
+    const { error: storageError } = await supabase.storage.from("estate-property-images").remove([image.storage_path]);
     throwIfError(storageError);
   }
-  const { error } = await supabase
-    .from("estate_property_images")
-    .delete()
-    .eq("id", image.id)
-    .eq("user_id", user.id);
+  const { error } = await supabase.from("estate_property_images").delete().eq("id", image.id).eq("user_id", user.id);
   throwIfError(error);
 }
 
-export async function saveRenovationItem(
-  user: User,
-  propertyId: string,
-  item: Partial<RenovationItem> & Pick<RenovationItem, "category">,
-) {
+export async function saveRenovationItem(user: User, propertyId: string, item: Partial<RenovationItem> & Pick<RenovationItem, "category">) {
   const payload = {
     user_id: user.id,
     property_id: propertyId,
@@ -613,13 +678,8 @@ export async function saveRenovationItem(
     estimated_value_uplift: item.estimated_value_uplift ?? 0,
     confidence: item.confidence ?? 0.5,
   };
-
   if (item.id) {
-    const { error } = await supabase
-      .from("estate_renovation_items")
-      .update(payload)
-      .eq("id", item.id)
-      .eq("user_id", user.id);
+    const { error } = await supabase.from("estate_renovation_items").update(payload).eq("id", item.id).eq("user_id", user.id);
     throwIfError(error);
   } else {
     const { error } = await supabase.from("estate_renovation_items").insert(payload);
@@ -628,19 +688,11 @@ export async function saveRenovationItem(
 }
 
 export async function deleteRenovationItem(user: User, itemId: string) {
-  const { error } = await supabase
-    .from("estate_renovation_items")
-    .delete()
-    .eq("id", itemId)
-    .eq("user_id", user.id);
+  const { error } = await supabase.from("estate_renovation_items").delete().eq("id", itemId).eq("user_id", user.id);
   throwIfError(error);
 }
 
-export async function saveRisk(
-  user: User,
-  propertyId: string,
-  risk: Partial<EstateRisk> & Pick<EstateRisk, "title" | "category">,
-) {
+export async function saveRisk(user: User, propertyId: string, risk: Partial<EstateRisk> & Pick<EstateRisk, "title" | "category">) {
   const payload = {
     user_id: user.id,
     property_id: propertyId,
@@ -653,13 +705,8 @@ export async function saveRisk(
     is_kill_switch: risk.is_kill_switch ?? false,
     resolved_at: risk.resolved_at ?? null,
   };
-
   if (risk.id) {
-    const { error } = await supabase
-      .from("estate_risks")
-      .update(payload)
-      .eq("id", risk.id)
-      .eq("user_id", user.id);
+    const { error } = await supabase.from("estate_risks").update(payload).eq("id", risk.id).eq("user_id", user.id);
     throwIfError(error);
   } else {
     const { error } = await supabase.from("estate_risks").insert(payload);
@@ -668,10 +715,6 @@ export async function saveRisk(
 }
 
 export async function setRiskResolved(user: User, riskId: string, resolved: boolean) {
-  const { error } = await supabase
-    .from("estate_risks")
-    .update({ resolved_at: resolved ? new Date().toISOString() : null })
-    .eq("id", riskId)
-    .eq("user_id", user.id);
+  const { error } = await supabase.from("estate_risks").update({ resolved_at: resolved ? new Date().toISOString() : null }).eq("id", riskId).eq("user_id", user.id);
   throwIfError(error);
 }
