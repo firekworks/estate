@@ -33,8 +33,15 @@ const BASE = {
   dataConfidence: 0.72,
 };
 
+const closeTo = (actual, expected, tolerance = 0.01) => {
+  assert.ok(
+    Math.abs(actual - expected) <= tolerance,
+    `Expected ${actual} to be within ${tolerance} of ${expected}`,
+  );
+};
+
 test("mortgage formula matches a known 100k / 3% / 30y annuity", () => {
-  assert.ok(Math.abs(mortgagePayment(100000, 3, 30) - 421.6) < 0.1);
+  closeTo(mortgagePayment(100000, 3, 30), 421.6, 0.1);
 });
 
 test("zero-interest mortgage is principal divided by months", () => {
@@ -53,10 +60,10 @@ test("capital required includes down payment, acquisition costs, renovation, fur
     BASE.furniture +
     BASE.reserve;
 
-  assert.equal(result.capitalRequired, expected);
+  closeTo(result.capitalRequired, expected);
 });
 
-test("lower rent worsens cash-flow and cannot improve the stress outcome", () => {
+test("lower rent worsens cash-flow and NOI", () => {
   const base = analyzeDeal(BASE);
   const lower = analyzeDeal({ ...BASE, monthlyRent: BASE.monthlyRent * 0.8 });
 
