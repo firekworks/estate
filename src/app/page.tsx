@@ -72,6 +72,37 @@ const DEFAULT_DRAFT: PropertyDraft = {
   condition: "light_renovation",
 };
 
+const NEW_INPUTS: DealInputs = {
+  ...DEFAULT_INPUTS,
+  purchasePrice: 0,
+  marketValueEstimate: 0,
+  monthlyRent: 0,
+  builtAreaM2: 0,
+  renovation: 0,
+  furniture: 0,
+  communityMonthly: 0,
+  ibiAnnual: 0,
+  insuranceAnnual: 0,
+  maintenanceMonthly: 0,
+  daysOnMarket: 0,
+  priceDrops: 0,
+  dataConfidence: 0.5,
+};
+
+const NEW_DRAFT: PropertyDraft = {
+  title: "Nueva operación",
+  municipality: "",
+  province: "Alicante",
+  address: "",
+  listingUrl: "",
+  portal: "manual",
+  bedrooms: undefined,
+  bathrooms: undefined,
+  floorLabel: "",
+  hasElevator: undefined,
+  condition: "unknown",
+};
+
 export default function EstatePage() {
   const [view, setView] = useState<View>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -143,17 +174,11 @@ export default function EstatePage() {
   }
 
   function startNewDeal() {
-    setDraft({
-      ...DEFAULT_DRAFT,
-      title: "Nueva operación",
-      municipality: "",
-      address: "",
-      listingUrl: "",
-      portal: "manual",
-    });
-    setInputs(DEFAULT_INPUTS);
+    setDraft(NEW_DRAFT);
+    setInputs(NEW_INPUTS);
     setImportUrl("");
     setImportMessage("");
+    setStatusMessage("");
     setAnalyzerStep(0);
     setView("analyze");
   }
@@ -190,6 +215,18 @@ export default function EstatePage() {
   }
 
   async function handleSave() {
+    if (!draft.municipality.trim() || inputs.builtAreaM2 <= 0) {
+      setAnalyzerStep(0);
+      setView("analyze");
+      setStatusMessage("Completa municipio y superficie");
+      return;
+    }
+    if (inputs.purchasePrice <= 0 || inputs.monthlyRent <= 0) {
+      setAnalyzerStep(1);
+      setView("analyze");
+      setStatusMessage("Completa precio y alquiler");
+      return;
+    }
     if (!user) {
       setAuthOpen(true);
       return;
@@ -229,6 +266,7 @@ export default function EstatePage() {
     });
     setImportUrl(listing?.url ?? "");
     setImportMessage("");
+    setStatusMessage("");
     setAnalyzerStep(0);
     setView("analyze");
   }
