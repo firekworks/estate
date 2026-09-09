@@ -5,9 +5,12 @@
   "description": "Firekworks Estate — Real Estate Intelligence OS",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint ."
+    "test": "node --test tests/*.test.mjs",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run test && npm run lint && npm run typecheck",
+    "build": "npm run verify && next build",
+    "start": "next start"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.115.0",
