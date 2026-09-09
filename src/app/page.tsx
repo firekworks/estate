@@ -3,6 +3,7 @@
 import type { User } from "@supabase/supabase-js";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Loader2, LockKeyhole, LogIn, X } from "lucide-react";
 import { analyzeDeal, type DealInputs } from "@/lib/estate-engine";
 import {
   loadSavedDeals,
@@ -13,37 +14,31 @@ import {
   type SavedDeal,
 } from "@/lib/estate-store";
 import { supabase } from "@/lib/supabase";
-import {
-  AppSidebar,
-  AuthModal,
-  DashboardView,
-  AnalyzerView,
-  OperationsView,
-  FinderView,
-  MarketView,
-  RenovationView,
-  PortfolioView,
-  Topbar,
-  type View,
-} from "@/components/estate-ui";
+import { EstateSidebar, EstateTopbar, type View } from "@/components/estate-shell";
+import { HomeView } from "@/components/estate-home";
+import { ExploreView, MarketView } from "@/components/estate-discovery";
+import { OpportunitiesView } from "@/components/estate-opportunities";
+import { PortfolioView } from "@/components/estate-portfolio";
+import { AnalyzerView } from "@/components/estate-analyzer";
+import { PropertyWorkspace } from "@/components/estate-property";
 
-const DEFAULT_INPUTS: DealInputs = {
-  purchasePrice: 72000,
-  marketValueEstimate: 68500,
-  monthlyRent: 680,
-  builtAreaM2: 78,
+const BASE_INPUTS: DealInputs = {
+  purchasePrice: 0,
+  marketValueEstimate: 0,
+  monthlyRent: 0,
+  builtAreaM2: 0,
   purchaseTaxPct: 10,
   ltvPct: 80,
   interestPct: 3.25,
   termYears: 30,
   notaryRegistry: 1100,
   appraisal: 350,
-  financingFees: 250,
-  renovation: 4200,
-  furniture: 1200,
+  financingFees: 0,
+  renovation: 0,
+  furniture: 0,
   reserve: 2500,
-  communityMonthly: 45,
-  ibiAnnual: 320,
+  communityMonthly: 0,
+  ibiAnnual: 0,
   insuranceAnnual: 240,
   maintenanceMonthly: 35,
   managementPct: 0,
@@ -53,44 +48,13 @@ const DEFAULT_INPUTS: DealInputs = {
   nextCapitalTarget: 20000,
   recoverableCapital: 0,
   targetNetYieldPct: 8,
-  daysOnMarket: 180,
-  priceDrops: 2,
-  dataConfidence: 0.72,
-};
-
-const DEFAULT_DRAFT: PropertyDraft = {
-  title: "Ejemplo · Villena",
-  municipality: "Villena",
-  province: "Alicante",
-  address: "",
-  listingUrl: "",
-  portal: "manual",
-  bedrooms: 3,
-  bathrooms: 1,
-  floorLabel: "1ª",
-  hasElevator: false,
-  condition: "light_renovation",
-};
-
-const NEW_INPUTS: DealInputs = {
-  ...DEFAULT_INPUTS,
-  purchasePrice: 0,
-  marketValueEstimate: 0,
-  monthlyRent: 0,
-  builtAreaM2: 0,
-  renovation: 0,
-  furniture: 0,
-  communityMonthly: 0,
-  ibiAnnual: 0,
-  insuranceAnnual: 0,
-  maintenanceMonthly: 0,
   daysOnMarket: 0,
   priceDrops: 0,
   dataConfidence: 0.5,
 };
 
-const NEW_DRAFT: PropertyDraft = {
-  title: "Nueva operación",
+const EMPTY_DRAFT: PropertyDraft = {
+  title: "",
   municipality: "",
   province: "Alicante",
   address: "",
@@ -101,13 +65,55 @@ const NEW_DRAFT: PropertyDraft = {
   floorLabel: "",
   hasElevator: undefined,
   condition: "unknown",
+  features: {
+    rentalStrategy: "long_term",
+    evidence: {},
+  },
 };
 
+function draftFromDeal(deal: SavedDeal): PropertyDraft {
+  const listing = deal.estate_listings?.[0];
+  return {
+    title: deal.title,
+    municipality: deal.municipality ?? "",
+    province: deal.province ?? "Alicante",
+    address: deal.address ?? "",
+    listingUrl: listing?.url ?? "",
+    portal: listing?.portal ?? "manual",
+    bedrooms: deal.bedrooms ?? undefined,
+    bathrooms: deal.bathrooms ?? undefined,
+    floorLabel: deal.floor_label ?? "",
+    builtAreaM2: deal.built_area_m2 ?? undefined,
+    usableAreaM2: deal.usable_area_m2 ?? undefined,
+    hasElevator: deal.has_elevator ?? undefined,
+    hasTerrace: deal.has_terrace ?? undefined,
+    hasBalcony: deal.has_balcony ?? undefined,
+    hasGarage: deal.has_garage ?? undefined,
+    hasStorage: deal.has_storage ?? undefined,
+    hasPool: deal.has_pool ?? undefined,
+    orientation: deal.orientation ?? undefined,
+    yearBuilt: deal.year_built ?? undefined,
+    energyRating: deal.energy_rating ?? undefined,
+    latitude: deal.latitude ?? undefined,
+    longitude: deal.longitude ?? undefined,
+    features: deal.features ?? {},
+    notes: deal.notes ?? undefined,
+    condition: deal.condition ?? "unknown",
+  };
+}
+
+function inputFromDeal(deal: SavedDeal): DealInputs {
+  const input = deal.estate_deal_analyses?.[0]?.inputs;
+  return input ? { ...BASE_INPUTS, ...input } : { ...BASE_INPUTS, builtAreaM2: deal.built_area_m2 ?? 0 };
+}
+
+const STAGE_ORDER: EstateStage[] = ["watchlist", "analyzing", "visit", "negotiating", "purchased", "managed", "sold"];
+
 export default function EstatePage() {
-  const [view, setView] = useState<View>("dashboard");
+  const [view, setView] = useState<View>("home");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [inputs, setInputs] = useState<DealInputs>(DEFAULT_INPUTS);
-  const [draft, setDraft] = useState<PropertyDraft>(DEFAULT_DRAFT);
+  const [inputs, setInputs] = useState<DealInputs>(BASE_INPUTS);
+  const [draft, setDraft] = useState<PropertyDraft>(EMPTY_DRAFT);
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
@@ -123,18 +129,21 @@ export default function EstatePage() {
   const [importBusy, setImportBusy] = useState(false);
   const [importMessage, setImportMessage] = useState("");
   const [analyzerStep, setAnalyzerStep] = useState(0);
+  const [editingPropertyId, setEditingPropertyId] = useState<string | null>(null);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
 
   const analysis = useMemo(() => analyzeDeal(inputs), [inputs]);
+  const selectedDeal = useMemo(
+    () => savedDeals.find((deal) => deal.id === selectedPropertyId) ?? null,
+    [savedDeals, selectedPropertyId],
+  );
 
   const refreshDeals = useCallback(async (activeUser: User) => {
     setLoadingDeals(true);
     try {
-      const deals = await loadSavedDeals(activeUser);
-      setSavedDeals(deals);
+      setSavedDeals(await loadSavedDeals(activeUser));
     } catch (error) {
-      setStatusMessage(
-        error instanceof Error ? error.message : "No se pudieron cargar las operaciones.",
-      );
+      setStatusMessage(error instanceof Error ? error.message : "No se pudieron cargar las operaciones.");
     } finally {
       setLoadingDeals(false);
     }
@@ -142,7 +151,6 @@ export default function EstatePage() {
 
   useEffect(() => {
     let active = true;
-
     void supabase.auth.getUser().then(({ data }) => {
       if (!active) return;
       const nextUser = data.user ?? null;
@@ -156,11 +164,8 @@ export default function EstatePage() {
       const nextUser = session?.user ?? null;
       setUser(nextUser);
       setAuthReady(true);
-      if (nextUser) {
-        void refreshDeals(nextUser);
-      } else {
-        setSavedDeals([]);
-      }
+      if (nextUser) void refreshDeals(nextUser);
+      else setSavedDeals([]);
     });
 
     return () => {
@@ -173,14 +178,36 @@ export default function EstatePage() {
     setInputs((current) => ({ ...current, [key]: value }));
   }
 
+  function selectView(next: View) {
+    setView(next);
+    setSidebarOpen(false);
+  }
+
   function startNewDeal() {
-    setDraft(NEW_DRAFT);
-    setInputs(NEW_INPUTS);
+    setEditingPropertyId(null);
+    setSelectedPropertyId(null);
+    setDraft({ ...EMPTY_DRAFT, features: { ...EMPTY_DRAFT.features } });
+    setInputs({ ...BASE_INPUTS });
     setImportUrl("");
     setImportMessage("");
-    setStatusMessage("");
     setAnalyzerStep(0);
-    setView("analyze");
+    selectView("analyze");
+  }
+
+  function openProperty(deal: SavedDeal) {
+    setSelectedPropertyId(deal.id);
+    selectView("property");
+  }
+
+  function reanalyzeProperty(deal: SavedDeal) {
+    setEditingPropertyId(deal.id);
+    setSelectedPropertyId(deal.id);
+    setDraft(draftFromDeal(deal));
+    setInputs(inputFromDeal(deal));
+    setImportUrl(deal.estate_listings?.[0]?.url ?? "");
+    setImportMessage("");
+    setAnalyzerStep(0);
+    selectView("analyze");
   }
 
   async function handleImport() {
@@ -193,20 +220,10 @@ export default function EstatePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: importUrl }),
       });
-      const data = (await response.json()) as {
-        error?: string;
-        url?: string;
-        portal?: string;
-        extraction?: { reason?: string };
-      };
+      const data = (await response.json()) as { error?: string; url?: string; portal?: string; extraction?: { reason?: string } };
       if (!response.ok) throw new Error(data.error || "No se pudo leer la URL.");
-
-      setDraft((current) => ({
-        ...current,
-        listingUrl: data.url ?? importUrl,
-        portal: data.portal ?? "other",
-      }));
-      setImportMessage(`${(data.portal ?? "fuente").toUpperCase()} · fuente identificada`);
+      setDraft((current) => ({ ...current, listingUrl: data.url ?? importUrl, portal: data.portal ?? "other", features: { ...(current.features ?? {}), source: data.portal ?? "other" } }));
+      setImportMessage(`${(data.portal ?? "fuente").toUpperCase()} identificada · ${data.extraction?.reason ?? "completa los datos verificables"}`);
     } catch (error) {
       setImportMessage(error instanceof Error ? error.message : "No se pudo procesar la URL.");
     } finally {
@@ -215,18 +232,6 @@ export default function EstatePage() {
   }
 
   async function handleSave() {
-    if (!draft.municipality.trim() || inputs.builtAreaM2 <= 0) {
-      setAnalyzerStep(0);
-      setView("analyze");
-      setStatusMessage("Completa municipio y superficie");
-      return;
-    }
-    if (inputs.purchasePrice <= 0 || inputs.monthlyRent <= 0) {
-      setAnalyzerStep(1);
-      setView("analyze");
-      setStatusMessage("Completa precio y alquiler");
-      return;
-    }
     if (!user) {
       setAuthOpen(true);
       return;
@@ -234,10 +239,12 @@ export default function EstatePage() {
     setSaving(true);
     setStatusMessage("");
     try {
-      await saveDeal(user, draft, inputs, analysis);
-      setStatusMessage("Operación guardada");
+      const propertyId = await saveDeal(user, draft, inputs, analysis, editingPropertyId);
       await refreshDeals(user);
-      setView("watchlist");
+      setSelectedPropertyId(propertyId);
+      setEditingPropertyId(null);
+      setStatusMessage(editingPropertyId ? "Nueva versión guardada sobre la misma propiedad." : "Workspace creado. Ya puedes validar zona, fotos, reforma y riesgos.");
+      selectView("property");
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : "No se pudo guardar la operación.");
     } finally {
@@ -245,42 +252,25 @@ export default function EstatePage() {
     }
   }
 
-  function openSavedDeal(deal: SavedDeal) {
-    const record = deal.estate_deal_analyses?.[0];
-    if (record?.inputs) {
-      setInputs(record.inputs as DealInputs);
-    }
-    const listing = deal.estate_listings?.[0];
-    setDraft({
-      title: deal.title,
-      municipality: deal.municipality ?? "",
-      province: deal.province ?? "Alicante",
-      address: deal.address ?? "",
-      listingUrl: listing?.url ?? "",
-      portal: listing?.portal ?? "manual",
-      bedrooms: deal.bedrooms ?? undefined,
-      bathrooms: deal.bathrooms ?? undefined,
-      floorLabel: deal.floor_label ?? "",
-      hasElevator: deal.has_elevator ?? undefined,
-      condition: deal.condition ?? "unknown",
-    });
-    setImportUrl(listing?.url ?? "");
-    setImportMessage("");
-    setStatusMessage("");
-    setAnalyzerStep(0);
-    setView("analyze");
-  }
-
   async function changeDealStage(deal: SavedDeal, stage: EstateStage) {
     if (!user || deal.stage === stage) return;
+    const blockers = (deal.estate_risks ?? []).filter((risk) => risk.is_kill_switch && !risk.resolved_at);
+    const from = STAGE_ORDER.indexOf(deal.stage);
+    const to = STAGE_ORDER.indexOf(stage);
+    if (blockers.length && to > from && stage !== "discarded") {
+      setStatusMessage(`No se puede avanzar: ${blockers.length} riesgo${blockers.length > 1 ? "s" : ""} bloqueante${blockers.length > 1 ? "s" : ""} abierto${blockers.length > 1 ? "s" : ""}.`);
+      return;
+    }
     try {
       await updateDealStage(user, deal.id, stage);
-      setSavedDeals((current) =>
-        current.map((item) => (item.id === deal.id ? { ...item, stage } : item)),
-      );
+      await refreshDeals(user);
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : "No se pudo cambiar el estado.");
+      setStatusMessage(error instanceof Error ? error.message : "No se pudo cambiar la etapa.");
     }
+  }
+
+  async function refreshCurrentWorkspace() {
+    if (user) await refreshDeals(user);
   }
 
   async function handleSignIn(event: FormEvent) {
@@ -288,10 +278,7 @@ export default function EstatePage() {
     setAuthBusy(true);
     setAuthMessage("");
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: authEmail.trim(),
-        password: authPassword,
-      });
+      const { error } = await supabase.auth.signInWithPassword({ email: authEmail.trim(), password: authPassword });
       if (error) throw error;
       setAuthOpen(false);
       setAuthPassword("");
@@ -306,12 +293,9 @@ export default function EstatePage() {
     setAuthBusy(true);
     setAuthMessage("");
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email: authEmail.trim(),
-        password: authPassword,
-      });
+      const { data, error } = await supabase.auth.signUp({ email: authEmail.trim(), password: authPassword });
       if (error) throw error;
-      setAuthMessage(data.session ? "Cuenta lista" : "Revisa tu correo para confirmar");
+      setAuthMessage(data.session ? "Cuenta lista." : "Revisa tu correo para confirmar la cuenta.");
     } catch (error) {
       setAuthMessage(error instanceof Error ? error.message : "No se pudo crear la cuenta.");
     } finally {
@@ -322,130 +306,50 @@ export default function EstatePage() {
   async function handleSignOut() {
     await supabase.auth.signOut();
     setSavedDeals([]);
-    setStatusMessage("");
-  }
-
-  function selectView(next: View) {
-    setView(next);
-    setSidebarOpen(false);
+    setSelectedPropertyId(null);
+    setEditingPropertyId(null);
+    selectView("home");
   }
 
   return (
     <div className="estate-shell">
-      <AppSidebar
-        view={view}
-        open={sidebarOpen}
-        savedCount={savedDeals.length}
-        onSelect={selectView}
-        onClose={() => setSidebarOpen(false)}
-      />
-
+      <EstateSidebar view={view} open={sidebarOpen} dealCount={savedDeals.length} onSelect={selectView} onClose={() => setSidebarOpen(false)} />
       <div className="main-area">
-        <Topbar
-          view={view}
-          authReady={authReady}
-          signedIn={Boolean(user)}
-          onMenu={() => setSidebarOpen(true)}
-          onLogin={() => setAuthOpen(true)}
-          onLogout={handleSignOut}
-          onNew={startNewDeal}
-        />
-
+        <EstateTopbar view={view} propertyTitle={selectedDeal?.title} authReady={authReady} signedIn={Boolean(user)} onMenu={() => setSidebarOpen(true)} onLogin={() => setAuthOpen(true)} onLogout={handleSignOut} onNew={startNewDeal} />
         <main className="content">
-          {statusMessage && (
-            <button className="toast" onClick={() => setStatusMessage("")}>
-              <span className="status-dot" />
-              {statusMessage}
-            </button>
-          )}
+          {statusMessage && <button className="toast" onClick={() => setStatusMessage("")}><span className="status-dot" />{statusMessage}<X size={13} /></button>}
+          {loadingDeals && user && savedDeals.length === 0 ? <div className="global-loading"><Loader2 size={18} className="spin" /> Cargando Estate…</div> : null}
 
-          {view === "dashboard" && (
-            <DashboardView
-              analysis={analysis}
-              inputs={inputs}
-              draft={draft}
-              deals={savedDeals}
-              loading={loadingDeals}
-              onAnalyze={() => selectView("analyze")}
-              onOperations={() => selectView("watchlist")}
-              onOpenDeal={openSavedDeal}
-            />
-          )}
-
-          {view === "analyze" && (
-            <AnalyzerView
-              draft={draft}
-              setDraft={setDraft}
-              inputs={inputs}
-              updateInput={updateInput}
-              analysis={analysis}
-              importUrl={importUrl}
-              setImportUrl={setImportUrl}
-              importBusy={importBusy}
-              importMessage={importMessage}
-              onImport={handleImport}
-              onSave={handleSave}
-              saving={saving}
-              signedIn={Boolean(user)}
-              step={analyzerStep}
-              setStep={setAnalyzerStep}
-            />
-          )}
-
-          {view === "watchlist" && (
-            <OperationsView
-              user={user}
-              deals={savedDeals}
-              loading={loadingDeals}
-              onLogin={() => setAuthOpen(true)}
-              onNew={startNewDeal}
-              onOpen={openSavedDeal}
-              onStageChange={changeDealStage}
-            />
-          )}
-
-          {view === "finder" && (
-            <FinderView deals={savedDeals} onOpen={openSavedDeal} onAnalyze={startNewDeal} />
-          )}
-
-          {view === "market" && (
-            <MarketView deals={savedDeals} onAnalyze={startNewDeal} />
-          )}
-
-          {view === "renovation" && (
-            <RenovationView
-              inputs={inputs}
-              updateInput={updateInput}
-              analysis={analysis}
-            />
-          )}
-
-          {view === "portfolio" && (
-            <PortfolioView deals={savedDeals} onOperations={() => selectView("watchlist")} />
-          )}
+          {view === "home" && <HomeView deals={savedDeals} onNew={startNewDeal} onExplore={() => selectView("explore")} onOpen={openProperty} onOpportunities={() => selectView("opportunities")} />}
+          {view === "explore" && <ExploreView deals={savedDeals} onNew={startNewDeal} onOpen={openProperty} />}
+          {view === "market" && <MarketView deals={savedDeals} onNew={startNewDeal} onOpen={openProperty} />}
+          {view === "opportunities" && <OpportunitiesView deals={savedDeals} onNew={startNewDeal} onOpen={openProperty} onStageChange={changeDealStage} />}
+          {view === "portfolio" && <PortfolioView deals={savedDeals} onOpen={openProperty} onOpportunities={() => selectView("opportunities")} />}
+          {view === "analyze" && <AnalyzerView draft={draft} setDraft={setDraft} inputs={inputs} updateInput={updateInput} analysis={analysis} importUrl={importUrl} setImportUrl={setImportUrl} importBusy={importBusy} importMessage={importMessage} onImport={handleImport} onSave={handleSave} saving={saving} signedIn={Boolean(user)} step={analyzerStep} setStep={setAnalyzerStep} editing={Boolean(editingPropertyId)} />}
+          {view === "property" && selectedDeal && user && <PropertyWorkspace user={user} deal={selectedDeal} onBack={() => selectView("opportunities")} onReanalyze={() => reanalyzeProperty(selectedDeal)} onStageChange={(stage) => changeDealStage(selectedDeal, stage)} onRefresh={refreshCurrentWorkspace} />}
+          {view === "property" && !selectedDeal && <div className="global-loading">La propiedad ya no está disponible. <button className="text-link button-link" onClick={() => selectView("opportunities")}>Volver</button></div>}
         </main>
       </div>
 
-      {sidebarOpen && (
-        <button
-          className="sidebar-backdrop"
-          aria-label="Cerrar menú"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+      {sidebarOpen && <button className="sidebar-backdrop" aria-label="Cerrar menú" onClick={() => setSidebarOpen(false)} />}
 
       {authOpen && (
-        <AuthModal
-          email={authEmail}
-          password={authPassword}
-          busy={authBusy}
-          message={authMessage}
-          setEmail={setAuthEmail}
-          setPassword={setAuthPassword}
-          onClose={() => setAuthOpen(false)}
-          onSignIn={handleSignIn}
-          onSignUp={handleSignUp}
-        />
+        <div className="modal-backdrop" onMouseDown={() => setAuthOpen(false)}>
+          <div className="auth-modal" role="dialog" aria-modal="true" aria-label="Acceso a Estate" onMouseDown={(event) => event.stopPropagation()}>
+            <button className="icon-button modal-close" onClick={() => setAuthOpen(false)} aria-label="Cerrar"><X size={17} /></button>
+            <div className="modal-icon"><LockKeyhole size={20} /></div>
+            <span className="eyebrow">ESTATE ACCESS</span>
+            <h2>Tu dataset es privado.</h2>
+            <p>Inicia sesión para guardar propiedades, fotos, riesgos, versiones de análisis y el historial de decisiones.</p>
+            <form className="auth-form" onSubmit={handleSignIn}>
+              <label>Correo<input type="email" required value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} /></label>
+              <label>Contraseña<input type="password" required minLength={6} value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} /></label>
+              {authMessage && <div className="form-message">{authMessage}</div>}
+              <button className="primary-button full" type="submit" disabled={authBusy}>{authBusy ? <Loader2 size={14} className="spin" /> : <LogIn size={14} />} Entrar</button>
+              <button className="ghost-button full" type="button" disabled={authBusy} onClick={handleSignUp}>Crear cuenta interna</button>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );
