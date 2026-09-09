@@ -2,6 +2,16 @@ import type { User } from "@supabase/supabase-js";
 import type { DealAnalysis, DealInputs } from "@/lib/estate-engine";
 import { supabase } from "@/lib/supabase";
 
+export type EstateStage =
+  | "watchlist"
+  | "analyzing"
+  | "visit"
+  | "negotiating"
+  | "discarded"
+  | "purchased"
+  | "managed"
+  | "sold";
+
 export type PropertyDraft = {
   title: string;
   municipality: string;
@@ -13,7 +23,15 @@ export type PropertyDraft = {
   bathrooms?: number;
   floorLabel?: string;
   hasElevator?: boolean;
-  condition?: "new" | "renovated" | "good" | "dated" | "light_renovation" | "medium_renovation" | "full_renovation" | "unknown";
+  condition?:
+    | "new"
+    | "renovated"
+    | "good"
+    | "dated"
+    | "light_renovation"
+    | "medium_renovation"
+    | "full_renovation"
+    | "unknown";
 };
 
 export type SavedDeal = {
@@ -21,16 +39,25 @@ export type SavedDeal = {
   title: string;
   municipality: string | null;
   province: string | null;
-  stage: string;
+  address: string | null;
+  stage: EstateStage;
   built_area_m2: number | null;
   bedrooms: number | null;
   bathrooms: number | null;
+  floor_label: string | null;
+  has_elevator: boolean | null;
+  condition: PropertyDraft["condition"] | null;
   updated_at: string;
-  estate_listings?: Array<{ asking_price: number; portal: string; url: string | null }>;
+  estate_listings?: Array<{
+    asking_price: number;
+    portal: string;
+    url: string | null;
+  }>;
   estate_deal_analyses?: Array<{
     score: number | null;
     verdict: string | null;
-    outputs: Record<string, unknown>;
+    inputs: DealInputs;
+    outputs: DealAnalysis;
     created_at: string;
   }>;
 };
@@ -192,7 +219,11 @@ export async function saveDeal(
 
     return propertyId;
   } catch (error) {
-    await supabase.from("estate_properties").delete().eq("id", propertyId).eq("user_id", user.id);
+    await supabase
+      .from("estate_properties")
+      .delete()
+      .eq("id", propertyId)
+      .eq("user_id", user.id);
     throw error;
   }
 }
@@ -209,12 +240,42 @@ export async function loadSavedDeals(user: User): Promise<SavedDeal[]> {
   const { data, error } = await supabase
     .from("estate_properties")
     .select(
-      "id,title,municipality,province,stage,built_area_m2,bedrooms,bathrooms,updated_at,estate_listings(asking_price,portal,url),estate_deal_analyses(score,verdict,outputs,created_at)",
+      "id,title,municipality,province,address,stage,built_area_m2,bedrooms,bathrooms,floor_label,has_elevator,condition,updated_at,estate_listings(asking_price,portal,url),estate_deal_analyses(score,verdict,inputs,outputs,created_at)",
     )
     .eq("user_id", user.id)
     .order("updated_at", { ascending: false })
-    .limit(50);
+    .limit(100);
 
   throwIfError(error);
-  return (data ?? []) as unknown as SavedDeal[];
+
+  const deals = (data ?? []) as unknown as SavedDeal[];
+  return deals.map((deal) => ({
+    ...deal,
+    estate_deal_analyses: (deal.estate_deal_analyses ?? [])
+      .slice()
+      .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)),
+  }));
+}
+
+export async function updateDealStage(
+  user: User,
+  propertyId: string,
+  stage: EstateStage,
+) {
+  const { error } = await supabase
+    .from("estate_properties")
+    .update({ stage })
+    .eq("id", propertyId)
+    .eq("user_id", user.id);
+  throwIfError(error);
+
+  const { error: auditError } = await supabase.from("estate_audit_events").insert({
+    user_id: user.id,
+    property_id: propertyId,
+    event_type: "stage_changed",
+    entity_type: "property",
+    source: "estate_web_v1",
+    payload: { stage },
+  });
+  throwIfError(auditError);
 }
