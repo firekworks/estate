@@ -2,6 +2,7 @@
   "name": "@firekworks/estate",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "Firekworks Estate — Real Estate Intelligence OS",
   "scripts": {
     "dev": "next dev",
