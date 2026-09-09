@@ -1451,11 +1451,12 @@ export function RenovationView({
     ...category,
     pct: (weights[category.key] / totalWeight) * 100,
   }));
-  let cursor = 0;
   const stops = normalized.map((category, index) => {
-    const from = cursor;
-    cursor += category.pct;
-    return `rgba(255,122,50,${0.98 - index * 0.14}) ${from}% ${cursor}%`;
+    const from = normalized
+      .slice(0, index)
+      .reduce((sum, item) => sum + item.pct, 0);
+    const to = from + category.pct;
+    return `rgba(255,122,50,${0.98 - index * 0.14}) ${from}% ${to}%`;
   }).join(", ");
 
   return (
