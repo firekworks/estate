@@ -1,286 +1,282 @@
 # Estate · Firekworks
 
-**Real Estate Intelligence OS** para analizar operaciones inmobiliarias de forma auditable, explicable y orientada a reducir errores.
+**Real Estate Intelligence OS** para descubrir, filtrar, analizar, validar, negociar y operar inversiones inmobiliarias con trazabilidad.
 
-Estate no es una inmobiliaria ni una calculadora que marque un inmueble como “chollo”. Su función es separar **hechos, estimaciones y supuestos**, cuantificar capital, rentabilidad y riesgo, y conservar el histórico para aprender con datos reales.
+Estate no intenta decir que un inmueble es un “chollo”. Separa **hechos, estimaciones y supuestos**, cuantifica capital/rentabilidad/riesgo, conserva versiones y obliga a reducir incertidumbre antes de avanzar una compra.
 
-## Estado actual
+## Estate v1.2
 
-V1 interna operativa sobre:
+Stack actual:
 
-- Next.js 16.3.4 / React 19.2.8.
-- Vercel para build y producción.
+- Next.js 16.3.4 / React 19.2.8 / TypeScript.
+- Vercel para CI de producción y despliegue.
 - Supabase/PostgreSQL compartido de Firekworks, aislado mediante tablas `estate_*`.
 - Supabase Auth + Row Level Security.
+- Supabase Storage privado para fotografías por usuario/propiedad.
 - Motor financiero determinista y versionado: `estate_financial_v1.0.0`.
 - Importador de URLs con detección de fuente y **sin scraping no autorizado**.
-- Dashboard, analizador, stress test, scoring explicable y watchlist persistente.
+- GitHub Actions: test + lint + typecheck + production build.
 
-## Principios de producto
+## Flujo de producto
 
-1. **No inventar datos.** Si una variable de mercado no está verificada, se reduce su confidence.
-2. **Explicar cada score.** Una puntuación debe mostrar sus componentes y por qué existen.
-3. **Intentar romper cada operación.** El stress test forma parte del análisis, no es un extra.
-4. **Trazabilidad.** Inputs, outputs, fuente, versión del motor y fecha se conservan.
-5. **Property != Listing.** El inmueble físico y cada anuncio son entidades distintas.
-6. **Legal first.** Estrategias no válidas deben poder bloquearse en fases posteriores mediante Legal Kill Switch.
-7. **Capital Velocity.** La velocidad a la que el capital vuelve a estar disponible es una métrica central.
-8. **Internal first.** Estate se valida primero con operaciones reales de Firekworks antes de plantearse como SaaS.
+Estate está diseñado alrededor del procedimiento real de inversión:
 
-## V1 implementada
+`Descubrir → Filtrar → Analizar → Validar → Visitar → Negociar → Comprar → Reformar → Alquilar → Medir`
 
-### Deal Analyzer
+La navegación principal evita mezclar fases distintas:
 
-Inputs actuales:
+### Inicio
 
-- precio de compra;
-- valor de mercado introducido;
-- alquiler mensual;
-- superficie;
-- impuesto de compra configurable;
-- LTV, interés y plazo;
-- costes de notaría/registro, tasación y financiación;
-- reforma, mobiliario y colchón;
-- comunidad, IBI, seguro, mantenimiento, gestión, vacancia y otros gastos;
-- ahorro mensual externo;
-- capital recuperable y objetivo de siguiente entrada;
-- rentabilidad neta objetivo;
-- días en mercado y bajadas de precio;
-- Data Confidence.
+Centro de decisión, no dashboard de métricas. Muestra:
 
-Resultados:
+- qué operación merece atención;
+- siguiente acción recomendada;
+- deuda de datos / cobertura;
+- señales críticas;
+- cola de decisiones;
+- estado resumido del capital y cartera.
 
-- préstamo y entrada;
-- cuota hipotecaria;
-- capital total requerido;
-- €/m²;
-- renta efectiva tras vacancia;
-- gastos operativos;
-- NOI;
-- cash-flow mensual neto;
-- rentabilidad bruta y neta;
+### Explorar
+
+Bandeja de oportunidades:
+
+- búsqueda;
+- filtros por precio, yield y score;
+- ordenación;
+- tarjetas comparables;
+- comparación simultánea de hasta tres oportunidades;
+- procedencia del dataset.
+
+**Explorar contiene ofertas. Mercado no.**
+
+### Mercado
+
+Contexto del mercado y calidad de la evidencia:
+
+- precio €/m² frente a yield;
+- medianas por municipio;
+- alquiler/m²;
+- días de mercado;
+- score mediano;
+- tamaño/calidad de muestra;
+- estado de fuentes.
+
+Una muestra pequeña se etiqueta como insuficiente/orientativa; no se presenta como “precio de mercado”.
+
+### Oportunidades
+
+Pipeline de adquisición:
+
+1. Radar — ¿merece tiempo?
+2. Análisis — ¿cuadran los datos?
+3. Visita — ¿la realidad confirma?
+4. Negociación — ¿a qué precio entra?
+5. Compra — ¿qué hay que ejecutar?
+6. Cartera — ¿rinde como se esperaba?
+
+Un **Legal/Risk Kill Switch** abierto impide avanzar automáticamente la operación.
+
+### Cartera
+
+Solo aparecen activos `purchased` o `managed`:
+
+- valor estimado;
+- deuda;
+- equity estimado;
+- cash-flow;
+- yield;
+- contribución de cada activo;
+- seguimiento previsto vs. real conforme se incorporen datos operativos.
+
+## Analizador
+
+El underwriting inicial se divide en seis pasos para evitar una pared de formularios:
+
+1. **Captura** — URL, nombre, ubicación y fuente.
+2. **Inmueble** — superficies, dormitorios, baños, planta, edificio e instalaciones.
+3. **Mercado** — precio, valor estimado, alquiler, confianza, días y estrategia de alquiler.
+4. **Compra** — impuestos, costes y financiación.
+5. **Operación** — comunidad, IBI, seguro, vacancia, mantenimiento y provisiones iniciales.
+6. **Decisión** — score, fortalezas, debilidades, stress tests y precio máximo.
+
+Los inputs recalculan el motor financiero en tiempo real.
+
+## Workspace por propiedad
+
+Después del underwriting, cada inmueble se convierte en un workspace propio. **Reforma ya no es un módulo global**.
+
+### Decisión
+
+- siguiente decisión;
+- precio pedido vs. máximo;
+- apertura orientativa;
+- Data Debt: evidencias pendientes;
+- stress test;
+- riesgos bloqueantes.
+
+### Inmueble
+
+- ficha física;
+- instalaciones eléctricas/fontanería/calefacción/agua/gas/internet;
+- comunidad y estado;
+- fotografías privadas;
+- etiquetado de estancia;
+- valoración manual de estado por imagen;
+- enlace geográfico por dirección.
+
+### Zona
+
+- movilidad;
+- servicios;
+- seguridad percibida;
+- demanda de alquiler;
+- liquidez de salida;
+- luz y ruido;
+- servicios cercanos;
+- notas/evidencias;
+- encaje con inquilino objetivo.
+
+Hasta disponer de proveedores geoespaciales, estos valores son evaluación manual trazable; Estate **no inventa distancias ni índices de seguridad**.
+
+### Rentabilidad
+
+- waterfall alquiler → vacancia → OPEX → NOI → hipoteca → cash-flow;
+- yield bruta/neta;
 - cash-on-cash;
 - cap rate;
 - DSCR;
-- máximo precio de compra según rentabilidad objetivo;
-- oferta inicial orientativa;
 - Capital Velocity;
-- Deal Score explicable;
-- Stress Status y Deal Verdict.
+- capital stack;
+- disciplina de precio.
 
-### Stress test V1
+### Reforma
 
-Se recalcula la operación con:
+Desglose específico del inmueble:
 
-- alquiler -10%;
-- alquiler -20%;
-- interés +2 puntos porcentuales;
-- reforma +30%.
+- partidas;
+- modo DIY / híbrido / PRO;
+- coste por partida;
+- profesional obligatorio;
+- uplift estimado de alquiler;
+- confianza de la estimación.
 
-`green` significa que los cuatro escenarios adversos mantienen cash-flow >= 0 y, cuando existe deuda, DSCR >= 1. `orange` significa que sobreviven al menos dos. `red` indica fragilidad y fuerza un veredicto conservador.
+La provisión inicial del underwriting no se confunde con un presupuesto real.
 
-## Fórmulas clave
+### Riesgos
 
-### Hipoteca
+- registro de riesgos;
+- severidad y confianza;
+- estado abierto/resuelto;
+- Legal Kill Switch;
+- due diligence mínima: titularidad, cargas, comunidad, edificio, electricidad, fontanería, ocupación, etc.
 
-Cuota francesa estándar:
+### Plan
 
-```text
-M = P * [r(1+r)^n] / [(1+r)^n - 1]
-```
+- timeline de ejecución;
+- estrategia de negociación;
+- precio pedido / apertura / máximo;
+- perfil de inquilino;
+- canales de captación;
+- salida a alquiler;
+- seguimiento posterior.
 
-Con `P` principal, `r` interés mensual y `n` meses. Si el interés es 0, se divide principal entre meses.
+## Modelo de datos
 
-### Capital requerido
+Regla estructural:
 
-```text
-entrada
-+ impuesto compra
-+ notaría/registro
-+ tasación
-+ costes financiación
-+ reforma
-+ mobiliario
-+ colchón
-= capital requerido
-```
+`PROPERTY ≠ LISTING ≠ ANALYSIS`
 
-### NOI mensual
+- `estate_properties`: activo físico.
+- `estate_listings`: anuncios/fuentes de comercialización.
+- `estate_listing_history`: snapshots del anuncio/precio.
+- `estate_deal_analyses`: versiones del underwriting.
+- `estate_market_estimates`: estimaciones de mercado con confianza/procedencia.
+- `estate_property_images`: fotos del inmueble.
+- `estate_renovation_items`: partidas de reforma por inmueble.
+- `estate_risks`: riesgos/due diligence.
+- `estate_financing_scenarios`: escenarios de financiación.
+- `estate_audit_events`: trazabilidad.
 
-```text
-renta efectiva tras vacancia
-- comunidad
-- IBI/12
-- seguro/12
-- mantenimiento
-- gestión
-- otros gastos
-= NOI mensual
-```
+Reanalizar una propiedad crea una **nueva versión** del análisis; no duplica el inmueble físico.
 
-### Cash-flow
+## Hecho · Estimación · Supuesto
 
-```text
-NOI mensual - cuota hipotecaria = cash-flow mensual neto
-```
+Estate trata la procedencia como parte del dato:
 
-### Rentabilidad neta V1
+- **Hecho**: dato observado/verificado.
+- **Estimación**: valor inferido a partir de evidencia disponible.
+- **Supuesto**: hipótesis necesaria para modelar el escenario.
 
-```text
-NOI anual / coste total del proyecto
-```
+La confianza del score depende de la calidad/cobertura de datos. Un dato desconocido permanece desconocido.
 
-El coste total de proyecto incluye compra, impuesto, costes fijos de adquisición, reforma y mobiliario. El colchón no se considera coste del activo.
+## Fotografías
 
-### Máximo precio de compra
+Bucket privado: `estate-property-images`.
 
-Dado un objetivo de rentabilidad neta:
+- límite: 10 MB por archivo;
+- JPEG / PNG / WebP / HEIC / HEIF;
+- rutas segregadas por `auth.uid()`;
+- políticas SELECT/INSERT/UPDATE/DELETE para el propietario;
+- URLs firmadas temporales para preview.
 
-```text
-Pmax = [(NOI anual / rentabilidad objetivo) - costes fijos no ligados al precio]
-       / (1 + tipo de impuesto de compra)
-```
+El Photo Desk ya permite guardar/revisar fotos. El **análisis visual automático** no se simula: requiere configurar un proveedor de visión antes de activar scoring automático de estado/reforma.
 
-Es una disciplina de precio, no una tasación oficial.
+## Datos externos
 
-### Capital Velocity V1
+La arquitectura está preparada para adaptadores de proveedores, pero una integración solo debe activarse cuando exista fuente/licencia/credenciales reales.
 
-```text
-capital pendiente para siguiente objetivo
-/
-(ahorro mensual externo + cash-flow mensual positivo)
-```
+Pendiente de proveedor externo:
 
-El modelo permite descontar capital recuperable. Refinanciación, amortización de principal y revalorización se incorporarán en una versión posterior.
+- inventario de portales en tiempo real;
+- comparables de venta/alquiler licenciados;
+- tiempos de transporte y POIs;
+- indicadores objetivos de seguridad;
+- demanda/absorción de alquiler;
+- análisis AI de fotografías;
+- valoración AVM profesional.
 
-## Deal Score V1
-
-No existe un score “mágico”. Se agregan componentes con `weight × confidence` y se renormalizan:
-
-- cash-flow;
-- rentabilidad neta;
-- DSCR;
-- Capital Velocity;
-- resistencia al stress;
-- calidad de datos;
-- negociación, solo si hay señales;
-- precio vs. valor, solo si existe valoración introducida.
-
-La UI muestra además **score coverage/confidence** para evitar una precisión falsa.
-
-## Base de datos
-
-Tablas V1:
-
-- `estate_investor_profiles`
-- `estate_properties`
-- `estate_listings`
-- `estate_listing_history`
-- `estate_property_images`
-- `estate_market_estimates`
-- `estate_financing_scenarios`
-- `estate_renovation_items`
-- `estate_deal_analyses`
-- `estate_risks`
-- `estate_audit_events`
-
-Todos los datos de Estate exigen sesión autenticada. `anon` no tiene privilegios sobre estas tablas y las políticas RLS filtran por `auth.uid() = user_id`.
-
-Las relaciones hijas usan además `property_id + user_id` o `listing_id + user_id` para impedir referencias cruzadas entre propietarios.
+Hasta entonces, Estate trabaja con datos propios/manuales y deja visible su nivel de confianza.
 
 ## Seguridad
 
-- En frontend solo se utiliza la **publishable key** de Supabase.
-- Nunca se expone `service_role`/secret key.
-- RLS permanece activado en todas las tablas Estate.
-- Las escrituras llevan `user_id` y son verificadas por Postgres.
-- Un fallo durante un guardado compuesto intenta eliminar la propiedad recién creada para evitar registros parciales.
-- El importador no descarga ni parsea páginas de portales inmobiliarios sin un conector permitido.
-- `robots` está configurado como `noindex,nofollow` mientras sea una herramienta interna.
+- tablas Estate con RLS;
+- Storage de fotos privado;
+- separación por `auth.uid()`;
+- auditoría de cambios de etapa/análisis;
+- timestamps `updated_at` mediante trigger en entidades editables;
+- no se almacenan service-role keys en cliente.
 
-## Variables de entorno
+El proyecto Supabase es compartido con otras herramientas de Firekworks; los advisories globales ajenos a `estate_*` deben corregirse en sus propios módulos y no mediante migraciones invasivas desde Estate.
 
-La aplicación acepta:
+## Calidad
 
-```bash
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
-```
-
-La URL y publishable key no son secretos y existe fallback al proyecto Firekworks actual. No añadir claves privadas al repositorio.
-
-## Desarrollo
+Antes de producción:
 
 ```bash
-npm install
-npm run dev
-npm run build
+npm run test
 npm run lint
+npm run typecheck
+npm run build
 ```
 
-## Endpoints
+El motor tiene tests deterministas sobre:
 
-- `GET /api/health`: estado de aplicación y versión del motor.
-- `POST /api/import`: valida URL, detecta proveedor conocido y devuelve la estrategia de extracción. No hace scraping.
+- cuota hipotecaria;
+- financiación al 0%;
+- capital requerido;
+- sensibilidad a alquiler;
+- precio máximo;
+- cobertura/confianza;
+- stress scenarios;
+- protección contra NaN/Infinity.
 
-## Roadmap
+## Principios de producto
 
-### V1.1 — completar núcleo interno
-
-- edición de operaciones guardadas;
-- estados watchlist/visitar/negociar/descartar;
-- reforma PRO/DIY/híbrida por partidas;
-- escenarios de financiación múltiples;
-- exportación PDF de análisis;
-- tests automatizados de fórmulas;
-- perfil de inversor persistente.
-
-### V2 — data intelligence
-
-- histórico de anuncios;
-- deduplicación Property/Listing;
-- comparables;
-- alquiler estimado con rango/confidence;
-- microzona;
-- Rental Demand Score;
-- Exit Liquidity Score;
-- Light/Noise/Environmental Risk;
-- IA visual de fotografías;
-- negociación basada en evidencias;
-- adaptadores API/licenciados por proveedor.
-
-### V3 — visita y reforma
-
-- checklist móvil;
-- fotos/vídeo/mediciones;
-- planos y LiDAR/Matterport/magicplan cuando proceda;
-- Renovation Engine por partidas;
-- PRO vs DIY vs híbrido;
-- Renovation ROI;
-- proveedores y costes reales.
-
-### V4 — compra y explotación
-
-- due diligence documental;
-- Legal Kill Switch;
-- ofertas y negociación;
-- compra y reforma real;
-- contratos, inquilinos, cobros e incidencias;
-- maintenance reserve.
-
-### V5 — patrimonio
-
-- equity/deuda;
-- portfolio cash-flow;
-- ROE;
-- refinanciación;
-- BRRRR adaptado a España;
-- siguiente oportunidad según Capital Velocity.
-
-### V6 — posible PropTech comercial
-
-Solo después de validar los modelos con operaciones reales, errores predicho-vs-real y datos propios.
-
-## Alcance y responsabilidad
-
-Estate es una herramienta interna de análisis. Los cálculos fiscales, legales, técnicos, de tasación y financiación deben validarse con fuentes oficiales y profesionales antes de una compra. Un score nunca sustituye due diligence jurídica, técnica, registral o bancaria.
+1. **No inventar datos.**
+2. **Una cifra debe poder explicarse.**
+3. **La confianza forma parte del resultado.**
+4. **La interfaz guía el procedimiento; no exhibe métricas porque sí.**
+5. **Cada módulo responde una pregunta distinta.**
+6. **La reforma, zona, fotos, riesgos y plan pertenecen al inmueble.**
+7. **Guardar una operación significa conservar su historia, no sobrescribirla.**
+8. **Antes de comprar, Estate intenta romper la tesis con evidencia y stress.**
