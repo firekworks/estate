@@ -13,6 +13,7 @@ export type EstateStage =
   | "sold";
 
 export type EvidenceKind = "fact" | "estimate" | "assumption";
+export type EstatePropertyType = "apartment" | "house" | "studio" | "commercial" | "office" | "land" | "building" | "other";
 
 export type ZoneEvidence = { label: string; url: string };
 
@@ -56,6 +57,7 @@ export type PropertyFeatures = {
 
 export type PropertyDraft = {
   title: string;
+  propertyType?: EstatePropertyType;
   municipality: string;
   province: string;
   address?: string;
@@ -163,6 +165,7 @@ export type EstateRisk = {
 export type SavedDeal = {
   id: string;
   title: string;
+  property_type: EstatePropertyType;
   municipality: string | null;
   province: string | null;
   address: string | null;
@@ -215,7 +218,7 @@ function propertyPayload(user: User, draft: PropertyDraft, input: DealInputs) {
   return {
     user_id: user.id,
     title: draft.title.trim() || "Operación sin nombre",
-    property_type: "apartment",
+    property_type: draft.propertyType ?? "apartment",
     address: draft.address?.trim() || null,
     municipality: draft.municipality.trim() || null,
     province: draft.province.trim() || null,
@@ -500,7 +503,7 @@ function verdictToDb(verdict: DealAnalysis["verdict"]) {
 export async function loadSavedDeals(user: User): Promise<SavedDeal[]> {
   const { data, error } = await supabase
     .from("estate_properties")
-    .select("id,title,municipality,province,address,stage,latitude,longitude,built_area_m2,usable_area_m2,bedrooms,bathrooms,floor_label,has_elevator,has_terrace,has_balcony,has_garage,has_storage,has_pool,orientation,year_built,energy_rating,condition,features,notes,updated_at,estate_listings(id,asking_price,portal,url,description,agency_name,seller_type,first_seen_at,last_seen_at,is_active),estate_market_estimates(id,estimate_type,value_low,value_mid,value_high,confidence,method,source_count,observed_at),estate_property_images(id,source_url,storage_path,room_type,condition_score,analysis,confidence,created_at,updated_at),estate_renovation_items(id,category,description,mode,pro_cost,diy_material_cost,hybrid_cost,diy_hours,difficulty,professional_required,estimated_rent_uplift_monthly,estimated_value_uplift,confidence,created_at,updated_at),estate_risks(id,category,severity,confidence,title,description,source,is_kill_switch,resolved_at,created_at,updated_at),estate_deal_analyses(score,verdict,inputs,outputs,data_confidence,created_at)")
+    .select("id,title,property_type,municipality,province,address,stage,latitude,longitude,built_area_m2,usable_area_m2,bedrooms,bathrooms,floor_label,has_elevator,has_terrace,has_balcony,has_garage,has_storage,has_pool,orientation,year_built,energy_rating,condition,features,notes,updated_at,estate_listings(id,asking_price,portal,url,description,agency_name,seller_type,first_seen_at,last_seen_at,is_active),estate_market_estimates(id,estimate_type,value_low,value_mid,value_high,confidence,method,source_count,observed_at),estate_property_images(id,source_url,storage_path,room_type,condition_score,analysis,confidence,created_at,updated_at),estate_renovation_items(id,category,description,mode,pro_cost,diy_material_cost,hybrid_cost,diy_hours,difficulty,professional_required,estimated_rent_uplift_monthly,estimated_value_uplift,confidence,created_at,updated_at),estate_risks(id,category,severity,confidence,title,description,source,is_kill_switch,resolved_at,created_at,updated_at),estate_deal_analyses(score,verdict,inputs,outputs,data_confidence,created_at)")
     .eq("user_id", user.id)
     .order("updated_at", { ascending: false })
     .limit(150);
