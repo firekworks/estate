@@ -26,6 +26,7 @@ const candidateSchema = {
         additionalProperties: false,
         properties: {
           title: { type: "string" },
+          property_type: { type: ["string", "null"], enum: ["apartment","house","studio","commercial","office","building","other",null] },
           url: { type: "string" },
           source: { type: "string" },
           portal: { type: ["string", "null"] },
@@ -54,7 +55,7 @@ const candidateSchema = {
           },
         },
         required: [
-          "title", "url", "source", "portal", "municipality", "province", "address",
+          "title", "property_type", "url", "source", "portal", "municipality", "province", "address",
           "asking_price", "built_area_m2", "bedrooms", "bathrooms", "agency_name",
           "monthly_rent_estimate", "market_value_estimate", "days_on_market", "image_urls",
           "confidence", "evidence"
@@ -73,6 +74,7 @@ function cleanCriteria(raw: ResearchCriteria): ResearchCriteria {
     minBedrooms: typeof raw.minBedrooms === "number" ? Math.max(0, Math.min(10, raw.minBedrooms)) : 0,
     minAreaM2: typeof raw.minAreaM2 === "number" ? Math.max(0, Math.min(1000, raw.minAreaM2)) : 0,
     strategy: raw.strategy ?? "long_term",
+    assetClass: raw.assetClass === "commercial" ? "commercial" : "residential",
     maxResults: typeof raw.maxResults === "number" ? Math.max(1, Math.min(20, Math.round(raw.maxResults))) : 12,
   };
 }
@@ -94,15 +96,15 @@ export async function POST(request: Request) {
   }
 
   const prompt = [
-    "Busca oportunidades residenciales EN VENTA actuales para inversión en España.",
+    criteria.assetClass === "commercial" ? "Busca LOCALES COMERCIALES, OFICINAS o EDIFICIOS EN VENTA actuales para inversión en España." : "Busca oportunidades RESIDENCIALES EN VENTA actuales para inversión en España.",
     `Municipios: ${criteria.municipalities.join(", ")} (${criteria.province}).`,
     `Precio máximo: ${criteria.maxPrice} EUR. Dormitorios mínimos: ${criteria.minBedrooms}. Superficie mínima: ${criteria.minAreaM2} m2.`,
-    `Estrategia de salida: ${criteria.strategy}. Máximo ${criteria.maxResults} candidatos.`,
+    `Clase de activo: ${criteria.assetClass}. Estrategia: ${criteria.strategy}. Máximo ${criteria.maxResults} candidatos.`,
     `Explora portales grandes (${PORTALS.join(", ")}), servicers/bancos y, MUY IMPORTANTE, webs de inmobiliarias locales y agencias que descubras durante la búsqueda.`,
     "Amplía la búsqueda hasta que las nuevas consultas aporten poco valor, pero no inventes cobertura exhaustiva.",
     "Cada candidato debe corresponder a un anuncio real y actual encontrado en una fuente pública. Nunca reconstruyas URLs.",
     "Deduplica por URL y por inmueble cuando sea evidente que el mismo activo aparece republicado.",
-    "asking_price, superficie, dormitorios, baños y agencia solo se rellenan si aparecen respaldados por fuente.",
+    "property_type debe reflejar el activo real. asking_price, superficie, dormitorios, baños y agencia solo se rellenan si aparecen respaldados por fuente. En locales/oficinas dormitorios debe ser null.",
     "Para monthly_rent_estimate y market_value_estimate busca comparables actuales de la misma microzona/tipología; si la evidencia no es suficiente devuelve null.",
     "Los image_urls deben ser URLs directas de imagen únicamente si aparecen realmente en la evidencia accesible; si no, array vacío.",
     "confidence mide la calidad conjunta de los campos extraídos, no lo atractivo de la inversión.",
