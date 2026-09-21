@@ -164,12 +164,13 @@ function patchFeatures(
 }
 
 function requiredProgress(draft: PropertyDraft, inputs: DealInputs) {
+  const residential = !["commercial", "office", "building", "land"].includes(draft.propertyType ?? "apartment");
   const checks = [
     Boolean(draft.title.trim()),
     Boolean(draft.municipality.trim()),
     Boolean(inputs.builtAreaM2),
-    draft.bedrooms !== undefined,
-    draft.bathrooms !== undefined,
+    residential ? draft.bedrooms !== undefined : true,
+    residential ? draft.bathrooms !== undefined : true,
     Boolean(inputs.purchasePrice),
     Boolean(inputs.monthlyRent),
     Boolean(inputs.marketValueEstimate),
@@ -224,6 +225,20 @@ function StepCapture({
       {importMessage ? (
         <div className="source-message"><Database size={14} /><span>{importMessage}</span></div>
       ) : null}
+      <div className="asset-type-picker">
+        <span className="subsection-title">TIPO DE ACTIVO</span>
+        <Choice
+          value={draft.propertyType ?? "apartment"}
+          onChange={(value) => setDraft((current) => ({ ...current, propertyType: value as PropertyDraft["propertyType"] }))}
+          options={[
+            { value: "apartment", label: "Piso" },
+            { value: "house", label: "Casa" },
+            { value: "commercial", label: "Local" },
+            { value: "office", label: "Oficina" },
+            { value: "building", label: "Edificio" },
+          ]}
+        />
+      </div>
       <div className="field-grid two">
         <TextField
           label="Nombre interno"
@@ -282,8 +297,10 @@ function StepProperty({
         <NumberField label="Superficie construida" value={inputs.builtAreaM2} suffix="m²" kind="fact" onChange={(value) => updateInput("builtAreaM2", value)} />
         <NumberField label="Superficie útil" value={draft.usableAreaM2} suffix="m²" kind="fact" onChange={(value) => setDraft((current) => ({ ...current, usableAreaM2: value }))} />
         <NumberField label="Año" value={draft.yearBuilt} kind="fact" onChange={(value) => setDraft((current) => ({ ...current, yearBuilt: value }))} />
-        <NumberField label="Dormitorios" value={draft.bedrooms} kind="fact" onChange={(value) => setDraft((current) => ({ ...current, bedrooms: value }))} />
-        <NumberField label="Baños" value={draft.bathrooms} kind="fact" onChange={(value) => setDraft((current) => ({ ...current, bathrooms: value }))} />
+        {!["commercial","office","building"].includes(draft.propertyType ?? "apartment") ? (
+          <NumberField label="Dormitorios" value={draft.bedrooms} kind="fact" onChange={(value) => setDraft((current) => ({ ...current, bedrooms: value }))} />
+        ) : null}
+        <NumberField label={["commercial","office","building"].includes(draft.propertyType ?? "apartment") ? "Aseos / baños" : "Baños"} value={draft.bathrooms} kind="fact" onChange={(value) => setDraft((current) => ({ ...current, bathrooms: value }))} />
         <TextField label="Planta" value={draft.floorLabel ?? ""} kind="fact" placeholder="2ª" onChange={(value) => setDraft((current) => ({ ...current, floorLabel: value }))} />
       </div>
 
@@ -344,7 +361,7 @@ function StepMarket({
       <div className="market-input-band">
         <NumberField label="Precio anunciado" value={inputs.purchasePrice} suffix="€" kind="fact" onChange={(value) => updateInput("purchasePrice", value)} />
         <NumberField label="Valor razonable" value={inputs.marketValueEstimate} suffix="€" kind="estimate" onChange={(value) => updateInput("marketValueEstimate", value)} />
-        <NumberField label="Alquiler esperado" value={inputs.monthlyRent} suffix="€/mes" kind="estimate" onChange={(value) => updateInput("monthlyRent", value)} />
+        <NumberField label={["commercial","office","building"].includes(draft.propertyType ?? "apartment") ? "Renta esperada" : "Alquiler esperado"} value={inputs.monthlyRent} suffix="€/mes" kind="estimate" onChange={(value) => updateInput("monthlyRent", value)} />
       </div>
       <div className="confidence-control">
         <div><span>Confianza de los datos de mercado</span><strong>{Math.round(inputs.dataConfidence * 100)}%</strong></div>
@@ -361,7 +378,9 @@ function StepMarket({
           <Choice
             value={draft.features?.rentalStrategy ?? "long_term"}
             onChange={(value) => patchFeatures(setDraft, { rentalStrategy: value })}
-            options={[
+            options={["commercial","office","building"].includes(draft.propertyType ?? "apartment") ? [
+              { value: "commercial_lease", label: "Alquiler comercial" },
+            ] : [
               { value: "long_term", label: "Larga estancia" },
               { value: "rooms", label: "Habitaciones" },
               { value: "student", label: "Estudiantes" },
@@ -370,7 +389,7 @@ function StepMarket({
         </div>
         <div>
           <span className="subsection-title">INQUILINO OBJETIVO</span>
-          <TextField label="Perfil" value={draft.features?.tenantProfile ?? ""} kind="assumption" placeholder="Pareja joven, familia, profesional…" onChange={(value) => patchFeatures(setDraft, { tenantProfile: value })} />
+          <TextField label={["commercial","office","building"].includes(draft.propertyType ?? "apartment") ? "Operador / inquilino" : "Perfil"} value={draft.features?.tenantProfile ?? ""} kind="assumption" placeholder={["commercial","office","building"].includes(draft.propertyType ?? "apartment") ? "Retail, clínica, oficina, estudio…" : "Pareja joven, familia, profesional…"} onChange={(value) => patchFeatures(setDraft, { tenantProfile: value })} />
         </div>
       </div>
     </div>

@@ -57,6 +57,7 @@ const BASE_INPUTS: DealInputs = {
 
 const EMPTY_DRAFT: PropertyDraft = {
   title: "",
+  propertyType: "apartment",
   municipality: "",
   province: "Alicante",
   address: "",
@@ -74,6 +75,7 @@ function draftFromDeal(deal: SavedDeal): PropertyDraft {
   const listing = deal.estate_listings?.[0];
   return {
     title: deal.title,
+    propertyType: deal.property_type ?? "apartment",
     municipality: deal.municipality ?? "",
     province: deal.province ?? "Alicante",
     address: deal.address ?? "",
@@ -122,6 +124,7 @@ const STAGE_ORDER: EstateStage[] = ["watchlist", "analyzing", "visit", "negotiat
 
 type ImportedListing = {
   title: string | null;
+  property_type: PropertyDraft["propertyType"] | null;
   municipality: string | null;
   province: string | null;
   address: string | null;
@@ -207,6 +210,7 @@ export default function EstatePage() {
     setDraft({
       ...EMPTY_DRAFT,
       title: candidate.title,
+      propertyType: candidate.property_type ?? "apartment",
       municipality: candidate.municipality ?? "",
       province: candidate.province ?? "Alicante",
       address: candidate.address ?? "",
@@ -259,6 +263,7 @@ export default function EstatePage() {
         listingUrl: data.url ?? importUrl,
         portal: data.portal ?? "other",
         title: listing?.title || current.title,
+        propertyType: listing?.property_type ?? current.propertyType,
         municipality: listing?.municipality || current.municipality,
         province: listing?.province || current.province,
         address: listing?.address || current.address,
