@@ -473,7 +473,7 @@ export async function saveDeal(user: User, draft: PropertyDraft, input: DealInpu
       property_id: propertyId,
       event_type: created ? "analysis_created" : "analysis_version_created",
       entity_type: "deal_analysis",
-      source: "estate_web_v1_3",
+      source: "estate_web_v1_4",
       model_version: analysis.engineVersion,
       payload: { score: analysis.score, score_coverage: analysis.scoreCoverage, verdict: analysis.verdict },
     });
