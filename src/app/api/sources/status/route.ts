@@ -15,5 +15,5 @@ export async function GET() {
     { key: "google_places", label: "Google Places", kind: "geo", status: process.env.GOOGLE_MAPS_API_KEY ? "ready" : "needs_key", detail: "POIs y distancias precisas." },
   ];
 
-  return NextResponse.json({ version: "1.3", sources });
+  return NextResponse.json({ version: "1.4", sources });
 }
