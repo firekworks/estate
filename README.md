@@ -4,7 +4,7 @@
 
 Estate separa **hechos, estimaciones y supuestos**. Un dato ausente permanece ausente; la confianza forma parte del resultado.
 
-## Estate v1.3
+## Estate v1.4
 
 Stack:
 
@@ -25,8 +25,9 @@ Navegación:
 1. **Inicio / Decidir** — centro de decisión y siguiente acción.
 2. **Radar / Encontrar** — sourcing, filtros, CSV, URLs y señales web.
 3. **Mercado / Contrastar** — €/m², yield, muestra y micromercados.
-4. **Pipeline / Avanzar** — Radar → Análisis → Visita → Negociación → Compra → Cartera.
-5. **Cartera / Medir** — equity, deuda, cash-flow, yield y rendimiento por activo.
+4. **Flujo / Movilidad** — mapa de afluencia y tráfico agregado por modo, fuente y dataset.
+5. **Pipeline / Avanzar** — Radar → Análisis → Visita → Negociación → Compra → Cartera.
+6. **Cartera / Medir** — equity, deuda, cash-flow, yield y rendimiento por activo.
 
 La reforma no es un módulo global: vive dentro del inmueble.
 
@@ -42,6 +43,21 @@ Entrada disponible:
 - futuros feeds/APIs oficiales con credenciales.
 
 El radar web busca oportunidades públicas actuales, incluyendo portales grandes, servicers y webs de inmobiliarias locales descubiertas durante la investigación. Los resultados se deduplican y conservan evidencia/URL. No se afirma cobertura exhaustiva cuando una fuente no ofrece acceso autorizado o API.
+
+## Flujo / Mobility Intelligence
+
+Estate v1.4 añade un workspace **map-first** separado del mercado inmobiliario. No asume que Google/Waze ofrecen afluencia peatonal cruda: cada capa declara fuente, modo, resolución y acceso.
+
+Capacidades actuales:
+
+- geocodificación de ubicación mediante OpenStreetMap/Nominatim para uso interno de baja frecuencia;
+- mapa base OpenStreetMap;
+- importación CSV de puntos agregados `lat,lng,value` con modo opcional `walk/drive/bike/transit`;
+- heatmap visual relativo sobre el mapa;
+- persistencia privada en `estate_mobility_datasets` + `estate_mobility_points` con RLS;
+- fuentes preparadas: GVA IMD (open data, coche), Google Traffic (tráfico/ETA, no footfall), MyTraffic, Mapbox Movement, CARTO/Vodafone Spain, Kido Dynamics y Nommon.
+
+Nunca se almacenan identificadores de dispositivos ni trayectorias individuales. Para retail/locales, el flujo puede convertirse en señal de inversión; para residencial debe tratarse principalmente como accesibilidad/contexto, no como un premio automático a tener más tráfico.
 
 ## Scoring
 
