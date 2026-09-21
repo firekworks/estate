@@ -30,7 +30,6 @@ import type { SavedDeal } from "@/lib/estate-store";
 import { opportunityScore } from "@/lib/estate-opportunity-score";
 import { supabase } from "@/lib/supabase";
 import {
-  completenessForDeal,
   dealInput,
   dealOutput,
   fmtMoney,
