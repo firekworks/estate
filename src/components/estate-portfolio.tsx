@@ -18,15 +18,24 @@ export function PortfolioView({ deals, onOpen, onOpportunities }: { deals: Saved
   const avgYield = rows.length ? rows.reduce((sum, item) => sum + (item.out?.netYieldPct ?? 0), 0) / rows.length : 0;
 
   if (!assets.length) {
-    return <div className="view view-portfolio visual-first"><SectionHead eyebrow="PORTFOLIO" title="Cartera." /><Panel className="portfolio-loop-empty">
-      <div className="portfolio-loop-graphic"><div className="loop-core"><Wallet size={24} /><strong>CAPITAL</strong></div><div className="loop-node l1">COMPRAR</div><ArrowRight className="loop-arrow a1" size={15} /><div className="loop-node l2">MEJORAR</div><ArrowRight className="loop-arrow a2" size={15} /><div className="loop-node l3">ALQUILAR</div><ArrowRight className="loop-arrow a3" size={15} /><div className="loop-node l4">MEDIR</div><RefreshCw className="loop-arrow a4" size={15} /></div>
-      <button className="primary-button" onClick={onOpportunities}>Pipeline <ArrowRight size={14} /></button>
-    </Panel></div>;
+    return <div className="view view-portfolio visual-first v14-view"><SectionHead eyebrow="PORTFOLIO" title="Cartera." />
+      <div className="portfolio-empty-composition">
+        <Panel className="portfolio-loop-empty">
+          <div className="portfolio-loop-graphic"><div className="loop-core"><Wallet size={22} /><strong>CAPITAL</strong></div><div className="loop-node l1">COMPRAR</div><ArrowRight className="loop-arrow a1" size={14} /><div className="loop-node l2">MEJORAR</div><ArrowRight className="loop-arrow a2" size={14} /><div className="loop-node l3">ALQUILAR</div><ArrowRight className="loop-arrow a3" size={14} /><div className="loop-node l4">MEDIR</div><RefreshCw className="loop-arrow a4" size={14} /></div>
+        </Panel>
+        <div className="portfolio-empty-side">
+          <div><span>ACTIVOS</span><strong>0</strong></div>
+          <div><span>EQUITY</span><strong>—</strong></div>
+          <div><span>CASH-FLOW</span><strong>—</strong></div>
+          <button className="primary-button" onClick={onOpportunities}>Abrir pipeline <ArrowRight size={14} /></button>
+        </div>
+      </div>
+    </div>;
   }
 
   const debtPct = totalValue > 0 ? Math.min(100, (totalDebt / totalValue) * 100) : 0;
   return (
-    <div className="view view-portfolio visual-first">
+    <div className="view view-portfolio visual-first v14-view">
       <SectionHead eyebrow="PORTFOLIO" title="Cartera." />
       <div className="portfolio-kpis visual-portfolio-kpis"><Metric label="VALOR" value={fmtMoney(totalValue)} /><Metric label="DEUDA" value={fmtMoney(totalDebt)} /><Metric label="EQUITY" value={fmtMoney(totalEquity)} tone="accent" /><Metric label="CASH-FLOW" value={`${fmtMoney(cashflow)}/m`} tone={cashflow >= 0 ? "good" : "bad"} /><Metric label="YIELD" value={fmtPct(avgYield)} /></div>
 

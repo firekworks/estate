@@ -1,7 +1,8 @@
 "use client";
 
 import type { ChangeEvent } from "react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import Image from "next/image";
 import type { User } from "@supabase/supabase-js";
 import {
   AlertTriangle,
@@ -14,7 +15,6 @@ import {
   CircleDollarSign,
   ClipboardCheck,
   Database,
-  ExternalLink,
   FileCheck2,
   Gauge,
   Hammer,
@@ -32,7 +32,7 @@ import {
   Wrench,
   X,
 } from "lucide-react";
-import type { EstateRisk, EstateStage, PropertyImage, RenovationItem, SavedDeal, ZoneAssessment } from "@/lib/estate-store";
+import type { EstateStage, PropertyImage, SavedDeal, ZoneAssessment } from "@/lib/estate-store";
 import {
   deletePropertyImage,
   deleteRenovationItem,
@@ -289,7 +289,7 @@ function Fact({ label, value }: { label: string; value: string | number }) { ret
 function Utility({ label, value }: { label: string; value?: string }) { return <div className="utility-row"><span>{label}</span><strong className={!value ? "missing" : ""}>{value || "Sin verificar"}</strong></div>; }
 
 function PhotoCard({ user, image, run }: { user: User; image: PropertyImage; run: (task: () => Promise<void>) => Promise<void> }) {
-  return <article className="photo-card"><div className="photo-frame">{image.preview_url ? <img src={image.preview_url} alt={image.room_type || "Foto del inmueble"} /> : <Camera size={22} />}<button onClick={() => run(() => deletePropertyImage(user, image))} aria-label="Eliminar foto"><Trash2 size={12} /></button></div><select value={image.room_type || "unknown"} onChange={(event) => run(() => updatePropertyImageAssessment(user, image.id, { room_type: event.target.value }))}><option value="unknown">Sin estancia</option><option value="living_room">Salón</option><option value="kitchen">Cocina</option><option value="bedroom">Dormitorio</option><option value="bathroom">Baño</option><option value="facade">Fachada</option><option value="common_area">Comunes</option><option value="terrace">Terraza</option></select><label><span>Estado {image.condition_score ?? "—"}/100</span><input type="range" min="0" max="100" step="5" value={image.condition_score ?? 50} onChange={(event) => run(() => updatePropertyImageAssessment(user, image.id, { condition_score: Number(event.target.value), analysis: { ...(image.analysis ?? {}), status: "manual_reviewed" }, confidence: 1 }))} /></label></article>;
+  return <article className="photo-card"><div className="photo-frame">{image.preview_url ? <Image src={image.preview_url} alt={image.room_type || "Foto del inmueble"} fill sizes="(max-width: 680px) 50vw, 180px" unoptimized /> : <Camera size={22} />}<button onClick={() => run(() => deletePropertyImage(user, image))} aria-label="Eliminar foto"><Trash2 size={12} /></button></div><select value={image.room_type || "unknown"} onChange={(event) => run(() => updatePropertyImageAssessment(user, image.id, { room_type: event.target.value }))}><option value="unknown">Sin estancia</option><option value="living_room">Salón</option><option value="kitchen">Cocina</option><option value="bedroom">Dormitorio</option><option value="bathroom">Baño</option><option value="facade">Fachada</option><option value="common_area">Comunes</option><option value="terrace">Terraza</option></select><label><span>Estado {image.condition_score ?? "—"}/100</span><input type="range" min="0" max="100" step="5" value={image.condition_score ?? 50} onChange={(event) => run(() => updatePropertyImageAssessment(user, image.id, { condition_score: Number(event.target.value), analysis: { ...(image.analysis ?? {}), status: "manual_reviewed" }, confidence: 1 }))} /></label></article>;
 }
 
 function ZoneTab({ user, deal, run }: { user: User; deal: SavedDeal; run: (task: () => Promise<void>) => Promise<void> }) {

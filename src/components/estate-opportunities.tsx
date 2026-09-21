@@ -3,7 +3,7 @@
 import { ArrowRight, CheckCircle2, CircleDollarSign, ClipboardCheck, Eye, MoreHorizontal, Plus, Radar, ShieldAlert, ShoppingBag, WalletCards } from "lucide-react";
 import type { EstateStage, SavedDeal } from "@/lib/estate-store";
 import { opportunityScore } from "@/lib/estate-opportunity-score";
-import { completenessForDeal, dealOutput, fmtMoney, fmtPct, listingPrice, Panel, ScoreDial, SectionHead } from "@/components/estate-primitives";
+import { dealOutput, fmtMoney, fmtPct, listingPrice, Panel, ScoreDial, SectionHead } from "@/components/estate-primitives";
 
 const COLUMNS: Array<{ key: EstateStage; label: string; icon: React.ReactNode; prompt: string }> = [
   { key: "watchlist", label: "Radar", icon: <Radar size={15} />, prompt: "¿tiempo?" },
@@ -26,7 +26,7 @@ export function OpportunitiesView({ deals, onNew, onOpen, onStageChange }: {
   const discarded = deals.filter((deal) => deal.stage === "discarded");
 
   return (
-    <div className="view view-opportunities visual-first">
+    <div className="view view-opportunities visual-first v14-view">
       <SectionHead eyebrow="ACQUISITION" title="Pipeline." action={<button className="primary-button" onClick={onNew}><Plus size={14} /> Oportunidad</button>} />
 
       <div className="pipeline-flow-strip">
@@ -39,7 +39,11 @@ export function OpportunitiesView({ deals, onNew, onOpen, onStageChange }: {
       <div className="pipeline-status-bar"><span><b>{visible.length}</b> activas</span><span><b>{visible.filter((deal) => deal.stage === "visit").length}</b> visitas</span><span><b>{visible.filter((deal) => deal.stage === "negotiating").length}</b> negociación</span><span><b>{discarded.length}</b> descartes</span><span className="risk-rule"><ShieldAlert size={13} /> kill switch = stop</span></div>
 
       {!deals.length ? (
-        <Panel className="pipeline-visual-empty"><div className="pipeline-empty-radar"><Radar size={32} /><i /><i /><i /></div><strong>RADAR → ANÁLISIS → VISITA → OFERTA → COMPRA</strong><button className="primary-button" onClick={onNew}>Empezar <ArrowRight size={14} /></button></Panel>
+        <div className="pipeline-empty-activation">
+          <div className="pipeline-empty-symbol"><Radar size={24} /><span /></div>
+          <div><strong>Primera oportunidad</strong><span>Radar → análisis → visita → oferta → compra</span></div>
+          <button className="primary-button" onClick={onNew}>Empezar <ArrowRight size={14} /></button>
+        </div>
       ) : (
         <div className="kanban-wrap"><div className="kanban-board visual-kanban">
           {COLUMNS.map((column) => {

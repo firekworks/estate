@@ -84,40 +84,44 @@ export function HomeView({ deals, onNew, onExplore, onOpen, onOpportunities }: {
 
   if (!deals.length) {
     return (
-      <div className="view view-home visual-first">
-        <SectionHead eyebrow="ESTATE OS" title="Del radar al cash-flow." action={<button className="primary-button" onClick={onNew}>+ Primera operación</button>} />
+      <div className="view view-home visual-first v14-view">
+        <SectionHead eyebrow="ESTATE OS" title="Decidir antes de comprar." action={<button className="primary-button" onClick={onNew}>+ Primera operación</button>} />
 
-        <Panel className="workflow-map-card">
-          <div className="workflow-map">
-            {FLOW.map((step, index) => (
-              <div className="workflow-map-segment" key={step.label}>
-                <button className={`workflow-node node-${index + 1}`} onClick={index === 0 ? onExplore : onNew} title={step.hint}>
-                  <span>{step.icon}</span><strong>{step.label}</strong><small>{step.hint}</small>
+        <div className="home-empty-composition">
+          <Panel className="home-loop-compact">
+            <div className="home-loop-track">
+              {FLOW.map((step, index) => (
+                <button key={step.label} className="home-loop-step" onClick={index === 0 ? onExplore : onNew}>
+                  <span>{step.icon}</span>
+                  <strong>{step.label}</strong>
+                  {index < FLOW.length - 1 && <ArrowRight size={13} />}
                 </button>
-                {index < FLOW.length - 1 && <div className="workflow-arrow"><ArrowRight size={15} /></div>}
-              </div>
-            ))}
-          </div>
-          <div className="workflow-core">
-            <Sparkles size={18} />
-            <strong>1 inmueble</strong>
-            <span>1 workspace</span>
-          </div>
-        </Panel>
+              ))}
+            </div>
+            <div className="home-loop-caption"><Sparkles size={15} /><span>1 inmueble · 1 workspace · 1 historial</span></div>
+          </Panel>
 
-        <div className="visual-rules-grid">
-          <button className="visual-rule" onClick={onNew}><DatabaseZap size={20} /><strong>HECHO ≠ ESTIMACIÓN</strong><span>evidencia</span></button>
-          <button className="visual-rule" onClick={onNew}><Camera size={20} /><strong>FOTOS → SEÑALES</strong><span>visión</span></button>
-          <button className="visual-rule" onClick={onNew}><Hammer size={20} /><strong>REFORMA → ACTIVO</strong><span>partidas</span></button>
-          <button className="visual-rule" onClick={onNew}><Users size={20} /><strong>ZONA → INQUILINO</strong><span>demanda</span></button>
-          <button className="visual-rule" onClick={onNew}><ShieldAlert size={20} /><strong>RIESGO → BLOQUEA</strong><span>kill switch</span></button>
+          <Panel className="home-lenses-card">
+            <div className="home-lenses-grid">
+              <button onClick={onExplore}><DatabaseZap size={18} /><span>Mercado</span><b>contrastar</b></button>
+              <button onClick={onNew}><Camera size={18} /><span>Fotos</span><b>validar</b></button>
+              <button onClick={onNew}><Users size={18} /><span>Demanda</span><b>inquilino</b></button>
+              <button onClick={onNew}><ShieldAlert size={18} /><span>Riesgo</span><b>bloquear</b></button>
+            </div>
+          </Panel>
+        </div>
+
+        <div className="home-empty-metrics">
+          <span><b>0</b><small>oportunidades</small></span>
+          <span><b>0</b><small>en visita</small></span>
+          <span><b>0 €</b><small>cash-flow real</small></span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="view view-home visual-first">
+    <div className="view view-home visual-first v14-view">
       <SectionHead eyebrow="HOY" title="Centro de decisión." action={<button className="primary-button" onClick={onNew}>+ Operación</button>} />
 
       {focus && focus.out && focus.input && (
