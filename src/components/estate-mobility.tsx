@@ -29,7 +29,7 @@ import {
   type MobilityMode,
   type MobilityPoint,
 } from "@/lib/estate-mobility-store";
-import { Panel, SectionHead } from "@/components/estate-primitives";
+import { SectionHead } from "@/components/estate-primitives";
 
 type Provider = {
   key: string;
@@ -161,7 +161,20 @@ export function MobilityView({ user }: { user: User | null }) {
     }
   }
 
-  useEffect(() => { void refresh(); }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    let active = true;
+    if (!user) return () => { active = false; };
+    void loadMobilityDatasets(user)
+      .then((rows) => {
+        if (!active) return;
+        setDatasets(rows);
+        setSelectedId((current) => current && rows.some((row) => row.id === current) ? current : rows[0]?.id ?? "");
+      })
+      .catch((error: unknown) => {
+        if (active) setMessage(error instanceof Error ? error.message : "No se pudieron cargar los datasets.");
+      });
+    return () => { active = false; };
+  }, [user]);
   useEffect(() => {
     void fetch("/api/mobility/status")
       .then((response) => response.ok ? response.json() : null)
