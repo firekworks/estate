@@ -19,6 +19,7 @@ const listingSchema = {
   additionalProperties: false,
   properties: {
     title: { type: ["string", "null"] },
+    property_type: { type: ["string", "null"], enum: ["apartment","house","studio","commercial","office","land","building","other",null] },
     municipality: { type: ["string", "null"] },
     province: { type: ["string", "null"] },
     address: { type: ["string", "null"] },
@@ -48,7 +49,7 @@ const listingSchema = {
       },
     },
   },
-  required: ["title", "municipality", "province", "address", "asking_price", "built_area_m2", "usable_area_m2", "bedrooms", "bathrooms", "floor_label", "has_elevator", "has_terrace", "has_garage", "year_built", "condition", "agency_name", "description", "image_urls", "confidence", "evidence"],
+  required: ["title", "property_type", "municipality", "province", "address", "asking_price", "built_area_m2", "usable_area_m2", "bedrooms", "bathrooms", "floor_label", "has_elevator", "has_terrace", "has_garage", "year_built", "condition", "agency_name", "description", "image_urls", "confidence", "evidence"],
 } as const;
 
 export async function POST(request: Request) {
