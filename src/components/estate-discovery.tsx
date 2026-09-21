@@ -113,6 +113,15 @@ function parseCsv(text: string): ResearchCandidate[] {
     return {
       id: `csv-${index}-${Date.now()}`,
       title: textAt(values, ["title", "titulo", "nombre"]) ?? `Importado ${index + 1}`,
+      property_type: (() => {
+        const raw = (textAt(values, ["property_type", "tipo", "tipologia"]) ?? "").toLowerCase();
+        if (raw.includes("local") || raw.includes("comercial")) return "commercial";
+        if (raw.includes("oficina")) return "office";
+        if (raw.includes("casa") || raw.includes("chalet")) return "house";
+        if (raw.includes("estudio")) return "studio";
+        if (raw.includes("edificio")) return "building";
+        return raw ? "other" : null;
+      })(),
       url,
       source: "CSV",
       portal: textAt(values, ["portal", "fuente"]),
@@ -171,7 +180,7 @@ function CandidateCard({ candidate, onUse }: { candidate: ResearchCandidate; onU
         <div><span>RENTA</span><strong>{candidate.monthly_rent_estimate ? `${fmtMoney(candidate.monthly_rent_estimate)}/m` : "—"}</strong></div>
         <div><span>YIELD BR.</span><strong>{fmtPct(quickYield)}</strong></div>
       </div>
-      <div className="candidate-facts"><span>{candidate.built_area_m2 ? `${candidate.built_area_m2} m²` : "— m²"}</span><span>{candidate.bedrooms ?? "—"} hab.</span><span>{candidate.evidence.length} fuentes</span></div>
+      <div className="candidate-facts"><span>{candidate.built_area_m2 ? `${candidate.built_area_m2} m²` : "— m²"}</span><span>{candidate.property_type === "commercial" ? "local" : candidate.property_type === "office" ? "oficina" : `${candidate.bedrooms ?? "—"} hab.`}</span><span>{candidate.evidence.length} fuentes</span></div>
       <div className="research-card-actions">
         <button className="primary-button" onClick={onUse}>Analizar <ArrowRight size={13} /></button>
         {candidate.url && <a href={candidate.url} target="_blank" rel="noreferrer" aria-label="Abrir anuncio"><ExternalLink size={14} /></a>}
@@ -195,6 +204,7 @@ export function ExploreView({ deals, onNew, onOpen, user, onCandidate }: {
   const [selected, setSelected] = useState<string[]>([]);
   const [municipalities, setMunicipalities] = useState("Castalla, Ibi, Onil, Alcoy, Elda, Villena");
   const [minBedrooms, setMinBedrooms] = useState(2);
+  const [assetClass, setAssetClass] = useState<"residential" | "commercial">("residential");
   const [researchBusy, setResearchBusy] = useState(false);
   const [researchMessage, setResearchMessage] = useState("");
   const [researchResults, setResearchResults] = useState<ResearchCandidate[]>([]);
@@ -237,7 +247,7 @@ export function ExploreView({ deals, onNew, onOpen, user, onCandidate }: {
       const response = await fetch("/api/research", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ criteria: { municipalities: municipalities.split(",").map((value) => value.trim()).filter(Boolean), province: "Alicante", maxPrice, minBedrooms, strategy: "long_term", maxResults: 16 } }),
+        body: JSON.stringify({ criteria: { municipalities: municipalities.split(",").map((value) => value.trim()).filter(Boolean), province: "Alicante", maxPrice, minBedrooms: assetClass === "residential" ? minBedrooms : 0, strategy: "long_term", assetClass, maxResults: 16 } }),
       });
       const payload = (await response.json()) as { candidates?: ResearchCandidate[]; error?: string };
       if (!response.ok) throw new Error(payload.error || "Radar no disponible.");
@@ -268,9 +278,13 @@ export function ExploreView({ deals, onNew, onOpen, user, onCandidate }: {
         <Panel className="radar-source-panel"><SourceOrbit sources={sources} busy={researchBusy} /></Panel>
         <Panel className="research-console">
           <div className="visual-panel-head"><span><Sparkles size={15} /> BÚSQUEDA</span><small>{researchMessage}</small></div>
+          <div className="research-asset-switch">
+            <button className={assetClass === "residential" ? "active" : ""} onClick={() => setAssetClass("residential")}>Vivienda</button>
+            <button className={assetClass === "commercial" ? "active" : ""} onClick={() => setAssetClass("commercial")}>Local / oficina</button>
+          </div>
           <div className="research-controls">
             <label className="wide"><span>ZONAS</span><input value={municipalities} onChange={(event) => setMunicipalities(event.target.value)} /></label>
-            <label><span>HAB. ≥</span><input type="number" min="0" max="10" value={minBedrooms} onChange={(event) => setMinBedrooms(Number(event.target.value))} /></label>
+            {assetClass === "residential" ? <label><span>HAB. ≥</span><input type="number" min="0" max="10" value={minBedrooms} onChange={(event) => setMinBedrooms(Number(event.target.value))} /></label> : <label><span>TIPO</span><input value="Comercial" readOnly /></label>}
             <label><span>PRECIO ≤</span><input type="number" min="10000" step="5000" value={maxPrice} onChange={(event) => setMaxPrice(Number(event.target.value))} /></label>
             <button className="scan-button" onClick={runResearch} disabled={researchBusy}>{researchBusy ? <Loader2 size={16} className="spin" /> : <Radar size={16} />} ESCANEAR</button>
             <label className="csv-button" title="CSV: titulo,url,municipio,precio,m2,habitaciones,alquiler,valor_mercado"><input type="file" accept=".csv,text/csv" onChange={importCsv} /><FileSpreadsheet size={15} /> CSV</label>
