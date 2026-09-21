@@ -5,6 +5,7 @@ export type ResearchCriteria = {
   minBedrooms?: number;
   minAreaM2?: number;
   strategy?: "long_term" | "rooms" | "student";
+  assetClass?: "residential" | "commercial";
   maxResults?: number;
 };
 
@@ -16,6 +17,7 @@ export type ResearchEvidence = {
 export type ResearchCandidate = {
   id?: string;
   title: string;
+  property_type: "apartment" | "house" | "studio" | "commercial" | "office" | "building" | "other" | null;
   url: string;
   source: string;
   portal: string | null;
