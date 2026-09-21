@@ -3,7 +3,7 @@
 import { ArrowRight, CheckCircle2, CircleDollarSign, ClipboardCheck, Eye, MoreHorizontal, Plus, Radar, ShieldAlert, ShoppingBag, WalletCards } from "lucide-react";
 import type { EstateStage, SavedDeal } from "@/lib/estate-store";
 import { opportunityScore } from "@/lib/estate-opportunity-score";
-import { completenessForDeal, dealOutput, fmtMoney, fmtPct, listingPrice, Panel, ScoreDial, SectionHead } from "@/components/estate-primitives";
+import { dealOutput, fmtMoney, fmtPct, listingPrice, Panel, ScoreDial, SectionHead } from "@/components/estate-primitives";
 
 const COLUMNS: Array<{ key: EstateStage; label: string; icon: React.ReactNode; prompt: string }> = [
   { key: "watchlist", label: "Radar", icon: <Radar size={15} />, prompt: "¿tiempo?" },
