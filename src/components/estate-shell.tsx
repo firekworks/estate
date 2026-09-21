@@ -8,6 +8,7 @@ import {
   Compass,
   Home,
   Landmark,
+  Map,
   LogIn,
   LogOut,
   Menu,
@@ -16,12 +17,13 @@ import {
   X,
 } from "lucide-react";
 
-export type View = "home" | "explore" | "market" | "opportunities" | "portfolio" | "analyze" | "property";
+export type View = "home" | "explore" | "market" | "mobility" | "opportunities" | "portfolio" | "analyze" | "property";
 
 const NAV: Array<{ key: Exclude<View, "analyze" | "property">; label: string; icon: ReactNode; description: string }> = [
   { key: "home", label: "Inicio", icon: <Home size={17} />, description: "Decidir" },
   { key: "explore", label: "Radar", icon: <Compass size={17} />, description: "Encontrar" },
   { key: "market", label: "Mercado", icon: <Landmark size={17} />, description: "Contrastar" },
+  { key: "mobility", label: "Flujo", icon: <Map size={17} />, description: "Movilidad" },
   { key: "opportunities", label: "Pipeline", icon: <Radar size={17} />, description: "Avanzar" },
   { key: "portfolio", label: "Cartera", icon: <Building2 size={17} />, description: "Medir" },
 ];
@@ -30,6 +32,7 @@ const NAMES: Record<View, string> = {
   home: "Inicio",
   explore: "Radar",
   market: "Mercado",
+  mobility: "Flujo",
   opportunities: "Pipeline",
   portfolio: "Cartera",
   analyze: "Analizar",
@@ -59,7 +62,7 @@ export function EstateSidebar({ view, open, dealCount, onSelect, onClose }: {
       </nav>
       <div className="sidebar-rule" />
       <div className="sidebar-flow-icons" aria-label="Encontrar, validar, comprar, operar"><span>◎</span><i /><span>◈</span><i /><span>◆</span><i /><span>↻</span></div>
-      <div className="sidebar-foot"><div className="system-status"><span className="live-dot" /><span>Estate v1.3</span><small>online</small></div></div>
+      <div className="sidebar-foot"><div className="system-status"><span className="live-dot" /><span>Estate v1.4</span><small>online</small></div></div>
     </aside>
   );
 }
@@ -77,7 +80,7 @@ export function EstateTopbar({ view, propertyTitle, authReady, signedIn, onMenu,
   return (
     <header className="topbar">
       <div className="topbar-left"><button className="icon-button mobile-menu" onClick={onMenu} aria-label="Abrir menú"><Menu size={18} /></button><div className="breadcrumb"><span>Estate</span><ChevronRight size={12} /><strong>{view === "property" && propertyTitle ? propertyTitle : NAMES[view]}</strong></div></div>
-      <div className="topbar-actions"><span className="engine-pill"><Activity size={12} /> v1.3</span>{authReady && (signedIn ? <button className="icon-button" onClick={onLogout} aria-label="Cerrar sesión" title="Cerrar sesión"><LogOut size={16} /></button> : <button className="ghost-button" onClick={onLogin}><LogIn size={14} /> Entrar</button>)}<button className="primary-button compact" onClick={onNew}><Plus size={15} /> Analizar</button></div>
+      <div className="topbar-actions"><span className="engine-pill"><Activity size={12} /> v1.4</span>{authReady && (signedIn ? <button className="icon-button" onClick={onLogout} aria-label="Cerrar sesión" title="Cerrar sesión"><LogOut size={16} /></button> : <button className="ghost-button" onClick={onLogin}><LogIn size={14} /> Entrar</button>)}<button className="primary-button compact" onClick={onNew}><Plus size={15} /> Analizar</button></div>
     </header>
   );
 }
