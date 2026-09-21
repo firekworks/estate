@@ -18,6 +18,7 @@ import { supabase } from "@/lib/supabase";
 import { EstateSidebar, EstateTopbar, type View } from "@/components/estate-shell";
 import { HomeView } from "@/components/estate-home";
 import { ExploreView, MarketView } from "@/components/estate-discovery";
+import { MobilityView } from "@/components/estate-mobility";
 import { OpportunitiesView } from "@/components/estate-opportunities";
 import { PortfolioView } from "@/components/estate-portfolio";
 import { AnalyzerView } from "@/components/estate-analyzer";
@@ -345,6 +346,7 @@ export default function EstatePage() {
           {view === "home" && <HomeView deals={savedDeals} onNew={startNewDeal} onExplore={() => selectView("explore")} onOpen={openProperty} onOpportunities={() => selectView("opportunities")} />}
           {view === "explore" && <ExploreView deals={savedDeals} onNew={startNewDeal} onOpen={openProperty} user={user} onCandidate={startResearchCandidate} />}
           {view === "market" && <MarketView deals={savedDeals} onNew={startNewDeal} onOpen={openProperty} />}
+          {view === "mobility" && <MobilityView user={user} />}
           {view === "opportunities" && <OpportunitiesView deals={savedDeals} onNew={startNewDeal} onOpen={openProperty} onStageChange={changeDealStage} />}
           {view === "portfolio" && <PortfolioView deals={savedDeals} onOpen={openProperty} onOpportunities={() => selectView("opportunities")} />}
           {view === "analyze" && <AnalyzerView draft={draft} setDraft={setDraft} inputs={inputs} updateInput={updateInput} analysis={analysis} importUrl={importUrl} setImportUrl={setImportUrl} importBusy={importBusy} importMessage={importMessage} onImport={handleImport} onSave={handleSave} saving={saving} signedIn={Boolean(user)} step={analyzerStep} setStep={setAnalyzerStep} editing={Boolean(editingPropertyId)} />}
