@@ -380,7 +380,6 @@ function StepMarket({
             onChange={(value) => patchFeatures(setDraft, { rentalStrategy: value })}
             options={["commercial","office","building"].includes(draft.propertyType ?? "apartment") ? [
               { value: "commercial_lease", label: "Alquiler comercial" },
-              { value: "own_business", label: "Uso propio*" },
             ] : [
               { value: "long_term", label: "Larga estancia" },
               { value: "rooms", label: "Habitaciones" },
