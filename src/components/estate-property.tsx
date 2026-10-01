@@ -1,5 +1,6 @@
 "use client";
 
+import { RenovationDesk } from "./estate-renovation";
 import { OperationsDesk } from "./estate-operations";
 import type { ChangeEvent } from "react";
 import { useState } from "react";
@@ -18,7 +19,6 @@ import {
   Database,
   FileCheck2,
   Gauge,
-  Hammer,
   Home,
   Landmark,
   Loader2,
@@ -37,8 +37,6 @@ import type { EstateStage, PropertyImage, SavedDeal, ZoneAssessment } from "@/li
 import {
   analyzeStoredPropertyImage,
   deletePropertyImage,
-  deleteRenovationItem,
-  saveRenovationItem,
   saveRisk,
   setRiskResolved,
   updatePropertyImageAssessment,
@@ -181,7 +179,7 @@ export function PropertyWorkspace({
       {tab === "property" && <PropertyTabView user={user} deal={deal} run={run} />}
       {tab === "zone" && <ZoneTab user={user} deal={deal} run={run} />}
       {tab === "returns" && <ReturnsTab deal={deal} />}
-      {tab === "renovation" && <RenovationTab user={user} deal={deal} run={run} />}
+      {tab === "renovation" && <RenovationDesk user={user} deal={deal} run={run} />}
       {tab === "risk" && <RiskTab user={user} deal={deal} run={run} />}
       {tab === "plan" && <PlanTab deal={deal} onStageChange={onStageChange} />}
     </div>
@@ -294,7 +292,7 @@ function Fact({ label, value }: { label: string; value: string | number }) { ret
 function Utility({ label, value }: { label: string; value?: string }) { return <div className="utility-row"><span>{label}</span><strong className={!value ? "missing" : ""}>{value || "Sin verificar"}</strong></div>; }
 
 function PhotoCard({ user, image, run }: { user: User; image: PropertyImage; run: (task: () => Promise<void>) => Promise<void> }) {
-  return <article className="photo-card"><div className="photo-frame">{image.preview_url ? <Image src={image.preview_url} alt={image.room_type || "Foto del inmueble"} fill sizes="(max-width: 680px) 50vw, 180px" unoptimized /> : <Camera size={22} />}<button onClick={() => run(() => deletePropertyImage(user, image))} aria-label="Eliminar foto"><Trash2 size={12} /></button></div><select value={image.room_type || "unknown"} onChange={(event) => run(() => updatePropertyImageAssessment(user, image.id, { room_type: event.target.value }))}><option value="unknown">Sin estancia</option><option value="living_room">Salón</option><option value="kitchen">Cocina</option><option value="bedroom">Dormitorio</option><option value="bathroom">Baño</option><option value="facade">Fachada</option><option value="common_area">Comunes</option><option value="terrace">Terraza</option></select><label><span>Estado {image.condition_score ?? "—"}/100</span><input type="range" min="0" max="100" step="5" value={image.condition_score ?? 50} onChange={(event) => run(() => updatePropertyImageAssessment(user, image.id, { condition_score: Number(event.target.value), analysis: { ...(image.analysis ?? {}), status: "manual_reviewed" }, confidence: 1 }))} /></label><button className="ghost-button" onClick={() => run(() => analyzeStoredPropertyImage(user,image))}>Analizar foto con IA</button><p>{image.analysis?.status === "needs_human_review" ? "Estimación IA · pendiente de revisión" : image.analysis?.status === "manual_reviewed" ? "Revisada manualmente" : "Sin análisis IA"}</p>{image.analysis?.summary ? <p>{String(image.analysis.summary)}</p> : null}{Array.isArray(image.analysis?.manual_checks) && <ul>{image.analysis.manual_checks.map((check,index)=><li key={index}>{String(check)}</li>)}</ul>}{image.analysis?.status === "needs_human_review" && <button className="ghost-button" onClick={()=>run(()=>updatePropertyImageAssessment(user,image.id,{analysis:{...image.analysis,status:"manual_reviewed",reviewed_at:new Date().toISOString()}}))}>Confirmar revisión visual</button>}</article>;
+  return <article className="photo-card"><div className="photo-frame">{image.preview_url ? <Image src={image.preview_url} alt={image.room_type || "Foto del inmueble"} fill sizes="(max-width: 680px) 50vw, 180px" unoptimized /> : <Camera size={22} />}<button onClick={() => run(() => deletePropertyImage(user, image))} aria-label="Eliminar foto"><Trash2 size={12} /></button></div><select value={image.room_type || "unknown"} onChange={(event) => run(() => updatePropertyImageAssessment(user, image.id, { room_type: event.target.value }))}><option value="unknown">Sin estancia</option><option value="living_room">Salón</option><option value="kitchen">Cocina</option><option value="bedroom">Dormitorio</option><option value="bathroom">Baño</option><option value="facade">Fachada</option><option value="common_area">Comunes</option><option value="terrace">Terraza</option></select><label><span>Estado {image.condition_score ?? "—"}/100</span><input type="range" min="0" max="100" step="5" value={image.condition_score ?? 50} onChange={(event) => run(() => updatePropertyImageAssessment(user, image.id, { condition_score: Number(event.target.value), analysis: { ...(image.analysis ?? {}), status: "manual_reviewed" }, confidence: 1 }))} /></label><button className="ghost-button" onClick={() => run(() => analyzeStoredPropertyImage(user,image))}>Analizar foto con IA</button><p>{image.analysis?.status === "needs_human_review" ? "Estimación IA · pendiente de revisión" : image.analysis?.status === "manual_reviewed" ? "Revisada manualmente" : "Sin análisis IA"}</p>{image.analysis?.summary ? <p>{String(image.analysis.summary)}</p> : null}{image.confidence!==null&&<small>Confianza {Math.round(image.confidence*100)}% · observación visual</small>}{(['issues','positives','renovation_signals'] as const).map(key=>Array.isArray(image.analysis?.[key])?<details key={key}><summary>{key==='issues'?'Señales visibles':key==='positives'?'Puntos positivos':'Partidas a inspeccionar'}</summary><ul>{(image.analysis[key] as unknown[]).map((item,index)=><li key={index}>{typeof item==='string'?item:JSON.stringify(item)}</li>)}</ul></details>:null)}{Array.isArray(image.analysis?.manual_checks) && <ul>{image.analysis.manual_checks.map((check,index)=><li key={index}>{String(check)}</li>)}</ul>}{image.analysis?.status === "needs_human_review" && <button className="ghost-button" onClick={()=>run(()=>updatePropertyImageAssessment(user,image.id,{analysis:{...image.analysis,status:"manual_reviewed",reviewed_at:new Date().toISOString()}}))}>Confirmar revisión visual</button>}</article>;
 }
 
 function ZoneTab({ user, deal, run }: { user: User; deal: SavedDeal; run: (task: () => Promise<void>) => Promise<void> }) {
@@ -345,22 +343,6 @@ function ReturnsTab({ deal }: { deal: SavedDeal }) {
   );
 }
 function Waterfall({ label, value, base, tone }: { label: string; value: number; base: number; tone: string }) { const width = Math.max(3, Math.min(100, Math.abs(value) / Math.max(1, base) * 100)); return <div className={`waterfall-row waterfall-${tone}`}><span>{label}</span><div><i style={{ width: `${width}%` }} /></div><strong>{value >= 0 ? "+" : "−"}{fmtMoney(Math.abs(value))}</strong></div>; }
-
-function RenovationTab({ user, deal, run }: { user: User; deal: SavedDeal; run: (task: () => Promise<void>) => Promise<void> }) {
-  const items = deal.estate_renovation_items ?? [];
-  const input = dealInput(deal);
-  const [category, setCategory] = useState("Cocina"); const [mode, setMode] = useState<"pro"|"diy"|"hybrid">("hybrid"); const [cost, setCost] = useState(0); const [uplift, setUplift] = useState(0); const [required, setRequired] = useState(false);
-  const total = items.reduce((sum,item) => sum + (item.mode === "pro" ? item.pro_cost : item.mode === "diy" ? item.diy_material_cost : item.hybrid_cost),0);
-  const rentUplift = items.reduce((sum,item) => sum + item.estimated_rent_uplift_monthly,0);
-  async function add() { if (!category.trim() || cost <= 0) return; await run(() => saveRenovationItem(user, deal.id, { category, mode, pro_cost: mode === "pro" ? cost : 0, diy_material_cost: mode === "diy" ? cost : 0, hybrid_cost: mode === "hybrid" ? cost : 0, estimated_rent_uplift_monthly: uplift, professional_required: required, confidence: 0.5 })); setCost(0); setUplift(0); }
-  return (
-    <div className="workspace-grid renovation-workspace">
-      <Panel className="reno-summary"><div><span className="eyebrow">RENOVATION ENGINE</span><h2>{fmtMoney(total || input?.renovation || 0)}</h2><p>{items.length ? `${items.length} partidas reales/estimadas` : "provisión del underwriting, todavía sin desglosar"}</p></div><div className="reno-summary-kpis"><Metric label="Uplift alquiler" value={`+${fmtMoney(rentUplift)}/mes`} tone="good" /><Metric label="Partidas PRO" value={items.filter((item) => item.professional_required).length} /><Metric label="Confianza" value={items.length ? `${Math.round(items.reduce((sum,item)=>sum+item.confidence,0)/items.length*100)}%` : "—"} /></div></Panel>
-      <Panel className="reno-breakdown"><div className="panel-head"><div><span className="eyebrow">PARTIDAS</span><h3>Presupuesto por decisión, no por porcentaje</h3></div><Hammer size={17} /></div>{items.length ? <div className="reno-items">{items.map((item) => { const itemCost = item.mode === "pro" ? item.pro_cost : item.mode === "diy" ? item.diy_material_cost : item.hybrid_cost; return <div className="reno-item" key={item.id}><div><strong>{item.category}</strong><span>{item.mode.toUpperCase()} {item.professional_required ? "· profesional obligatorio" : ""}</span></div><div className="reno-item-bar"><i style={{ width: `${Math.min(100,itemCost/Math.max(1,...items.map((row)=>row.mode==='pro'?row.pro_cost:row.mode==='diy'?row.diy_material_cost:row.hybrid_cost))*100)}%` }} /></div><b>{fmtMoney(itemCost)}</b><small>{item.estimated_rent_uplift_monthly ? `+${fmtMoney(item.estimated_rent_uplift_monthly)}/mes` : "sin uplift probado"}</small><button onClick={() => run(() => deleteRenovationItem(user,item.id))}><Trash2 size={12} /></button></div>; })}</div> : <div className="reno-empty"><Hammer size={25} /><div><strong>La provisión de reforma aún es una sola cifra.</strong><p>Desglósala por cocina, baño, electricidad, pintura, suelo, ventanas, mobiliario… Cada partida puede ser PRO, DIY o híbrida.</p></div></div>}</Panel>
-      <Panel className="reno-add"><div className="panel-head"><div><span className="eyebrow">NUEVA PARTIDA</span><h3>Convertir incertidumbre en presupuesto</h3></div><Plus size={17} /></div><label className="field"><span className="field-label">Categoría</span><div className="input-shell"><input value={category} onChange={(event)=>setCategory(event.target.value)} /></div></label><div className="choice-row"><button className={mode==="diy"?"active":""} onClick={()=>setMode("diy")}>DIY</button><button className={mode==="hybrid"?"active":""} onClick={()=>setMode("hybrid")}>Híbrido</button><button className={mode==="pro"?"active":""} onClick={()=>setMode("pro")}>PRO</button></div><label className="field"><span className="field-label">Coste</span><div className="input-shell"><input type="number" min="0" value={cost||""} onChange={(event)=>setCost(Number(event.target.value))}/><small>€</small></div></label><label className="field"><span className="field-label">Uplift alquiler esperado</span><div className="input-shell"><input type="number" min="0" value={uplift||""} onChange={(event)=>setUplift(Number(event.target.value))}/><small>€/mes</small></div></label><button className={`boolean-card ${required?"active":""}`} onClick={()=>setRequired(!required)}><span>Profesional obligatorio</span><i>{required?<Check size={12}/>:null}</i></button><button className="primary-button" onClick={add}><Plus size={14}/> Añadir partida</button></Panel>
-    </div>
-  );
-}
 
 function RiskTab({ user, deal, run }: { user: User; deal: SavedDeal; run: (task: () => Promise<void>) => Promise<void> }) {
   const risks = deal.estate_risks ?? []; const [title,setTitle]=useState(""); const [category,setCategory]=useState("technical"); const [severity,setSeverity]=useState(50); const [kill,setKill]=useState(false);

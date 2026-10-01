@@ -4,8 +4,8 @@
 
 - Repositorio independiente `firekworks/estate`, rama `codex/estate-decision-os`.
 - Motor `estate_financial_v2.0.0`; Next.js 16.3.8; compilación con Node 24.19.0.
-- 23 pruebas unitarias pasan: amortización, capital, rentas, yield, techos, contado, financiación vendedor amortizable, stress, CSV, percentiles, riesgo bloqueante y score.
-- Migraciones `estate_decision_operations`, `estate_saved_searches`, `estate_strategy_and_capital` aplicadas al proyecto Supabase compartido, únicamente entidades Estate.
+- 31 pruebas unitarias pasan: amortización, capital, rentas, yield, techos, contado, financiación vendedor amortizable, stress, CSV, percentiles, riesgo bloqueante y score.
+- Migraciones `estate_decision_operations`, `estate_saved_searches`, `estate_strategy_and_capital`, `estate_investor_cashflows` aplicadas al proyecto Supabase compartido, únicamente entidades Estate.
 - Prueba SQL transaccional con rol authenticated y dos identidades: guardado atómico, dos análisis de una propiedad, deduplicación URL, caída de precio, visita que crea riesgo, bloqueo de compra, resolución y transición, cierre mensual, aislamiento RLS, FK de propietario y bloqueo de proveedor sin presupuesto. ROLLBACK de todos los registros de prueba.
 - Advisor de seguridad: ningún hallazgo asociado a entidades `estate_*`. Avisos de otras aplicaciones conservados sin modificación.
 - API local: health/status 200; research/vision/zone sin sesión 401; import sin URL 400.
@@ -21,13 +21,13 @@ Inicio por excepciones, Cartera basada en cierres reales, Mercado independiente 
 
 - Recorrido UI autenticado completo y estado poblado con la sesión del usuario. La prueba SQL no sustituye esta prueba.
 - Invocaciones reales OpenAI: sin clave ni presupuesto. Places/Routes y feeds contractuales no conectados. No se factura ni se afirma conexión por tener una clave.
-- GVA: enlace y contrato de estado disponibles; ingesta automática WFS/GPKG no implementada. No requiere una clave del usuario: es trabajo de integración pendiente.
-- Deduplicación física entre distintas URL, sugerencias de fusión, seguimiento automático de retirada/republicación y alertas por umbral: pendientes. La URL exacta normalizada conserva propiedad e historial al guardar.
-- Series geográficas avanzadas, isócronas, comparación A/B y time slider: pendientes. Los aforos CSV son agregados y no se mezclan con peatones.
-- Reforma: campos de desglose añadidos en BD; formulario avanzado y matriz ROI completos pendientes. No asumir que columnas equivalen a funcionalidad UI.
-- IRR/XIRR, series de cartera y calibración agrupada de modelos: pendientes. No se muestran métricas inventadas.
+- GVA WFS conectado y probado: consulta Castalla 2025 devuelve cuatro tramos (CV-80, CV-799, CV-806), representados como geometría real. HTTP 400 para coordenadas/años inválidos. Licencia CC BY y año conservados; ingesta diaria/GPKG pendiente.
+- Coincidencias de dirección sugieren vinculación manual; no se fusiona con baja confianza. Deduplicación por fotos/coordenadas, seguimiento automático de retirada/republicación y alertas por umbral: pendientes. La URL normalizada conserva propiedad e historial.
+- Filtros temporales, hora, laborable/fin de semana y comparación A/B de datasets implementados; isócronas y análisis espacial avanzado pendientes. A/B advierte metodología/unidades; no prueba causalidad.
+- Reforma: formulario avanzado y matriz ROI implementados (cantidades, unitarios, materiales, mano de obra, contingencia, fuente, mejoras estimadas y techo orientativo). Pendiente prueba UI autenticada.
+- XIRR ACT/365 implementada sobre movimientos reales de inversor, con rechazo de flujos ambiguos. NOI, ocupación, serie de cash-flow y error medio agrupado implementados. Calibración automática no activada; faltan análisis de reforma/días de alquiler y parámetros de calibración versionados.
 - Recalcular automáticamente todos los supuestos tras visita requiere presupuestos/evidencias: la visita registra riesgos y tarea; no inventa costes ni altera el análisis silenciosamente.
-- Escenarios de estrategia se guardan pero falta listado de versiones en UI y proyecciones hold con apreciación/coste oportunidad.
+- Escenarios de estrategia se guardan y se listan por fecha/versión. Proyección de mantener con amortización, apreciación, CAPEX, descuento por coste de oportunidad y comparación con venta actual implementada y cubierta por tres pruebas; pendiente recorrido UI autenticado.
 - Auditoría Axe exhaustiva, todas las pantallas pobladas a seis resoluciones y logs productivos posteriores al despliegue: pendientes.
 
 ## Configuración y costes
@@ -37,3 +37,11 @@ Inicio por excepciones, Cartera basada en cierres reales, Mercado independiente 
 - La reserva no equivale a factura real ni garantiza tarifa de proveedor: configurar según precios/uso máximos y revisar consumo. Aún falta conciliación exacta de tokens, errores y latencia.
 - Google requiere clave y activación del servicio correspondiente; los proveedores comerciales requieren contrato/licencia y validación técnica.
 - Sin nuevas suscripciones, compras ni activaciones de proveedores en este trabajo.
+
+## Ampliación posterior
+
+Migración estate_investor_cashflows aplicada; historial de propiedad y escenarios visible; riesgo con responsable/plazo/fuente; 31 tests pasan. PR #4 y preview dpl_6v7SjbwWSPXKM7rXUpEQcRAtF3mD READY corresponden a la primera entrega; actualizar despliegue para incorporar esta ampliación.
+
+## Validación de esta ampliación
+
+31 pruebas pasan. Financiación total sin impuestos no emite Infinity; una tasación inferior sustituye deuda por aportación sin tratarla como gasto. Revisión de seguridad después de las cuatro migraciones: cero hallazgos Estate. Analizador sin overflow en las seis resoluciones sobre compilación de producción local; capturas `release-analyzer-*` y medidas `release-responsive.json`. Esto no sustituye las pantallas privadas pobladas.

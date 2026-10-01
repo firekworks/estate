@@ -1,0 +1,44 @@
+[
+  {
+    "viewport": [
+      1440,
+      900
+    ],
+    "result": "\"{\\\"width\\\":1440,\\\"overflow\\\":false,\\\"heading\\\":\\\"Una decisi\u00f3n. Seis pasos.\\\"}\""
+  },
+  {
+    "viewport": [
+      1512,
+      982
+    ],
+    "result": "\"{\\\"width\\\":1512,\\\"overflow\\\":false,\\\"heading\\\":\\\"Una decisi\u00f3n. Seis pasos.\\\"}\""
+  },
+  {
+    "viewport": [
+      1728,
+      1117
+    ],
+    "result": "\"{\\\"width\\\":1728,\\\"overflow\\\":false,\\\"heading\\\":\\\"Una decisi\u00f3n. Seis pasos.\\\"}\""
+  },
+  {
+    "viewport": [
+      1280,
+      800
+    ],
+    "result": "\"{\\\"width\\\":1280,\\\"overflow\\\":false,\\\"heading\\\":\\\"Una decisi\u00f3n. Seis pasos.\\\"}\""
+  },
+  {
+    "viewport": [
+      768,
+      1024
+    ],
+    "result": "\"{\\\"width\\\":768,\\\"overflow\\\":false,\\\"heading\\\":\\\"Una decisi\u00f3n. Seis pasos.\\\"}\""
+  },
+  {
+    "viewport": [
+      390,
+      844
+    ],
+    "result": "\"{\\\"width\\\":390,\\\"overflow\\\":false,\\\"heading\\\":\\\"Una decisi\u00f3n. Seis pasos.\\\"}\""
+  }
+]

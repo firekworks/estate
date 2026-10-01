@@ -265,13 +265,18 @@ export function analyzeDeal(raw: DealInputs): DealAnalysis {
   const leverage = input.financingMode === "cash" ? 0 : pct(input.ltvPct);
   const debtPerEuro = mortgagePayment(leverage, input.interestPct, input.termYears);
   const validLimit = (value: number | undefined) => typeof value === "number" && Number.isFinite(value) && value >= 0;
+  const capitalPerEuro = 1 - leverage + pct(input.purchaseTaxPct);
+  const capitalAfterFixedCosts = (input.availableCapital ?? 0) - nonPriceCosts - Math.max(0, input.reserve);
+  const capitalCeiling = !validLimit(input.availableCapital) ? null
+    : capitalAfterFixedCosts < 0 ? 0
+    : capitalPerEuro > 0 ? capitalAfterFixedCosts / capitalPerEuro : null;
   const purchaseCeilings: Record<string, number | null> = {
     yield: yieldCeiling,
     cashflow: validLimit(input.minMonthlyCashFlow) && debtPerEuro > 0 ? Math.max(0, (base.noiMonthly - input.minMonthlyCashFlow!) / debtPerEuro) : validLimit(input.minMonthlyCashFlow) && base.noiMonthly < input.minMonthlyCashFlow! ? 0 : null,
     dscr: input.minDscr && input.minDscr > 0 && debtPerEuro > 0 ? Math.max(0, base.noiMonthly / (input.minDscr * debtPerEuro)) : null,
     market_comps: validLimit(input.marketComparableCeiling) ? input.marketComparableCeiling! : null,
     financing: validLimit(input.financingLoanLimit) && leverage > 0 ? input.financingLoanLimit! / leverage : null,
-    available_capital: validLimit(input.availableCapital) ? Math.max(0, (input.availableCapital! - nonPriceCosts - Math.max(0, input.reserve)) / (1 - leverage + pct(input.purchaseTaxPct))) : null,
+    available_capital: capitalCeiling,
     appraisal: validLimit(input.appraisalValue) && leverage > 0 ? input.appraisalValue! : null,
   };
   const applicable = Object.entries(purchaseCeilings).filter((entry): entry is [string, number] => entry[1] !== null && Number.isFinite(entry[1]));
@@ -308,11 +313,15 @@ export function analyzeDeal(raw: DealInputs): DealAnalysis {
     { key: "rehab_50", label: "Reforma +50%", renovation: 1.5 },
     ...(input.unexpectedCapex === undefined ? [] : [{ key: "capex", label: "CAPEX imprevisto", capex: input.unexpectedCapex }]),
     ...(input.marketValueEstimate ? [{ key: "value_10", label: "Valor de mercado −10%", valueFactor: .9 }] : []),
-    ...(input.appraisalValue ? [{ key: "appraisal_10", label: "Tasación −10%", capex: input.appraisalValue * .1 * leverage, valueFactor: .9 }] : []),
+    ...(input.appraisalValue ? [{ key: "appraisal_10", label: "Tasación −10%", valueFactor: .9 }] : []),
     ...(combined ? [{key: "combined", label: "Escenario combinado", rent: Math.max(0,1 + combined.rentPct / 100), vacancy: combined.vacancyPp, rate: combined.ratePp, renovation: Math.max(0,1 + combined.renovationPct / 100), capex: combined.capex}] : []),
   ];
   const stress: StressScenario[] = stressDefinitions.map((scenario) => {
-    const result = operationsAt({...input, vacancyPct: clamp(input.vacancyPct + (scenario.vacancy ?? 0),0,100)}, scenario.rent ?? 1, scenario.rate ?? 0, scenario.renovation ?? 1);
+    // A lower appraisal reduces the lender advance; the extra equity is not an expense.
+    const stressedLoan = scenario.key === "appraisal_10"
+      ? Math.min(base.loanAmount, input.appraisalValue! * .9 * leverage) : base.loanAmount;
+    const stressedLtv = input.purchasePrice > 0 ? stressedLoan / input.purchasePrice * 100 : input.ltvPct;
+    const result = operationsAt({...input, ltvPct: stressedLtv, vacancyPct: clamp(input.vacancyPct + (scenario.vacancy ?? 0),0,100)}, scenario.rent ?? 1, scenario.rate ?? 0, scenario.renovation ?? 1);
     const capex = Math.max(0, scenario.capex ?? 0);
     const capital = result.capitalRequired + capex;
     const valuationBase = scenario.key === "appraisal_10" ? input.appraisalValue : input.marketValueEstimate;

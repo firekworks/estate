@@ -171,6 +171,7 @@ export default function EstatePage() {
   const [editingPropertyId, setEditingPropertyId] = useState<string | null>(null);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
 
+  const possibleDuplicates = savedDeals.filter(d=>!editingPropertyId&&(draft.address??"").trim().length>6&&d.address?.trim().toLowerCase()===(draft.address??"").trim().toLowerCase()&&d.municipality?.toLowerCase()===draft.municipality.toLowerCase());
   const analysis = useMemo(() => analyzeDeal(inputs), [inputs]);
   const selectedDeal = useMemo(() => savedDeals.find((deal) => deal.id === selectedPropertyId) ?? null, [savedDeals, selectedPropertyId]);
 
@@ -351,11 +352,12 @@ export default function EstatePage() {
           {statusMessage && <button className="toast" onClick={() => setStatusMessage("")}><span className="status-dot" />{statusMessage}<X size={13} /></button>}
           {loadingDeals && user && savedDeals.length === 0 ? <div className="global-loading"><Loader2 size={18} className="spin" /> Cargando…</div> : null}
           {view === "home" && <HomeView deals={savedDeals} onNew={startNewDeal} onExplore={() => selectView("explore")} onOpen={openProperty} onOpportunities={() => selectView("opportunities")} />}
-          {view === "explore" && <ExploreView deals={savedDeals} onNew={startNewDeal} onOpen={openProperty} user={user} onCandidate={startResearchCandidate} />}
-          {view === "market" && <MarketIntelligence />}
-          {view === "mobility" && <MobilityView user={user} />}
+          {view === "explore" && <ExploreView key={user?.id??"guest"} deals={savedDeals} onNew={startNewDeal} onOpen={openProperty} user={user} onCandidate={startResearchCandidate} />}
+          {view === "market" && <MarketIntelligence key={user?.id??"guest"} />}
+          {view === "mobility" && <MobilityView key={user?.id??"guest"} user={user} />}
           {view === "opportunities" && <OpportunitiesView deals={savedDeals} onNew={startNewDeal} onOpen={openProperty} onStageChange={changeDealStage} />}
           {view === "portfolio" && <PortfolioView deals={savedDeals} onOpen={openProperty} onOpportunities={() => selectView("opportunities")} />}
+          {view === "analyze" && possibleDuplicates.length>0 && <div className="panel"><p>Coincidencia de dirección: verifica planta, puerta y superficie antes de vincular. No se fusiona automáticamente.</p>{possibleDuplicates.map(d=><button className="ghost-button" key={d.id} onClick={()=>setEditingPropertyId(d.id)}>Guardar este anuncio en {d.title} · {d.built_area_m2??'—'} m² · {d.floor_label??'sin planta'}</button>)}</div>}
           {view === "analyze" && <AnalyzerView draft={draft} setDraft={setDraft} inputs={inputs} updateInput={updateInput} analysis={analysis} importUrl={importUrl} setImportUrl={setImportUrl} importBusy={importBusy} importMessage={importMessage} onImport={handleImport} onSave={handleSave} saving={saving} signedIn={Boolean(user)} step={analyzerStep} setStep={setAnalyzerStep} editing={Boolean(editingPropertyId)} />}
           {view === "property" && selectedDeal && user && <PropertyWorkspace key={selectedDeal.id} user={user} deal={selectedDeal} onBack={() => selectView("opportunities")} onReanalyze={() => reanalyzeProperty(selectedDeal)} onStageChange={(stage) => changeDealStage(selectedDeal, stage)} onRefresh={refreshCurrentWorkspace} />}
           {view === "property" && !selectedDeal && <div className="global-loading">Propiedad no disponible. <button className="text-link button-link" onClick={() => selectView("opportunities")}>Volver</button></div>}

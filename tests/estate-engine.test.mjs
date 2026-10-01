@@ -130,3 +130,17 @@ test("cash financing removes debt service regardless of stale LTV",()=>{const r=
 test("seller amortizing financing uses same explicit loan terms",()=>{const r=analyzeDeal({...BASE,financingMode:'seller',interestPct:0,termYears:10,ltvPct:50});assert.equal(r.mortgageMonthly,300);});
 test("combined stress and extra capex reduce cash and increase capital",()=>{const base=analyzeDeal(BASE);const r=analyzeDeal({...BASE,unexpectedCapex:12000,combinedStress:{rentPct:-20,vacancyPp:10,ratePp:2,renovationPct:50,capex:12000}});const stress=r.stress.find(s=>s.key==='combined');assert.ok(stress.monthlyCashFlow<base.netMonthlyCashFlow);assert.ok(stress.capitalRequired>base.capitalRequired);});
 test("financing zero is a real ceiling only for financed deals",()=>{assert.equal(analyzeDeal({...BASE,financingLoanLimit:0}).maxPurchasePrice,0);assert.equal(analyzeDeal({...BASE,financingMode:'cash',financingLoanLimit:0}).purchaseCeilings.financing,null);});
+
+ test("full financing with no purchase tax handles fixed capital without Infinity", () => {
+  const funded = analyzeDeal({...BASE,ltvPct:100,purchaseTaxPct:0,availableCapital:10000});
+  assert.equal(funded.purchaseCeilings.available_capital,null);
+  const unfunded = analyzeDeal({...BASE,ltvPct:100,purchaseTaxPct:0,availableCapital:0});
+  assert.equal(unfunded.purchaseCeilings.available_capital,0);
+ });
+ test("lower appraisal replaces debt with equity without treating equity as annual expense", () => {
+  const result = analyzeDeal({...BASE,appraisalValue:BASE.purchasePrice});
+  const stressed = result.stress.find(s=>s.key==='appraisal_10');
+  closeTo(stressed.capitalRequired-result.capitalRequired,result.loanAmount*.1);
+  assert.ok(stressed.monthlyCashFlow>result.netMonthlyCashFlow);
+  closeTo(stressed.equity,BASE.purchasePrice*.9-result.loanAmount*.9);
+ });

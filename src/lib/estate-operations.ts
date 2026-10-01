@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-export const operationTables = ['estate_tasks','estate_visits','estate_offers','estate_actual_performance','estate_comparables','estate_evidence','estate_documents','estate_tenancies'] as const;
+export const operationTables = ['estate_investor_cashflows','estate_tasks','estate_visits','estate_offers','estate_actual_performance','estate_comparables','estate_evidence','estate_documents','estate_tenancies'] as const;
 export type OperationTable = typeof operationTables[number];
 export type OperationalRecord = {id:string;property_id:string;created_at:string;[key:string]:unknown};
 export async function loadOperations(propertyId:string) {
