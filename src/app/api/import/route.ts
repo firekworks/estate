@@ -1,3 +1,4 @@
+import { reserveProvider } from "@/lib/provider-budget";
 import { NextResponse } from "next/server";
 import { hasOpenAIKey, openAIStructured } from "@/lib/openai-estate";
 import { requireEstateUser } from "@/lib/server-auth";
@@ -91,6 +92,7 @@ export async function POST(request: Request) {
   }
 
   try {
+    await reserveProvider(request);
     const listing = await openAIStructured<Record<string, unknown>>({
       model: process.env.OPENAI_ESTATE_RESEARCH_MODEL,
       instructions: "Extrae datos de un anuncio inmobiliario con máxima trazabilidad. Si un campo no está respaldado por la URL o fuentes públicas inequívocas, devuelve null. Nunca inventes valores.",

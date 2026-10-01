@@ -41,6 +41,6 @@ export type SourceStatus = {
   key: string;
   label: string;
   kind: "manual" | "agent" | "api" | "feed" | "geo";
-  status: "ready" | "needs_key" | "available_on_request";
+  status: "ready" | "needs_setup" | "needs_key" | "available_on_request";
   detail: string;
 };

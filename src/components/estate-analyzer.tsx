@@ -32,6 +32,8 @@ import {
   SectionHead,
 } from "@/components/estate-primitives";
 
+const ceilingLabels:Record<string,string>={yield:"Rentabilidad objetivo",cashflow:"Cash-flow mínimo",dscr:"Cobertura de deuda",market_comps:"Comparables",financing:"Financiación",available_capital:"Capital disponible",appraisal:"Tasación"};
+
 const STEPS = [
   { label: "Captura", helper: "Qué estás mirando", icon: <Search size={15} /> },
   { label: "Inmueble", helper: "Qué estás comprando", icon: <Building2 size={15} /> },
@@ -233,6 +235,9 @@ function StepCapture({
           options={[
             { value: "apartment", label: "Piso" },
             { value: "house", label: "Casa" },
+            { value: "studio", label: "Estudio" },
+            { value: "garage", label: "Garaje" },
+            { value: "land", label: "Suelo" },
             { value: "commercial", label: "Local" },
             { value: "office", label: "Oficina" },
             { value: "building", label: "Edificio" },
@@ -304,6 +309,7 @@ function StepProperty({
         <TextField label="Planta" value={draft.floorLabel ?? ""} kind="fact" placeholder="2ª" onChange={(value) => setDraft((current) => ({ ...current, floorLabel: value }))} />
       </div>
 
+      {["commercial","office"].includes(draft.propertyType ?? "") && <div className="field-grid three">{([['frontage','Fachada (m)'],['visibility','Visibilidad'],['parking','Parking'],['access','Accesibilidad'],['licensing','Licencia / uso'],['power','Potencia eléctrica'],['emergencyExit','Salida de emergencia'],['ventilation','Ventilación'],['anchors','Comercios de referencia']] as const).map(([key,label])=><TextField key={key} label={label} value={String(draft.features?.commercial?.[key] ?? '')} kind="fact" onChange={value=>patchFeatures(setDraft,{commercial:{...draft.features?.commercial,[key]:key==='frontage'?(value?Number(value):undefined):value}})}/>)}</div>}
       <div className="subsection">
         <span className="subsection-title">EDIFICIO Y EXTRAS</span>
         <div className="boolean-grid">
@@ -412,6 +418,7 @@ function StepPurchase({
         <NumberField label="Notaría + registro" value={inputs.notaryRegistry} suffix="€" kind="assumption" onChange={(value) => updateInput("notaryRegistry", value)} />
         <NumberField label="Tasación" value={inputs.appraisal} suffix="€" kind="assumption" onChange={(value) => updateInput("appraisal", value)} />
       </div>
+      <div className="subsection"><span className="subsection-title">PRESET EDITABLE</span><Choice value="" onChange={v=>{updateInput('ltvPct',v==='conservative'?40:v==='base'?60:75);updateInput('vacancyPct',v==='conservative'?10:5);}} options={[{value:'conservative',label:'Conservador'},{value:'base',label:'Base'},{value:'leveraged',label:'Apalancado'}]}/><Choice value={inputs.financingMode??'mortgage'} onChange={v=>updateInput('financingMode',v as DealInputs['financingMode'])} options={[{value:'cash',label:'Contado'},{value:'mortgage',label:'Hipoteca'},{value:'seller',label:'Vendedor · amortizable'}]}/></div>
       <div className="finance-block">
         <div className="finance-block-head">
           <span className="subsection-title">FINANCIACIÓN</span>
@@ -428,6 +435,7 @@ function StepPurchase({
           <span>Entrada {fmtPct(100 - inputs.ltvPct)}</span>
         </div>
       </div>
+      <details className="advanced-settings"><summary>Límites de inversión y stress combinado</summary><p>Los campos vacíos no aplican. Cero es un límite explícito. La tasación limita el precio financiable con el LTV indicado.</p><div className="field-grid three">{([['availableCapital','Capital disponible €'],['minMonthlyCashFlow','Cash-flow mínimo €/mes'],['minDscr','DSCR mínimo'],['marketComparableCeiling','Techo comparables €'],['financingLoanLimit','Préstamo máximo €'],['appraisalValue','Valor de tasación €'],['unexpectedCapex','CAPEX imprevisto €']] as const).map(([key,label])=><label className="field" key={key}>{label}<input type="number" min="0" step="any" value={inputs[key]??''} onChange={e=>updateInput(key,e.target.value===''?undefined:Number(e.target.value))}/></label>)}</div><div className="field-grid three">{([['rentPct','Cambio renta %'],['vacancyPp','Vacancia adicional pp'],['ratePp','Cambio interés pp'],['renovationPct','Cambio reforma %'],['capex','CAPEX €']] as const).map(([key,label])=><label key={key}>{label}<input type="number" step="any" value={inputs.combinedStress?.[key]??''} onChange={e=>updateInput('combinedStress',{rentPct:0,vacancyPp:0,ratePp:0,renovationPct:0,capex:0,...inputs.combinedStress,[key]:Number(e.target.value)})}/></label>)}</div></details>
       <div className="field-grid two">
         <NumberField label="Otros costes financiación" value={inputs.financingFees} suffix="€" kind="assumption" onChange={(value) => updateInput("financingFees", value)} />
       </div>
@@ -599,6 +607,7 @@ export function AnalyzerView({
         {STEPS.map((item, index) => (
           <button
             key={item.label}
+            aria-label={item.label+" · "+item.helper}
             className={`${step === index ? "active" : ""} ${index < step ? "done" : ""}`}
             onClick={() => setStep(index)}
           >
@@ -644,7 +653,7 @@ export function AnalyzerView({
         <aside className="live-underwriting">
           <div className="live-head">
             <div><span className="eyebrow">LIVE UNDERWRITING</span><h3>{draft.title || "Sin nombre"}</h3></div>
-            <ScoreDial score={analysis.score} size="sm" />
+            {inputs.purchasePrice>0 && inputs.monthlyRent>0 ? <ScoreDial score={analysis.score} size="sm" /> : <span>Faltan precio y renta</span>}
           </div>
           <div className="live-metrics">
             <Metric label="Capital" value={fmtMoney(analysis.capitalRequired)} />
@@ -660,7 +669,8 @@ export function AnalyzerView({
             </div>
             <div><small>máximo</small><b>{fmtMoney(analysis.maxPurchasePrice)}</b></div>
           </div>
-          <DataMeter value={Math.round(analysis.scoreCoverage * 100)} label="confianza del score" />
+          <div className="ceiling-list"><strong>Techo limitante: {ceilingLabels[analysis.limitingCeiling??'']??'sin datos aplicables'}</strong>{Object.entries(analysis.purchaseCeilings).map(([key,value])=><div key={key}><span>{ceilingLabels[key]??key}</span><b>{fmtMoney(value)}</b></div>)}</div>
+          <DataMeter value={Math.round(analysis.scoreCoverage * 100)} label="cobertura del cálculo financiero" />
           <div className={`stress-badge stress-${analysis.stressStatus}`}>
             <Sparkles size={14} />
             <div><span>Stress test</span><strong>{analysis.stressStatus === "green" ? "Resistente" : analysis.stressStatus === "orange" ? "Frágil" : "No resiste"}</strong></div>

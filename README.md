@@ -1,10 +1,12 @@
+> Estado de la ampliación 2.0: funcionalidades, pruebas y limitaciones verificadas en [docs/verification-2026-10-01.md](docs/verification-2026-10-01.md). La especificación completa todavía tiene puntos pendientes; no confundir una compilación correcta con aceptación end-to-end.
+
 # Estate · Firekworks
 
 **Real Estate Intelligence OS** para encontrar, contrastar, analizar, validar y operar inversiones inmobiliarias con trazabilidad.
 
 Estate separa **hechos, estimaciones y supuestos**. Un dato ausente permanece ausente; la confianza forma parte del resultado.
 
-## Estate v1.4
+## Estate v2.0
 
 Stack:
 

@@ -6,7 +6,7 @@ export async function GET() {
     version: "1.4",
     sources: [
       { key: "manual_csv", label: "CSV / aforo propio", modes: ["walk","drive","bike","transit"], status: "ready", access: "free", resolution: "depende de la fuente" },
-      { key: "gva_imd", label: "GVA · IMD carreteras", modes: ["drive"], status: "ready", access: "open_data", resolution: "tramos de carretera", freshness: "anual · 2009-2025" },
+      { key: "gva_imd", label: "GVA · IMD carreteras", modes: ["drive"], status: "needs_setup", access: "open_data", resolution: "tramos de carretera", freshness: "anual · 2009-2025" },
       { key: "google_traffic", label: "Google Traffic", modes: ["drive"], status: google ? "key_available" : "needs_key", access: "api", resolution: "tramos / rutas", note: "tráfico actual y ETA; no es afluencia peatonal" },
       { key: "mytraffic", label: "MyTraffic", modes: ["walk","drive"], status: "license_required", access: "commercial", resolution: "hasta ~10 m según proveedor" },
       { key: "mapbox_movement", label: "Mapbox Movement", modes: ["walk","drive"], status: "license_required", access: "enterprise", resolution: "agregada" },

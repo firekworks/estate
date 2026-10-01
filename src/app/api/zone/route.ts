@@ -1,3 +1,4 @@
+import { reserveProvider } from "@/lib/provider-budget";
 import { NextResponse } from "next/server";
 import { openAIStructured } from "@/lib/openai-estate";
 import { requireEstateUser } from "@/lib/server-auth";
@@ -69,6 +70,7 @@ export async function POST(request: Request) {
   ].join("\n");
 
   try {
+    await reserveProvider(request);
     const zone = await openAIStructured<Record<string, unknown>>({
       model: process.env.OPENAI_ESTATE_RESEARCH_MODEL,
       instructions: "Eres el analista de microzona de Estate. Diferencias hechos, estimaciones y ausencia de evidencia. Investigas antes de puntuar.",

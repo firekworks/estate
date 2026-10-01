@@ -1,50 +1,18 @@
 "use client";
-
-import { ArrowRight, Building2, CircleDollarSign, LineChart, RefreshCw, TrendingUp, Wallet } from "lucide-react";
-import type { SavedDeal } from "@/lib/estate-store";
-import { dealInput, dealOutput, fmtMoney, fmtPct, Metric, Panel, SectionHead } from "@/components/estate-primitives";
-
-export function PortfolioView({ deals, onOpen, onOpportunities }: { deals: SavedDeal[]; onOpen: (deal: SavedDeal) => void; onOpportunities: () => void }) {
-  const assets = deals.filter((deal) => deal.stage === "purchased" || deal.stage === "managed");
-  const rows = assets.map((deal) => {
-    const input = dealInput(deal); const out = dealOutput(deal);
-    const value = input?.marketValueEstimate || input?.purchasePrice || 0; const debt = out?.loanAmount ?? 0; const equity = Math.max(0, value - debt);
-    return { deal, input, out, value, debt, equity };
-  });
-  const totalValue = rows.reduce((sum, item) => sum + item.value, 0);
-  const totalDebt = rows.reduce((sum, item) => sum + item.debt, 0);
-  const totalEquity = rows.reduce((sum, item) => sum + item.equity, 0);
-  const cashflow = rows.reduce((sum, item) => sum + (item.out?.netMonthlyCashFlow ?? 0), 0);
-  const avgYield = rows.length ? rows.reduce((sum, item) => sum + (item.out?.netYieldPct ?? 0), 0) / rows.length : 0;
-
-  if (!assets.length) {
-    return <div className="view view-portfolio visual-first v14-view"><SectionHead eyebrow="PORTFOLIO" title="Cartera." />
-      <div className="portfolio-empty-composition">
-        <Panel className="portfolio-loop-empty">
-          <div className="portfolio-loop-graphic"><div className="loop-core"><Wallet size={22} /><strong>CAPITAL</strong></div><div className="loop-node l1">COMPRAR</div><ArrowRight className="loop-arrow a1" size={14} /><div className="loop-node l2">MEJORAR</div><ArrowRight className="loop-arrow a2" size={14} /><div className="loop-node l3">ALQUILAR</div><ArrowRight className="loop-arrow a3" size={14} /><div className="loop-node l4">MEDIR</div><RefreshCw className="loop-arrow a4" size={14} /></div>
-        </Panel>
-        <div className="portfolio-empty-side">
-          <div><span>ACTIVOS</span><strong>0</strong></div>
-          <div><span>EQUITY</span><strong>—</strong></div>
-          <div><span>CASH-FLOW</span><strong>—</strong></div>
-          <button className="primary-button" onClick={onOpportunities}>Abrir pipeline <ArrowRight size={14} /></button>
-        </div>
-      </div>
-    </div>;
-  }
-
-  const debtPct = totalValue > 0 ? Math.min(100, (totalDebt / totalValue) * 100) : 0;
-  return (
-    <div className="view view-portfolio visual-first v14-view">
-      <SectionHead eyebrow="PORTFOLIO" title="Cartera." />
-      <div className="portfolio-kpis visual-portfolio-kpis"><Metric label="VALOR" value={fmtMoney(totalValue)} /><Metric label="DEUDA" value={fmtMoney(totalDebt)} /><Metric label="EQUITY" value={fmtMoney(totalEquity)} tone="accent" /><Metric label="CASH-FLOW" value={`${fmtMoney(cashflow)}/m`} tone={cashflow >= 0 ? "good" : "bad"} /><Metric label="YIELD" value={fmtPct(avgYield)} /></div>
-
-      <div className="portfolio-grid visual-portfolio-grid">
-        <Panel className="equity-structure"><div className="visual-panel-head"><span><CircleDollarSign size={15} /> CAPITAL STACK</span><strong>{Math.round(debtPct)}% LTV</strong></div><div className="equity-donut" style={{ "--debt": `${debtPct * 3.6}deg` } as React.CSSProperties}><div><strong>{fmtMoney(totalEquity)}</strong><span>equity</span></div></div><div className="equity-legend"><span><i className="equity-dot" />Equity {fmtMoney(totalEquity)}</span><span><i className="debt-dot" />Deuda {fmtMoney(totalDebt)}</span></div></Panel>
-        <Panel className="portfolio-performance"><div className="visual-panel-head"><span><LineChart size={15} /> CASH-FLOW / ACTIVO</span></div><div className="performance-bars">{rows.map((item) => { const contribution = Math.max(0, item.out?.netMonthlyCashFlow ?? 0); const max = Math.max(1, ...rows.map((row) => Math.max(0, row.out?.netMonthlyCashFlow ?? 0))); return <button key={item.deal.id} onClick={() => onOpen(item.deal)}><div><strong>{item.deal.title}</strong><span>{item.deal.municipality || "—"}</span></div><div className="performance-track"><i style={{ width: `${(contribution / max) * 100}%` }} /></div><b>{fmtMoney(item.out?.netMonthlyCashFlow ?? 0)}</b></button>; })}</div></Panel>
-      </div>
-
-      <Panel className="asset-table-panel"><div className="visual-panel-head"><span><Building2 size={15} /> ACTIVOS</span><TrendingUp size={15} /></div><div className="asset-table"><div className="asset-row asset-head"><span>Activo</span><span>Valor</span><span>Equity</span><span>Yield</span><span>Cash-flow</span><span>Estado</span></div>{rows.map((item) => <button className="asset-row" key={item.deal.id} onClick={() => onOpen(item.deal)}><strong>{item.deal.title}<small>{item.deal.municipality || ""}</small></strong><span>{fmtMoney(item.value)}</span><span>{fmtMoney(item.equity)}</span><span>{fmtPct(item.out?.netYieldPct)}</span><span className={(item.out?.netMonthlyCashFlow ?? 0) >= 0 ? "positive" : "negative"}>{fmtMoney(item.out?.netMonthlyCashFlow)}</span><span>{item.deal.stage === "managed" ? "Alquilado" : "Comprado"}</span></button>)}</div></Panel>
-    </div>
-  );
+import { useState } from 'react';
+import type { SavedDeal } from '@/lib/estate-store';
+import { SectionHead, Panel, Metric, fmtMoney, fmtPct, dealOutput } from './estate-primitives';
+export function PortfolioView({deals,onOpen,onOpportunities}:{deals:SavedDeal[];onOpen:(d:SavedDeal)=>void;onOpportunities:()=>void}){
+ const assets=deals.filter(d=>['purchased','rehab','marketing','managed'].includes(d.stage));
+ const periods=[...new Set(assets.flatMap(d=>(d.estate_actual_performance??[]).map(r=>r.period)))].sort().reverse();
+ const [selected,setSelected]=useState('');const period=selected||periods[0]||'';
+ const rows=assets.map(deal=>({deal,actual:deal.estate_actual_performance?.find(r=>r.period===period)}));
+ const covered=rows.filter(r=>r.actual),total=(key:'valuation'|'debt_balance')=>covered.length===assets.length&&covered.every(r=>r.actual![key]!==null)?covered.reduce((s,r)=>s+r.actual![key]!,0):null;
+ const value=assets.length?total('valuation'):null,debt=assets.length?total('debt_balance'):null;
+ const cf=covered.length?covered.reduce((s,r)=>s+r.actual!.rent_received-r.actual!.operating_expenses-r.actual!.debt_payment-r.actual!.capex,0):null;
+ return <div className="view"><SectionHead eyebrow="06 / MEDIR" title="Cartera" action={periods.length?<label>Periodo <select value={period} onChange={e=>setSelected(e.target.value)}>{periods.map(p=><option key={p}>{p}</option>)}</select></label>:undefined}/>
+ {!assets.length?<Panel className="onboarding-compact"><div><h2>Todavía no hay activos comprados</h2><p>La cartera se activa al registrar una compra en Pipeline.</p><button className="primary-button" onClick={onOpportunities}>Abrir Pipeline</button></div></Panel>:<>
+ <div className="portfolio-kpis"><Metric label="Valor documentado" value={fmtMoney(value)}/><Metric label="Deuda actual" value={fmtMoney(debt)}/><Metric label="Equity" value={fmtMoney(value===null||debt===null?null:value-debt)}/><Metric label="LTV" value={fmtPct(value&&debt!==null?debt/value*100:null)}/><Metric label="Cash-flow real registrado" value={fmtMoney(cf)} note={`${covered.length}/${assets.length} activos · ${period||'sin cierres'}`}/></div>
+ <Panel><h2>Previsión frente a realidad</h2><p>Importes mensuales. Sin cierre registrado se muestra «Sin datos».</p><div className="portfolio-table"><div className="portfolio-table-row"><b>Activo</b><b>Previsto</b><b>Real</b><b>Desviación</b><b>CAPEX</b></div>{rows.map(({deal,actual})=>{const forecast=actual?.forecast?.outputs as {netMonthlyCashFlow?:number}|undefined;const predicted=forecast?.netMonthlyCashFlow??dealOutput(deal)?.netMonthlyCashFlow;const real=actual?actual.rent_received-actual.operating_expenses-actual.debt_payment-actual.capex:null;return <button className="portfolio-table-row" key={deal.id} onClick={()=>onOpen(deal)}><strong>{deal.title}<small>{deal.municipality}</small></strong><span>{fmtMoney(predicted)}</span><span>{real===null?'Sin datos':fmtMoney(real)}</span><span>{real===null||predicted===undefined?'—':fmtMoney(real-predicted)}</span><span>{fmtMoney(actual?.capex)}</span></button>;})}</div></Panel></>}
+ </div>;
 }

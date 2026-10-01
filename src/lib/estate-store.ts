@@ -1,5 +1,6 @@
 import type { User } from "@supabase/supabase-js";
 import type { DealAnalysis, DealInputs } from "@/lib/estate-engine";
+import { canonicalListingUrl } from "@/lib/estate-csv";
 import { supabase } from "@/lib/supabase";
 
 export type EstateStage =
@@ -7,13 +8,17 @@ export type EstateStage =
   | "analyzing"
   | "visit"
   | "negotiating"
+  | "financing"
+  | "deposit"
+  | "rehab"
+  | "marketing"
   | "discarded"
   | "purchased"
   | "managed"
   | "sold";
 
 export type EvidenceKind = "fact" | "estimate" | "assumption";
-export type EstatePropertyType = "apartment" | "house" | "studio" | "commercial" | "office" | "land" | "building" | "other";
+export type EstatePropertyType = "apartment" | "house" | "studio" | "commercial" | "office" | "land" | "building" | "garage" | "other";
 
 export type ZoneEvidence = { label: string; url: string };
 
@@ -34,6 +39,7 @@ export type ZoneAssessment = {
 };
 
 export type PropertyFeatures = {
+  commercial?: { frontage?: number; visibility?: string; parking?: string; access?: string; licensing?: string; power?: string; emergencyExit?: string; ventilation?: string; anchors?: string; flowScore?: number; flowConfidence?: number };
   exterior?: boolean | null;
   furnished?: boolean | null;
   heating?: string;
@@ -131,6 +137,7 @@ export type PropertyImage = {
 };
 
 export type RenovationItem = {
+  quantity?:number;unit_cost?:number|null;materials?:number|null;labor?:number|null;contingency_pct?:number;supplier_quote_url?:string|null;risk_reduction?:number|null;
   id: string;
   category: string;
   description: string | null;
@@ -149,6 +156,7 @@ export type RenovationItem = {
 };
 
 export type EstateRisk = {
+  owner_label?:string|null;due_at?:string|null;
   id: string;
   category: string;
   severity: number;
@@ -190,6 +198,9 @@ export type SavedDeal = {
   features: PropertyFeatures;
   notes: string | null;
   updated_at: string;
+  stage_entered_at?: string;
+  estate_tasks?: Array<{id:string;title:string;status:string;due_at:string|null}>;
+  estate_actual_performance?: Array<{id:string;period:string;rent_received:number;operating_expenses:number;debt_payment:number;capex:number;debt_balance:number|null;valuation:number|null;occupied_days:number|null;forecast:Record<string,unknown>}>;
   estate_listings?: EstateListing[];
   estate_market_estimates?: EstateMarketEstimate[];
   estate_property_images?: PropertyImage[];
@@ -249,129 +260,6 @@ function propertyPayload(user: User, draft: PropertyDraft, input: DealInputs) {
   };
 }
 
-async function writeListingSnapshot(user: User, propertyId: string, draft: PropertyDraft, input: DealInputs) {
-  const { data: existing, error: existingError } = await supabase
-    .from("estate_listings")
-    .select("id")
-    .eq("user_id", user.id)
-    .eq("property_id", propertyId)
-    .order("updated_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  throwIfError(existingError);
-
-  let listingId: string;
-  if (existing?.id) {
-    listingId = existing.id as string;
-    const { error } = await supabase
-      .from("estate_listings")
-      .update({
-        portal: draft.portal || "manual",
-        url: draft.listingUrl?.trim() || null,
-        asking_price: input.purchasePrice,
-        last_seen_at: new Date().toISOString(),
-        provenance: { entry: draft.listingUrl ? "url+assisted" : "manual", captured_at: new Date().toISOString() },
-      })
-      .eq("id", listingId)
-      .eq("user_id", user.id);
-    throwIfError(error);
-  } else {
-    const { data, error } = await supabase
-      .from("estate_listings")
-      .insert({
-        user_id: user.id,
-        property_id: propertyId,
-        portal: draft.portal || "manual",
-        url: draft.listingUrl?.trim() || null,
-        asking_price: input.purchasePrice,
-        seller_type: null,
-        provenance: { entry: draft.listingUrl ? "url+assisted" : "manual", captured_at: new Date().toISOString() },
-      })
-      .select("id")
-      .single();
-    throwIfError(error);
-    if (!data?.id) throw new Error("No se pudo crear el anuncio.");
-    listingId = data.id as string;
-  }
-
-  const { error: historyError } = await supabase.from("estate_listing_history").insert({
-    user_id: user.id,
-    listing_id: listingId,
-    asking_price: input.purchasePrice,
-    event_type: "snapshot",
-    payload: { source: draft.features?.source ?? "estate_workspace" },
-  });
-  throwIfError(historyError);
-  return listingId;
-}
-
-async function writeAnalysisSnapshot(user: User, propertyId: string, input: DealInputs, analysis: DealAnalysis) {
-  const { error: financeError } = await supabase.from("estate_financing_scenarios").insert({
-    user_id: user.id,
-    property_id: propertyId,
-    name: `Base · ${new Date().toLocaleDateString("es-ES")}`,
-    ltv_pct: input.ltvPct,
-    interest_pct: input.interestPct,
-    term_years: input.termYears,
-    rate_type: "fixed",
-    origination_fees: input.financingFees,
-    insurance_monthly: input.insuranceAnnual / 12,
-    assumptions: { source: "estate_workspace" },
-  });
-  throwIfError(financeError);
-
-  const { error: analysisError } = await supabase.from("estate_deal_analyses").insert({
-    user_id: user.id,
-    property_id: propertyId,
-    strategy: "traditional_rental",
-    model_version: analysis.engineVersion,
-    inputs: input,
-    outputs: analysis,
-    score: analysis.score,
-    score_components: analysis.scoreComponents,
-    stress_test: { status: analysis.stressStatus, scenarios: analysis.stress },
-    data_confidence: input.dataConfidence,
-    verdict: verdictToDb(analysis.verdict),
-  });
-  throwIfError(analysisError);
-
-  if (input.monthlyRent > 0) {
-    const rentSpread = Math.max(25, input.monthlyRent * (1 - input.dataConfidence) * 0.35);
-    const { error } = await supabase.from("estate_market_estimates").insert({
-      user_id: user.id,
-      property_id: propertyId,
-      estimate_type: "rent",
-      value_low: Math.max(0, input.monthlyRent - rentSpread),
-      value_mid: input.monthlyRent,
-      value_high: input.monthlyRent + rentSpread,
-      confidence: input.dataConfidence,
-      method: "evidence_input_v1_3",
-      source_count: 0,
-      sources: [],
-      model_version: "estate_market_v1_3",
-    });
-    throwIfError(error);
-  }
-
-  if (input.marketValueEstimate && input.marketValueEstimate > 0) {
-    const saleSpread = Math.max(1500, input.marketValueEstimate * (1 - input.dataConfidence) * 0.2);
-    const { error } = await supabase.from("estate_market_estimates").insert({
-      user_id: user.id,
-      property_id: propertyId,
-      estimate_type: "sale",
-      value_low: Math.max(0, input.marketValueEstimate - saleSpread),
-      value_mid: input.marketValueEstimate,
-      value_high: input.marketValueEstimate + saleSpread,
-      confidence: input.dataConfidence,
-      method: "evidence_input_v1_3",
-      source_count: 0,
-      sources: [],
-      model_version: "estate_market_v1_3",
-    });
-    throwIfError(error);
-  }
-}
-
 async function syncRemoteImages(user: User, propertyId: string, urls: string[]) {
   const clean = [...new Set(urls.filter((url) => /^https?:\/\//i.test(url)))].slice(0, 12);
   if (!clean.length) return;
@@ -391,119 +279,27 @@ async function syncRemoteImages(user: User, propertyId: string, urls: string[]) 
       source_url: url,
       room_type: "unknown",
       analysis: { source: "listing_research", status: "pending_ai_review" },
-      confidence: 0.45,
+      confidence: null,
     })),
   );
   throwIfError(insertError);
 }
 
-async function enrichZone(user: User, propertyId: string, draft: PropertyDraft, input: DealInputs) {
-  if (!draft.municipality.trim() || typeof draft.features?.zone?.rentalDemand === "number") return;
-  const token = await bearerToken();
-  if (!token) return;
-  const response = await fetch("/api/zone", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-    body: JSON.stringify({
-      address: draft.address,
-      municipality: draft.municipality,
-      province: draft.province,
-      strategy: draft.features?.rentalStrategy ?? "long_term",
-      rent: input.monthlyRent || undefined,
-      bedrooms: draft.bedrooms,
-    }),
-  });
-  if (!response.ok) return;
-  const data = (await response.json()) as {
-    zone?: ZoneAssessment & { tenantChannels?: string[]; summary?: string };
-    researched_at?: string;
-  };
-  if (!data.zone) return;
-  const zone: ZoneAssessment = {
-    mobility: data.zone.mobility ?? null,
-    amenities: data.zone.amenities ?? null,
-    safety: data.zone.safety ?? null,
-    noise: data.zone.noise ?? null,
-    rentalDemand: data.zone.rentalDemand ?? null,
-    liquidity: data.zone.liquidity ?? null,
-    nearby: data.zone.nearby ?? [],
-    confidence: data.zone.confidence ?? 0.45,
-    evidence: data.zone.evidence ?? [],
-    researchedAt: data.researched_at ?? new Date().toISOString(),
-    tenantProfiles: data.zone.tenantProfiles ?? [],
-    notes: data.zone.summary ?? "",
-  };
-  const features: PropertyFeatures = {
-    ...(draft.features ?? {}),
-    zone,
-    tenantChannels: data.zone.tenantChannels ?? draft.features?.tenantChannels ?? [],
-    tenantProfile: draft.features?.tenantProfile || data.zone.tenantProfiles?.[0] || "",
-  };
-  const { error } = await supabase
-    .from("estate_properties")
-    .update({ features })
-    .eq("id", propertyId)
-    .eq("user_id", user.id);
-  throwIfError(error);
-}
-
 export async function saveDeal(user: User, draft: PropertyDraft, input: DealInputs, analysis: DealAnalysis, existingPropertyId?: string | null) {
-  let propertyId = existingPropertyId ?? null;
-  let created = false;
-
-  if (propertyId) {
-    const { error } = await supabase.from("estate_properties").update(propertyPayload(user, draft, input)).eq("id", propertyId).eq("user_id", user.id);
-    throwIfError(error);
-  } else {
-    const { data: property, error } = await supabase
-      .from("estate_properties")
-      .insert({ ...propertyPayload(user, draft, input), stage: "analyzing" })
-      .select("id")
-      .single();
-    throwIfError(error);
-    if (!property?.id) throw new Error("No se pudo crear la propiedad.");
-    propertyId = property.id as string;
-    created = true;
-  }
-
-  try {
-    await writeListingSnapshot(user, propertyId, draft, input);
-    await writeAnalysisSnapshot(user, propertyId, input, analysis);
-    await syncRemoteImages(user, propertyId, draft.features?.sourceImageUrls ?? []).catch(() => undefined);
-
-    const { error: auditError } = await supabase.from("estate_audit_events").insert({
-      user_id: user.id,
-      property_id: propertyId,
-      event_type: created ? "analysis_created" : "analysis_version_created",
-      entity_type: "deal_analysis",
-      source: "estate_web_v1_4",
-      model_version: analysis.engineVersion,
-      payload: { score: analysis.score, score_coverage: analysis.scoreCoverage, verdict: analysis.verdict },
-    });
-    throwIfError(auditError);
-
-    await enrichZone(user, propertyId, draft, input).catch(() => undefined);
-    return propertyId;
-  } catch (error) {
-    if (created) {
-      await supabase.from("estate_properties").delete().eq("id", propertyId).eq("user_id", user.id);
-    }
-    throw error;
-  }
-}
-
-function verdictToDb(verdict: DealAnalysis["verdict"]) {
-  if (verdict === "DESCARTAR") return "discard";
-  if (verdict === "MONITORIZAR") return "monitor";
-  if (verdict === "ANALIZAR") return "analyze";
-  if (verdict === "VISITAR") return "visit";
-  return "negotiate";
+  const {data,error}=await supabase.rpc("estate_save_analysis",{
+    p_property:propertyPayload(user,draft,input),p_inputs:input,p_outputs:analysis,
+    p_listing:{url:draft.listingUrl?.trim()?canonicalListingUrl(draft.listingUrl):null,portal:draft.portal||"manual"},p_property_id:existingPropertyId??null,
+  });
+  throwIfError(error);
+  if(typeof data!=="string") throw new Error("No se confirmó la propiedad guardada.");
+  await syncRemoteImages(user,data,draft.features?.sourceImageUrls??[]);
+  return data;
 }
 
 export async function loadSavedDeals(user: User): Promise<SavedDeal[]> {
   const { data, error } = await supabase
     .from("estate_properties")
-    .select("id,title,property_type,municipality,province,address,stage,latitude,longitude,built_area_m2,usable_area_m2,bedrooms,bathrooms,floor_label,has_elevator,has_terrace,has_balcony,has_garage,has_storage,has_pool,orientation,year_built,energy_rating,condition,features,notes,updated_at,estate_listings(id,asking_price,portal,url,description,agency_name,seller_type,first_seen_at,last_seen_at,is_active),estate_market_estimates(id,estimate_type,value_low,value_mid,value_high,confidence,method,source_count,observed_at),estate_property_images(id,source_url,storage_path,room_type,condition_score,analysis,confidence,created_at,updated_at),estate_renovation_items(id,category,description,mode,pro_cost,diy_material_cost,hybrid_cost,diy_hours,difficulty,professional_required,estimated_rent_uplift_monthly,estimated_value_uplift,confidence,created_at,updated_at),estate_risks(id,category,severity,confidence,title,description,source,is_kill_switch,resolved_at,created_at,updated_at),estate_deal_analyses(score,verdict,inputs,outputs,data_confidence,created_at)")
+    .select("stage_entered_at,estate_tasks(id,title,status,due_at),estate_actual_performance(id,period,rent_received,operating_expenses,debt_payment,capex,debt_balance,valuation,occupied_days,forecast),id,title,property_type,municipality,province,address,stage,latitude,longitude,built_area_m2,usable_area_m2,bedrooms,bathrooms,floor_label,has_elevator,has_terrace,has_balcony,has_garage,has_storage,has_pool,orientation,year_built,energy_rating,condition,features,notes,updated_at,estate_listings(id,asking_price,portal,url,description,agency_name,seller_type,first_seen_at,last_seen_at,is_active),estate_market_estimates(id,estimate_type,value_low,value_mid,value_high,confidence,method,source_count,observed_at),estate_property_images(id,source_url,storage_path,room_type,condition_score,analysis,confidence,created_at,updated_at),estate_renovation_items(id,quantity,unit_cost,materials,labor,contingency_pct,supplier_quote_url,risk_reduction,category,description,mode,pro_cost,diy_material_cost,hybrid_cost,diy_hours,difficulty,professional_required,estimated_rent_uplift_monthly,estimated_value_uplift,confidence,created_at,updated_at),estate_risks(id,owner_label,due_at,category,severity,confidence,title,description,source,is_kill_switch,resolved_at,created_at,updated_at),estate_deal_analyses(score,verdict,inputs,outputs,data_confidence,created_at)")
     .eq("user_id", user.id)
     .order("updated_at", { ascending: false })
     .limit(150);
@@ -533,15 +329,7 @@ export async function loadSavedDeals(user: User): Promise<SavedDeal[]> {
 export async function updateDealStage(user: User, propertyId: string, stage: EstateStage) {
   const { error } = await supabase.from("estate_properties").update({ stage }).eq("id", propertyId).eq("user_id", user.id);
   throwIfError(error);
-  const { error: auditError } = await supabase.from("estate_audit_events").insert({
-    user_id: user.id,
-    property_id: propertyId,
-    event_type: "stage_changed",
-    entity_type: "property",
-    source: "estate_web_v1_3",
-    payload: { stage },
-  });
-  throwIfError(auditError);
+
 }
 
 export async function updatePropertyWorkspace(
@@ -615,8 +403,8 @@ export async function uploadPropertyImage(user: User, propertyId: string, file: 
     storage_path: path,
     room_type: vision?.room_type ?? "unknown",
     condition_score: typeof vision?.condition_score === "number" ? vision.condition_score : null,
-    analysis: vision ? { source: "openai_vision", status: "ai_reviewed", ...vision } : { source: "manual_upload", status: "pending_review" },
-    confidence: typeof vision?.confidence === "number" ? vision.confidence : 0.5,
+    analysis: vision ? { source: "openai_vision", status: "needs_human_review", ...vision } : { source: "manual_upload", status: "pending_review" },
+    confidence: typeof vision?.confidence === "number" ? vision.confidence : null,
   });
 
   if (rowError) {
@@ -645,7 +433,7 @@ export async function analyzeStoredPropertyImage(user: User, image: PropertyImag
   await updatePropertyImageAssessment(user, image.id, {
     room_type: analysis.room_type ?? image.room_type,
     condition_score: typeof analysis.condition_score === "number" ? analysis.condition_score : image.condition_score,
-    analysis: { source: "openai_vision", status: "ai_reviewed", ...analysis },
+    analysis: { source: "openai_vision", status: "needs_human_review", ...analysis },
     confidence: typeof analysis.confidence === "number" ? analysis.confidence : image.confidence,
   });
 }
@@ -668,6 +456,7 @@ export async function saveRenovationItem(user: User, propertyId: string, item: P
   const payload = {
     user_id: user.id,
     property_id: propertyId,
+    quantity:item.quantity??1,unit_cost:item.unit_cost??null,materials:item.materials??null,labor:item.labor??null,contingency_pct:item.contingency_pct??0,supplier_quote_url:item.supplier_quote_url??null,risk_reduction:item.risk_reduction??null,
     category: item.category,
     description: item.description ?? null,
     mode: item.mode ?? "hybrid",
@@ -699,6 +488,7 @@ export async function saveRisk(user: User, propertyId: string, risk: Partial<Est
   const payload = {
     user_id: user.id,
     property_id: propertyId,
+    owner_label:risk.owner_label??null,due_at:risk.due_at??null,
     category: risk.category,
     severity: risk.severity ?? 50,
     confidence: risk.confidence ?? 0.5,

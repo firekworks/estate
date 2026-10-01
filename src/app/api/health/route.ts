@@ -8,7 +8,7 @@ export async function GET() {
     {
       ok: true,
       product: "Firekworks Estate",
-      version: "1.4.1",
+      version: "2.0.0",
       engine: ESTATE_ENGINE_VERSION,
       timestamp: new Date().toISOString(),
     },

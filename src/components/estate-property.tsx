@@ -1,5 +1,6 @@
 "use client";
 
+import { OperationsDesk } from "./estate-operations";
 import type { ChangeEvent } from "react";
 import { useState } from "react";
 import Image from "next/image";
@@ -34,6 +35,7 @@ import {
 } from "lucide-react";
 import type { EstateStage, PropertyImage, SavedDeal, ZoneAssessment } from "@/lib/estate-store";
 import {
+  analyzeStoredPropertyImage,
   deletePropertyImage,
   deleteRenovationItem,
   saveRenovationItem,
@@ -61,7 +63,7 @@ import {
   StatusPill,
 } from "@/components/estate-primitives";
 
-type PropertyTab = "decision" | "property" | "zone" | "returns" | "renovation" | "risk" | "plan";
+type PropertyTab = "decision" | "property" | "zone" | "returns" | "renovation" | "risk" | "plan" | "operations";
 
 const TABS: Array<{ key: PropertyTab; label: string }> = [
   { key: "decision", label: "Decisión" },
@@ -71,6 +73,7 @@ const TABS: Array<{ key: PropertyTab; label: string }> = [
   { key: "renovation", label: "Reforma" },
   { key: "risk", label: "Riesgos" },
   { key: "plan", label: "Plan" },
+  { key: "operations", label: "Operativa e historial" },
 ];
 
 function missingEvidence(deal: SavedDeal) {
@@ -159,16 +162,19 @@ export function PropertyWorkspace({
 }) {
   const [tab, setTab] = useState<PropertyTab>("decision");
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
 
   async function run(task: () => Promise<void>) {
     setBusy(true);
-    try { await task(); await onRefresh(); } finally { setBusy(false); }
+    try { setError(""); await task(); await onRefresh(); } catch(e) { setError(e instanceof Error ? e.message : "No se pudo guardar."); } finally { setBusy(false); }
   }
 
   return (
     <div className="view view-property">
       <PropertyHero deal={deal} onBack={onBack} onReanalyze={onReanalyze} onStageChange={onStageChange} />
       <div className="property-tabs" role="tablist">{TABS.map((item) => <button key={item.key} className={tab === item.key ? "active" : ""} onClick={() => setTab(item.key)}>{item.label}{item.key === "risk" && (deal.estate_risks?.filter((risk) => !risk.resolved_at).length ?? 0) > 0 ? <b>{deal.estate_risks?.filter((risk) => !risk.resolved_at).length}</b> : null}</button>)}</div>
+      {error && <p role="alert">{error}</p>}
+      {tab === "operations" && <OperationsDesk key={deal.id} user={user} deal={deal} onRefresh={onRefresh} />}
       {busy && <div className="workspace-busy"><Loader2 size={14} className="spin" /> Guardando…</div>}
 
       {tab === "decision" && <DecisionTab deal={deal} onGo={setTab} />}
@@ -230,8 +236,7 @@ function PropertyTabView({ user, deal, run }: { user: User; deal: SavedDeal; run
     if (!files.length) return;
     setUploading(true);
     try {
-      for (const file of files.slice(0, 12)) await uploadPropertyImage(user, deal.id, file);
-      await run(async () => Promise.resolve());
+      await run(async () => { for (const file of files.slice(0, 12)) await uploadPropertyImage(user, deal.id, file); });
     } finally { setUploading(false); event.target.value = ""; }
   }
 
@@ -289,7 +294,7 @@ function Fact({ label, value }: { label: string; value: string | number }) { ret
 function Utility({ label, value }: { label: string; value?: string }) { return <div className="utility-row"><span>{label}</span><strong className={!value ? "missing" : ""}>{value || "Sin verificar"}</strong></div>; }
 
 function PhotoCard({ user, image, run }: { user: User; image: PropertyImage; run: (task: () => Promise<void>) => Promise<void> }) {
-  return <article className="photo-card"><div className="photo-frame">{image.preview_url ? <Image src={image.preview_url} alt={image.room_type || "Foto del inmueble"} fill sizes="(max-width: 680px) 50vw, 180px" unoptimized /> : <Camera size={22} />}<button onClick={() => run(() => deletePropertyImage(user, image))} aria-label="Eliminar foto"><Trash2 size={12} /></button></div><select value={image.room_type || "unknown"} onChange={(event) => run(() => updatePropertyImageAssessment(user, image.id, { room_type: event.target.value }))}><option value="unknown">Sin estancia</option><option value="living_room">Salón</option><option value="kitchen">Cocina</option><option value="bedroom">Dormitorio</option><option value="bathroom">Baño</option><option value="facade">Fachada</option><option value="common_area">Comunes</option><option value="terrace">Terraza</option></select><label><span>Estado {image.condition_score ?? "—"}/100</span><input type="range" min="0" max="100" step="5" value={image.condition_score ?? 50} onChange={(event) => run(() => updatePropertyImageAssessment(user, image.id, { condition_score: Number(event.target.value), analysis: { ...(image.analysis ?? {}), status: "manual_reviewed" }, confidence: 1 }))} /></label></article>;
+  return <article className="photo-card"><div className="photo-frame">{image.preview_url ? <Image src={image.preview_url} alt={image.room_type || "Foto del inmueble"} fill sizes="(max-width: 680px) 50vw, 180px" unoptimized /> : <Camera size={22} />}<button onClick={() => run(() => deletePropertyImage(user, image))} aria-label="Eliminar foto"><Trash2 size={12} /></button></div><select value={image.room_type || "unknown"} onChange={(event) => run(() => updatePropertyImageAssessment(user, image.id, { room_type: event.target.value }))}><option value="unknown">Sin estancia</option><option value="living_room">Salón</option><option value="kitchen">Cocina</option><option value="bedroom">Dormitorio</option><option value="bathroom">Baño</option><option value="facade">Fachada</option><option value="common_area">Comunes</option><option value="terrace">Terraza</option></select><label><span>Estado {image.condition_score ?? "—"}/100</span><input type="range" min="0" max="100" step="5" value={image.condition_score ?? 50} onChange={(event) => run(() => updatePropertyImageAssessment(user, image.id, { condition_score: Number(event.target.value), analysis: { ...(image.analysis ?? {}), status: "manual_reviewed" }, confidence: 1 }))} /></label><button className="ghost-button" onClick={() => run(() => analyzeStoredPropertyImage(user,image))}>Analizar foto con IA</button><p>{image.analysis?.status === "needs_human_review" ? "Estimación IA · pendiente de revisión" : image.analysis?.status === "manual_reviewed" ? "Revisada manualmente" : "Sin análisis IA"}</p>{image.analysis?.summary ? <p>{String(image.analysis.summary)}</p> : null}{Array.isArray(image.analysis?.manual_checks) && <ul>{image.analysis.manual_checks.map((check,index)=><li key={index}>{String(check)}</li>)}</ul>}{image.analysis?.status === "needs_human_review" && <button className="ghost-button" onClick={()=>run(()=>updatePropertyImageAssessment(user,image.id,{analysis:{...image.analysis,status:"manual_reviewed",reviewed_at:new Date().toISOString()}}))}>Confirmar revisión visual</button>}</article>;
 }
 
 function ZoneTab({ user, deal, run }: { user: User; deal: SavedDeal; run: (task: () => Promise<void>) => Promise<void> }) {
@@ -359,16 +364,10 @@ function RenovationTab({ user, deal, run }: { user: User; deal: SavedDeal; run: 
 
 function RiskTab({ user, deal, run }: { user: User; deal: SavedDeal; run: (task: () => Promise<void>) => Promise<void> }) {
   const risks = deal.estate_risks ?? []; const [title,setTitle]=useState(""); const [category,setCategory]=useState("technical"); const [severity,setSeverity]=useState(50); const [kill,setKill]=useState(false);
-  async function add(){ if(!title.trim())return; await run(()=>saveRisk(user,deal.id,{title:title.trim(),category,severity,is_kill_switch:kill,confidence:0.7,source:"manual"}));setTitle("");setSeverity(50);setKill(false); }
-  const due = [
-    { label:"Nota simple y titularidad", done: risks.some((r)=>r.category==="legal" && r.resolved_at) },
-    { label:"Cargas / deudas comunidad", done: risks.some((r)=>r.category==="community" && r.resolved_at) },
-    { label:"ITE / edificio / derramas", done: risks.some((r)=>r.category==="building" && r.resolved_at) },
-    { label:"Instalación eléctrica", done: Boolean(deal.features?.electricity) },
-    { label:"Fontanería / humedades", done: Boolean(deal.features?.plumbing) },
-    { label:"Situación ocupacional", done: false },
-  ];
-  return <div className="workspace-grid risk-workspace"><Panel className="risk-register"><div className="panel-head"><div><span className="eyebrow">RISK REGISTER</span><h3>Riesgos con dueño y estado</h3></div><ShieldAlert size={17}/></div>{risks.length?<div className="risk-register-list">{risks.map((risk)=><div className={`risk-record ${risk.is_kill_switch?"kill":""} ${risk.resolved_at?"resolved":""}`} key={risk.id}><button onClick={()=>run(()=>setRiskResolved(user,risk.id,!risk.resolved_at))}>{risk.resolved_at?<Check size={13}/>:<AlertTriangle size={13}/>}</button><div><strong>{risk.title}</strong><span>{risk.category} · confianza {Math.round(risk.confidence*100)}%</span></div><b>{risk.is_kill_switch?"KILL SWITCH":`${risk.severity}/100`}</b></div>)}</div>:<div className="risk-clear"><CheckCircle2 size={20}/><div><strong>No has registrado riesgos.</strong><p>Esto no significa que no existan. Registra también lo que necesitas descartar.</p></div></div>}</Panel><Panel className="due-diligence"><div className="panel-head"><div><span className="eyebrow">DUE DILIGENCE</span><h3>Checklist mínimo antes de comprar</h3></div><ClipboardCheck size={17}/></div><div className="due-list">{due.map((item)=><div key={item.label} className={item.done?"done":""}><i>{item.done?<Check size={12}/>:null}</i><span>{item.label}</span><small>{item.done?"evidencia registrada":"pendiente"}</small></div>)}</div><p>El Legal Kill Switch debe bloquear una compra cuando aparezca un riesgo jurídico/técnico que no encaje con tu tolerancia.</p></Panel><Panel className="risk-add"><div className="panel-head"><div><span className="eyebrow">REGISTRAR</span><h3>Añadir riesgo</h3></div><Plus size={17}/></div><label className="field"><span className="field-label">Riesgo</span><div className="input-shell"><input value={title} onChange={(event)=>setTitle(event.target.value)} placeholder="Ej.: posible derrama fachada"/></div></label><label className="field"><span className="field-label">Categoría</span><select value={category} onChange={(event)=>setCategory(event.target.value)}><option value="legal">Legal</option><option value="technical">Técnico</option><option value="building">Edificio</option><option value="community">Comunidad</option><option value="market">Mercado</option><option value="tenant">Alquiler</option><option value="environmental">Ambiental</option></select></label><label className="range-field"><span>Severidad <strong>{severity}</strong></span><input type="range" min="0" max="100" step="5" value={severity} onChange={(event)=>setSeverity(Number(event.target.value))}/></label><button className={`boolean-card ${kill?"active danger":""}`} onClick={()=>setKill(!kill)}><span>Bloquea la compra</span><i>{kill?<X size={12}/>:null}</i></button><button className="primary-button" onClick={add}><Plus size={14}/> Añadir riesgo</button></Panel></div>;
+  const [owner,setOwner]=useState("");const [deadline,setDeadline]=useState("");const [source,setSource]=useState("");const [confidence,setConfidence]=useState(0.5);
+  async function add(){ if(!title.trim())return; await run(()=>saveRisk(user,deal.id,{title:title.trim(),category,severity,is_kill_switch:kill,confidence,source:source||"manual",owner_label:owner||null,due_at:deadline?new Date(deadline).toISOString():null}));setTitle("");setSeverity(50);setKill(false); }
+  const due = ["Nota simple y titularidad","Cargas","Catastro y superficie","Uso y urbanismo","Comunidad y derramas","ITE / IEE","Ocupación","Electricidad","Fontanería y humedades","Estructura","Financiabilidad","Seguro y fiscalidad"].map(label=>({label,done:false}));
+  return <div className="workspace-grid risk-workspace"><Panel className="risk-register"><div className="panel-head"><div><span className="eyebrow">RISK REGISTER</span><h3>Riesgos con dueño y estado</h3></div><ShieldAlert size={17}/></div>{risks.length?<div className="risk-register-list">{risks.map((risk)=><div className={`risk-record ${risk.is_kill_switch?"kill":""} ${risk.resolved_at?"resolved":""}`} key={risk.id}><button onClick={()=>run(()=>setRiskResolved(user,risk.id,!risk.resolved_at))}>{risk.resolved_at?<Check size={13}/>:<AlertTriangle size={13}/>}</button><div><strong>{risk.title}</strong><span>{risk.category} · confianza {Math.round(risk.confidence*100)}% · {risk.owner_label||"sin responsable"} · {risk.due_at?new Date(risk.due_at).toLocaleDateString("es-ES"):"sin plazo"}</span></div><b>{risk.is_kill_switch?"KILL SWITCH":`${risk.severity}/100`}</b></div>)}</div>:<div className="risk-clear"><CheckCircle2 size={20}/><div><strong>No has registrado riesgos.</strong><p>Esto no significa que no existan. Registra también lo que necesitas descartar.</p></div></div>}</Panel><Panel className="due-diligence"><div className="panel-head"><div><span className="eyebrow">DUE DILIGENCE</span><h3>Evidencias a revisar antes de comprar</h3></div><ClipboardCheck size={17}/></div><div className="due-list">{due.map((item)=><div key={item.label} className={item.done?"done":""}><i>{item.done?<Check size={12}/>:null}</i><span>{item.label}</span><small>{item.done?"evidencia registrada":"pendiente"}</small></div>)}</div><p>Registra y verifica los documentos en Operativa. Resolver un riesgo no verifica automáticamente toda su categoría.</p></Panel><Panel className="risk-add"><div className="panel-head"><div><span className="eyebrow">REGISTRAR</span><h3>Añadir riesgo</h3></div><Plus size={17}/></div><label className="field"><span className="field-label">Riesgo</span><div className="input-shell"><input value={title} onChange={(event)=>setTitle(event.target.value)} placeholder="Ej.: posible derrama fachada"/></div></label><label className="field"><span className="field-label">Categoría</span><select value={category} onChange={(event)=>setCategory(event.target.value)}><option value="legal">Legal</option><option value="technical">Técnico</option><option value="building">Edificio</option><option value="community">Comunidad</option><option value="market">Mercado</option><option value="tenant">Alquiler</option><option value="environmental">Ambiental</option><option value="occupancy">Ocupación</option><option value="financing">Financiabilidad</option></select></label><label>Responsable<input value={owner} onChange={e=>setOwner(e.target.value)}/></label><label>Plazo<input type="datetime-local" value={deadline} onChange={e=>setDeadline(e.target.value)}/></label><label>Fuente / evidencia<input value={source} onChange={e=>setSource(e.target.value)}/></label><label>Confianza 0–1<input type="number" min="0" max="1" step=".1" value={confidence} onChange={e=>setConfidence(Number(e.target.value))}/></label><label className="range-field"><span>Severidad <strong>{severity}</strong></span><input type="range" min="0" max="100" step="5" value={severity} onChange={(event)=>setSeverity(Number(event.target.value))}/></label><button className={`boolean-card ${kill?"active danger":""}`} onClick={()=>setKill(!kill)}><span>Bloquea la compra</span><i>{kill?<X size={12}/>:null}</i></button><button className="primary-button" onClick={add}><Plus size={14}/> Añadir riesgo</button></Panel></div>;
 }
 
 function PlanTab({ deal, onStageChange }: { deal: SavedDeal; onStageChange: (stage: EstateStage) => void }) {
