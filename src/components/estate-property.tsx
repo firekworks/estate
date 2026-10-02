@@ -1,5 +1,6 @@
 "use client";
 
+import { humanError } from '@/lib/estate-errors';
 import { RenovationDesk } from "./estate-renovation";
 import { OperationsDesk } from "./estate-operations";
 import type { ChangeEvent } from "react";
@@ -164,13 +165,13 @@ export function PropertyWorkspace({
 
   async function run(task: () => Promise<void>) {
     setBusy(true);
-    try { setError(""); await task(); await onRefresh(); } catch(e) { setError(e instanceof Error ? e.message : "No se pudo guardar."); } finally { setBusy(false); }
+    try { setError(""); await task(); await onRefresh(); } catch(e) { setError(humanError(e,"No se pudo guardar.")); } finally { setBusy(false); }
   }
 
   return (
     <div className="view view-property">
       <PropertyHero deal={deal} onBack={onBack} onReanalyze={onReanalyze} onStageChange={onStageChange} />
-      <div className="property-tabs" role="tablist">{TABS.map((item) => <button key={item.key} className={tab === item.key ? "active" : ""} onClick={() => setTab(item.key)}>{item.label}{item.key === "risk" && (deal.estate_risks?.filter((risk) => !risk.resolved_at).length ?? 0) > 0 ? <b>{deal.estate_risks?.filter((risk) => !risk.resolved_at).length}</b> : null}</button>)}</div>
+      <div className="property-tabs" role="group" aria-label="Secciones del inmueble">{TABS.map((item) => <button key={item.key} className={tab === item.key ? "active" : ""} onClick={() => setTab(item.key)}>{item.label}{item.key === "risk" && (deal.estate_risks?.filter((risk) => !risk.resolved_at).length ?? 0) > 0 ? <b>{deal.estate_risks?.filter((risk) => !risk.resolved_at).length}</b> : null}</button>)}</div>
       {error && <p role="alert">{error}</p>}
       {tab === "operations" && <OperationsDesk key={deal.id} user={user} deal={deal} onRefresh={onRefresh} />}
       {busy && <div className="workspace-busy"><Loader2 size={14} className="spin" /> Guardando…</div>}

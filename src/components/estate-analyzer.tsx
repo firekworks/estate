@@ -220,7 +220,7 @@ function StepCapture({
           onChange={(event) => setImportUrl(event.target.value)}
           placeholder="Pega URL de Idealista, Fotocasa, agencia…"
         />
-        <button onClick={onImport} disabled={importBusy || !importUrl.trim()}>
+        <button aria-label="Importar anuncio" onClick={onImport} disabled={importBusy || !importUrl.trim()}>
           {importBusy ? <Loader2 size={15} className="spin" /> : <ArrowRight size={15} />}
         </button>
       </div>
