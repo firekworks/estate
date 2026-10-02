@@ -1,3 +1,4 @@
+import { estateSupabaseUrl, estateSupabasePublishableKey } from "./supabase-config";
 export type AuthenticatedEstateUser = {
   id: string;
   email?: string;
@@ -8,8 +9,8 @@ export async function requireEstateUser(request: Request): Promise<Authenticated
   if (!auth.startsWith("Bearer ")) return null;
 
   const token = auth.slice(7).trim();
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseUrl = estateSupabaseUrl;
+  const publishableKey = estateSupabasePublishableKey;
   if (!token || !supabaseUrl || !publishableKey) return null;
 
   const response = await fetch(`${supabaseUrl}/auth/v1/user`, {

@@ -66,6 +66,7 @@ export async function openAIStructured<T>({
     },
     body: JSON.stringify(body),
     cache: "no-store",
+    signal: AbortSignal.timeout(45000),
   });
 
   const data = (await response.json()) as OpenAIResponse;

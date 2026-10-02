@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { ArrowRight, CheckCircle2, CircleDollarSign, ClipboardCheck, Eye, MoreHorizontal, Plus, Radar, ShieldAlert, ShoppingBag, WalletCards } from "lucide-react";
 import type { EstateStage, SavedDeal } from "@/lib/estate-store";
 import { opportunityScore } from "@/lib/estate-opportunity-score";
@@ -10,7 +11,11 @@ const COLUMNS: Array<{ key: EstateStage; label: string; icon: React.ReactNode; p
   { key: "analyzing", label: "Análisis", icon: <ClipboardCheck size={15} />, prompt: "¿cuadra?" },
   { key: "visit", label: "Visita", icon: <Eye size={15} />, prompt: "¿confirma?" },
   { key: "negotiating", label: "Negocia", icon: <CircleDollarSign size={15} />, prompt: "¿precio?" },
+  { key: "financing", label: "Financiación", icon: <CircleDollarSign size={15} />, prompt: "validar términos" },
+  { key: "deposit", label: "Arras", icon: <ClipboardCheck size={15} />, prompt: "condiciones" },
   { key: "purchased", label: "Compra", icon: <ShoppingBag size={15} />, prompt: "¿ejecutar?" },
+  { key: "rehab", label: "Reforma", icon: <ShoppingBag size={15} />, prompt: "presupuesto" },
+  { key: "marketing", label: "Alquiler", icon: <WalletCards size={15} />, prompt: "comercializar" },
   { key: "managed", label: "Cartera", icon: <WalletCards size={15} />, prompt: "¿rinde?" },
 ];
 
@@ -22,6 +27,7 @@ export function OpportunitiesView({ deals, onNew, onOpen, onStageChange }: {
   onOpen: (deal: SavedDeal) => void;
   onStageChange: (deal: SavedDeal, stage: EstateStage) => void;
 }) {
+  const [query,setQuery]=useState("");
   const visible = deals.filter((deal) => deal.stage !== "sold" && deal.stage !== "discarded");
   const discarded = deals.filter((deal) => deal.stage === "discarded");
 
@@ -29,6 +35,7 @@ export function OpportunitiesView({ deals, onNew, onOpen, onStageChange }: {
     <div className="view view-opportunities visual-first v14-view">
       <SectionHead eyebrow="ACQUISITION" title="Pipeline." action={<button className="primary-button" onClick={onNew}><Plus size={14} /> Oportunidad</button>} />
 
+      <label className="search-box">Buscar <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Activo o municipio"/></label>
       <div className="pipeline-flow-strip">
         {COLUMNS.map((column, index) => {
           const count = deals.filter((deal) => deal.stage === column.key).length;
@@ -47,7 +54,7 @@ export function OpportunitiesView({ deals, onNew, onOpen, onStageChange }: {
       ) : (
         <div className="kanban-wrap"><div className="kanban-board visual-kanban">
           {COLUMNS.map((column) => {
-            const items = deals.filter((deal) => deal.stage === column.key);
+            const items = deals.filter((deal) => deal.stage === column.key && `${deal.title} ${deal.municipality}`.toLowerCase().includes(query.toLowerCase()));
             return <section className="kanban-column" key={column.key}><header><div>{column.icon}<strong>{column.label}</strong></div><b>{items.length}</b></header><div className="kanban-stack">
               {items.map((deal) => {
                 const out = dealOutput(deal); const blockers = blockerCount(deal); const score = opportunityScore(deal);
@@ -59,7 +66,7 @@ export function OpportunitiesView({ deals, onNew, onOpen, onStageChange }: {
                     <div className="kanban-data-line"><i style={{ width: `${score.coverage}%` }} /><span>{score.coverage}% evidencia</span></div>
                     {blockers > 0 && <div className="kanban-blocker"><ShieldAlert size={13} />{blockers}</div>}
                   </button>
-                  <div className="kanban-card-actions"><select value={deal.stage} onChange={(event) => onStageChange(deal, event.target.value as EstateStage)} aria-label="Cambiar etapa">{COLUMNS.map((option) => <option key={option.key} value={option.key}>{option.label}</option>)}<option value="discarded">Descartar</option></select><button onClick={() => onOpen(deal)}>Abrir</button></div>
+                  <p>{deal.estate_tasks?.find(t=>t.status==='open')?.title??'Define la siguiente acción'}</p><small>{Math.max(0,Math.floor((Date.now()-Date.parse(deal.stage_entered_at??deal.updated_at))/86400000))} días en fase</small><div className="kanban-card-actions"><select value={deal.stage} onChange={(event) => onStageChange(deal, event.target.value as EstateStage)} aria-label="Cambiar etapa">{COLUMNS.map((option) => <option key={option.key} value={option.key}>{option.label}</option>)}<option value="discarded">Descartar</option></select><button onClick={() => onOpen(deal)}>Abrir</button></div>
                 </article>;
               })}
               {!items.length && <div className="kanban-empty"><span />—</div>}

@@ -1,179 +1,22 @@
 "use client";
-
-import {
-  ArrowRight,
-  Building2,
-  Camera,
-  CheckCircle2,
-  CircleDollarSign,
-  Compass,
-  DatabaseZap,
-  Eye,
-  Hammer,
-  KeyRound,
-  Radar,
-  ShieldAlert,
-  Sparkles,
-  TrendingUp,
-  Users,
-} from "lucide-react";
-import type { SavedDeal } from "@/lib/estate-store";
-import { opportunityScore } from "@/lib/estate-opportunity-score";
-import {
-  completenessForDeal,
-  dealInput,
-  dealOutput,
-  fmtMoney,
-  fmtPct,
-  Panel,
-  ScoreDial,
-  SectionHead,
-  stageLabel,
-} from "@/components/estate-primitives";
-
-const FLOW = [
-  { icon: <Radar size={18} />, label: "ENCONTRAR", hint: "radar" },
-  { icon: <DatabaseZap size={18} />, label: "CONTRASTAR", hint: "mercado" },
-  { icon: <Eye size={18} />, label: "VALIDAR", hint: "fotos + zona" },
-  { icon: <ShieldAlert size={18} />, label: "ROMPER", hint: "stress" },
-  { icon: <CircleDollarSign size={18} />, label: "NEGOCIAR", hint: "máximo" },
-  { icon: <KeyRound size={18} />, label: "OPERAR", hint: "cash-flow" },
-] as const;
-
-function nextAction(deal: SavedDeal) {
-  const completeness = completenessForDeal(deal);
-  const unresolvedKill = (deal.estate_risks ?? []).find((risk) => risk.is_kill_switch && !risk.resolved_at);
-  if (unresolvedKill) return { label: "BLOQUEO", value: unresolvedKill.title, icon: <ShieldAlert size={18} />, tone: "bad" };
-  if (completeness < 70) return { label: "SIGUIENTE", value: "Completar evidencia", icon: <DatabaseZap size={18} />, tone: "warn" };
-  if (deal.stage === "analyzing") return { label: "SIGUIENTE", value: "Validar para visita", icon: <Eye size={18} />, tone: "accent" };
-  if (deal.stage === "visit") return { label: "SIGUIENTE", value: "Checklist de visita", icon: <CheckCircle2 size={18} />, tone: "accent" };
-  if (deal.stage === "negotiating") return { label: "SIGUIENTE", value: "Preparar oferta", icon: <CircleDollarSign size={18} />, tone: "accent" };
-  if (deal.stage === "purchased") return { label: "SIGUIENTE", value: "Ejecutar reforma", icon: <Hammer size={18} />, tone: "good" };
-  return { label: "SIGUIENTE", value: "Medir real vs previsto", icon: <TrendingUp size={18} />, tone: "good" };
-}
-
-function FactorStrip({ deal }: { deal: SavedDeal }) {
-  const score = opportunityScore(deal);
-  return (
-    <div className="factor-strip" aria-label="Factores del Estate Score">
-      {score.components.map((factor) => (
-        <div className="factor-cell" key={factor.key} title={`${factor.label}: ${factor.score === null ? "sin dato" : Math.round(factor.score)} · confianza ${Math.round(factor.confidence * 100)}%`}>
-          <span>{factor.label}</span>
-          <div><i style={{ width: `${factor.score ?? 0}%` }} /></div>
-          <strong>{factor.score === null ? "—" : Math.round(factor.score)}</strong>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-export function HomeView({ deals, onNew, onExplore, onOpen, onOpportunities }: {
-  deals: SavedDeal[];
-  onNew: () => void;
-  onExplore: () => void;
-  onOpen: (deal: SavedDeal) => void;
-  onOpportunities: () => void;
-}) {
-  const active = deals.filter((deal) => !["discarded", "sold"].includes(deal.stage));
-  const ranked = active
-    .map((deal) => ({ deal, opportunity: opportunityScore(deal), out: dealOutput(deal), input: dealInput(deal) }))
-    .sort((a, b) => b.opportunity.rankScore - a.opportunity.rankScore);
-  const focus = ranked[0] ?? null;
-  const portfolio = deals.filter((deal) => ["purchased", "managed"].includes(deal.stage));
-  const portfolioCashflow = portfolio.reduce((sum, deal) => sum + (dealOutput(deal)?.netMonthlyCashFlow ?? 0), 0);
-
-  if (!deals.length) {
-    return (
-      <div className="view view-home visual-first v14-view">
-        <SectionHead eyebrow="ESTATE OS" title="Decidir antes de comprar." action={<button className="primary-button" onClick={onNew}>+ Primera operación</button>} />
-
-        <div className="home-empty-composition">
-          <Panel className="home-loop-compact">
-            <div className="home-loop-track">
-              {FLOW.map((step, index) => (
-                <button key={step.label} className="home-loop-step" onClick={index === 0 ? onExplore : onNew}>
-                  <span>{step.icon}</span>
-                  <strong>{step.label}</strong>
-                  {index < FLOW.length - 1 && <ArrowRight size={13} />}
-                </button>
-              ))}
-            </div>
-            <div className="home-loop-caption"><Sparkles size={15} /><span>1 inmueble · 1 workspace · 1 historial</span></div>
-          </Panel>
-
-          <Panel className="home-lenses-card">
-            <div className="home-lenses-grid">
-              <button onClick={onExplore}><DatabaseZap size={18} /><span>Mercado</span><b>contrastar</b></button>
-              <button onClick={onNew}><Camera size={18} /><span>Fotos</span><b>validar</b></button>
-              <button onClick={onNew}><Users size={18} /><span>Demanda</span><b>inquilino</b></button>
-              <button onClick={onNew}><ShieldAlert size={18} /><span>Riesgo</span><b>bloquear</b></button>
-            </div>
-          </Panel>
-        </div>
-
-        <div className="home-empty-metrics">
-          <span><b>0</b><small>oportunidades</small></span>
-          <span><b>0</b><small>en visita</small></span>
-          <span><b>0 €</b><small>cash-flow real</small></span>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="view view-home visual-first v14-view">
-      <SectionHead eyebrow="HOY" title="Centro de decisión." action={<button className="primary-button" onClick={onNew}>+ Operación</button>} />
-
-      {focus && focus.out && focus.input && (
-        <Panel className="command-board">
-          <button className="command-score" onClick={() => onOpen(focus.deal)}>
-            <ScoreDial score={focus.opportunity.score} label="ESTATE" size="lg" />
-            <span className="coverage-ring" style={{ "--coverage": `${focus.opportunity.coverage * 3.6}deg` } as React.CSSProperties}><b>{focus.opportunity.coverage}%</b><small>evidencia</small></span>
-          </button>
-
-          <button className="command-main" onClick={() => onOpen(focus.deal)}>
-            <div className="command-title"><span>{stageLabel(focus.deal.stage)}</span><h2>{focus.deal.title}</h2><small>{focus.deal.municipality || "ubicación pendiente"}</small></div>
-            <div className="command-kpis">
-              <div><span>PRECIO</span><strong>{fmtMoney(focus.input.purchasePrice)}</strong></div>
-              <div><span>YIELD</span><strong>{fmtPct(focus.out.netYieldPct)}</strong></div>
-              <div><span>CASH-FLOW</span><strong className={focus.out.netMonthlyCashFlow >= 0 ? "positive" : "negative"}>{fmtMoney(focus.out.netMonthlyCashFlow)}</strong></div>
-              <div><span>MÁXIMO</span><strong>{fmtMoney(focus.out.maxPurchasePrice)}</strong></div>
-            </div>
-            <FactorStrip deal={focus.deal} />
-          </button>
-
-          <button className={`command-next command-${nextAction(focus.deal).tone}`} onClick={() => onOpen(focus.deal)}>
-            {nextAction(focus.deal).icon}<span>{nextAction(focus.deal).label}</span><strong>{nextAction(focus.deal).value}</strong><ArrowRight size={16} />
-          </button>
-        </Panel>
-      )}
-
-      <div className="home-visual-grid">
-        <Panel className="decision-radar-mini">
-          <div className="visual-panel-head"><span><Compass size={15} /> RANKING</span><button onClick={onExplore}>Radar <ArrowRight size={13} /></button></div>
-          <div className="rank-visual-list">
-            {ranked.slice(0, 5).map(({ deal, opportunity, out }, index) => (
-              <button key={deal.id} onClick={() => onOpen(deal)}>
-                <b>{String(index + 1).padStart(2, "0")}</b>
-                <ScoreDial score={opportunity.score} size="sm" />
-                <span><strong>{deal.title}</strong><small>{deal.municipality || "—"}</small></span>
-                <i style={{ width: `${opportunity.coverage}%` }} />
-                <em>{out ? fmtPct(out.netYieldPct) : "—"}</em>
-              </button>
-            ))}
-          </div>
-        </Panel>
-
-        <Panel className="capital-orbit-card">
-          <div className="visual-panel-head"><span><Building2 size={15} /> CAPITAL</span><button onClick={onOpportunities}>Pipeline <ArrowRight size={13} /></button></div>
-          <div className="capital-orbit-visual">
-            <div className="orbit-center"><strong>{fmtMoney(portfolioCashflow)}</strong><span>/ mes</span></div>
-            <div className="orbit-stat orbit-a"><b>{active.length}</b><span>pipeline</span></div>
-            <div className="orbit-stat orbit-b"><b>{portfolio.length}</b><span>activos</span></div>
-            <div className="orbit-stat orbit-c"><b>{Math.round(active.reduce((sum, deal) => sum + completenessForDeal(deal), 0) / Math.max(1, active.length))}%</b><span>evidencia</span></div>
-          </div>
-        </Panel>
-      </div>
-    </div>
-  );
+import { ArrowRight, Compass, ShieldAlert, Plus, Clock3 } from 'lucide-react';
+import type { SavedDeal } from '@/lib/estate-store';
+import { opportunityScore } from '@/lib/estate-opportunity-score';
+import { completenessForDeal, fmtMoney, Panel, SectionHead, ScoreDial, listingPrice, stageLabel } from './estate-primitives';
+export function HomeView({deals,onNew,onExplore,onOpen,onOpportunities}:{deals:SavedDeal[];onNew:()=>void;onExplore:()=>void;onOpen:(deal:SavedDeal)=>void;onOpportunities:()=>void}){
+ const active=deals.filter(d=>!['discarded','sold','purchased','rehab','marketing','managed'].includes(d.stage));
+ const ranked=[...active].sort((a,b)=>opportunityScore(b).rankScore-opportunityScore(a).rankScore).slice(0,3);
+ const tasks=deals.flatMap(deal=>(deal.estate_tasks??[]).filter(t=>t.status==='open').map(task=>({deal,task}))).sort((a,b)=>(a.task.due_at??'9999').localeCompare(b.task.due_at??'9999'));
+ const blockers=deals.flatMap(deal=>(deal.estate_risks??[]).filter(r=>r.is_kill_switch&&!r.resolved_at).map(risk=>({deal,risk})));
+ return <div className="view decision-cockpit"><SectionHead eyebrow="01 / DECIDIR" title="Qué hacer hoy" action={<button className="primary-button" onClick={onNew}><Plus size={16}/> Nueva oportunidad</button>}/>
+ {!deals.length?<Panel className="onboarding-compact"><Compass size={32}/><div><h2>Empieza por un activo real</h2><p>Añade una URL, importa un CSV o registra un inmueble. Precio, evidencia y siguiente acción quedarán juntos.</p><button className="ghost-button" onClick={onExplore}>Abrir Radar <ArrowRight size={14}/></button></div></Panel>:<>
+ <div className="cockpit-summary"><span><b>{active.length}</b> oportunidades abiertas</span><span><b>{blockers.length}</b> bloqueos</span><span><b>{tasks.length}</b> acciones pendientes</span></div>
+ <div className="cockpit-grid"><Panel><div className="panel-head"><h2>Necesita atención</h2><ShieldAlert size={18}/></div>
+ {blockers.slice(0,5).map(({deal,risk})=><button className="attention-row" key={risk.id} onClick={()=>onOpen(deal)}><span className="status-pill status-bad">Bloqueada</span><span><strong>{risk.title}</strong><small>{deal.title}</small></span><ArrowRight size={16}/></button>)}
+ {tasks.slice(0,6).map(({deal,task})=><button className="attention-row" key={task.id} onClick={()=>onOpen(deal)}><Clock3 size={17}/><span><strong>{task.title}</strong><small>{deal.title} · {task.due_at?new Date(task.due_at).toLocaleDateString('es-ES'):'Sin fecha'}</small></span><ArrowRight size={16}/></button>)}
+ {!blockers.length&&!tasks.length&&<p>Sin acciones registradas. Abre un inmueble para definir su siguiente paso.</p>}</Panel>
+ <Panel><h2>Mejores oportunidades</h2><p>Prioridad ajustada por evidencia. Un bloqueo no puede compensarse con rentabilidad.</p>{ranked.map(deal=>{const score=opportunityScore(deal);return <button className="attention-row" key={deal.id} onClick={()=>onOpen(deal)}><ScoreDial score={score.score} size="sm"/><span><strong>{deal.title}</strong><small>{deal.municipality} · {stageLabel(deal.stage)} · {score.coverage}% cobertura</small></span><strong>{fmtMoney(listingPrice(deal))}</strong></button>;})}</Panel>
+ <Panel><h2>Datos por validar</h2>{active.filter(d=>completenessForDeal(d)<70).slice(0,5).map(deal=><button className="attention-row" key={deal.id} onClick={()=>onOpen(deal)}><span><strong>{deal.title}</strong><small>Revisar hechos, comparables y riesgos</small></span><b>{completenessForDeal(deal)}% ficha</b></button>)}</Panel>
+ <Panel><h2>Capital y resultados</h2><p>Registra el cierre mensual de cada activo comprado para medir resultados reales. Las previsiones permanecen separadas.</p><button className="ghost-button" onClick={onOpportunities}>Revisar operaciones <ArrowRight size={14}/></button></Panel></div></>}
+ </div>;
 }

@@ -29,6 +29,8 @@ import {
   type MobilityMode,
   type MobilityPoint,
 } from "@/lib/estate-mobility-store";
+import { readCsv, csvNumber } from "@/lib/estate-csv";
+import { PointMap } from "./estate-point-map";
 import { SectionHead } from "@/components/estate-primitives";
 
 type Provider = {
@@ -53,6 +55,7 @@ const MODE_META: Array<{ key: MobilityMode; label: string; icon: React.ReactNode
   { key: "walk", label: "A pie", icon: <Footprints size={15} /> },
   { key: "drive", label: "Coche", icon: <CarFront size={15} /> },
   { key: "bike", label: "Bici", icon: <Bike size={15} /> },
+  { key: "mixed", label: "Sin clasificar", icon: <Layers3 size={15} /> },
   { key: "transit", label: "Transporte", icon: <TrainFront size={15} /> },
 ];
 
@@ -65,69 +68,14 @@ function normalizeMode(raw: string | null | undefined): MobilityMode {
   return "mixed";
 }
 
-function splitCsvLine(line: string, delimiter: string) {
-  const values: string[] = [];
-  let current = "";
-  let quoted = false;
-  for (let index = 0; index < line.length; index += 1) {
-    const char = line[index];
-    if (char === '"') {
-      if (quoted && line[index + 1] === '"') {
-        current += '"';
-        index += 1;
-      } else quoted = !quoted;
-    } else if (char === delimiter && !quoted) {
-      values.push(current.trim());
-      current = "";
-    } else current += char;
-  }
-  values.push(current.trim());
-  return values;
-}
-
-function parseNumber(value: string | undefined) {
-  if (!value) return null;
-  const cleaned = value.trim().replace(/\s/g, "").replace(",", ".");
-  const parsed = Number(cleaned);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
-function parseMobilityCsv(text: string) {
-  const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/).filter((line) => line.trim());
-  if (lines.length < 2) throw new Error("El CSV necesita cabecera y al menos una fila.");
-  const delimiter = (lines[0].match(/;/g)?.length ?? 0) > (lines[0].match(/,/g)?.length ?? 0) ? ";" : ",";
-  const headers = splitCsvLine(lines[0], delimiter).map((value) => value.toLowerCase().trim());
-
-  const indexOf = (names: string[]) => headers.findIndex((header) => names.includes(header));
-  const latIndex = indexOf(["lat", "latitude", "latitud"]);
-  const lngIndex = indexOf(["lng", "lon", "long", "longitude", "longitud"]);
-  const valueIndex = indexOf(["value", "count", "intensity", "traffic", "afluencia", "flujo", "imd"]);
-  const modeIndex = indexOf(["mode", "modo", "travel_mode", "tipo"]);
-  const labelIndex = indexOf(["label", "name", "nombre", "tramo", "zona"]);
-  const observedIndex = indexOf(["observed_at", "timestamp", "date", "fecha", "hora"]);
-
-  if (latIndex < 0 || lngIndex < 0 || valueIndex < 0) {
-    throw new Error("Faltan columnas lat, lng y value/count/afluencia.");
-  }
-
-  const points: MobilityPoint[] = [];
-  for (const line of lines.slice(1)) {
-    const values = splitCsvLine(line, delimiter);
-    const lat = parseNumber(values[latIndex]);
-    const lng = parseNumber(values[lngIndex]);
-    const intensity = parseNumber(values[valueIndex]);
-    if (lat === null || lng === null || intensity === null || lat < -90 || lat > 90 || lng < -180 || lng > 180 || intensity < 0) continue;
-    points.push({
-      lat,
-      lng,
-      value: intensity,
-      mode: normalizeMode(modeIndex >= 0 ? values[modeIndex] : "mixed"),
-      label: labelIndex >= 0 ? values[labelIndex] || null : null,
-      observed_at: observedIndex >= 0 && values[observedIndex] ? values[observedIndex] : null,
-    });
-  }
-  if (!points.length) throw new Error("No hay puntos válidos en el CSV.");
-  return points.slice(0, 25000);
+function parseMobilityCsv(text: string): MobilityPoint[] {
+ return readCsv(text).map((row,index)=>{
+ const lat=csvNumber(row.lat??row.latitude),lng=csvNumber(row.lng??row.lon??row.longitude),value=csvNumber(row.value??row.count??row.imd);
+ if(lat===null||lng===null||value===null||Math.abs(lat)>90||Math.abs(lng)>180||value<0)throw new Error(`Fila ${index+2}: lat, lng o value inválido.`);
+ const date=row.timestamp??row.observed_at??null;
+ if(date && !Number.isFinite(Date.parse(date)))throw new Error(`Fila ${index+2}: fecha inválida.`);
+ return {lat,lng,value,mode:normalizeMode(row.mode),label:row.label??null,observed_at:date};
+ });
 }
 
 function percentile(values: number[], q: number) {
@@ -140,6 +88,14 @@ function percentile(values: number[], q: number) {
 }
 
 export function MobilityView({ user }: { user: User | null }) {
+  const [gvaPoints,setGvaPoints]=useState<MobilityPoint[]>([]);
+  const [timeIndex,setTimeIndex]=useState(0);
+  const [dayFilter,setDayFilter]=useState("all");
+  const [hourFilter,setHourFilter]=useState("all");
+  const [compareId,setCompareId]=useState("");
+  const [gvaLoadedYear,setGvaLoadedYear]=useState(2025);
+  const [gvaLoadedArea,setGvaLoadedArea]=useState("");
+  const [gvaYear,setGvaYear]=useState(2025);
   const [datasets, setDatasets] = useState<MobilityDataset[]>([]);
   const [selectedId, setSelectedId] = useState<string>("");
   const [mode, setMode] = useState<MobilityMode>("walk");
@@ -183,27 +139,29 @@ export function MobilityView({ user }: { user: User | null }) {
   }, []);
 
   const selected = datasets.find((dataset) => dataset.id === selectedId) ?? null;
-  const points = useMemo(() => {
-    const all = selected?.estate_mobility_points ?? [];
-    return all.filter((point) => point.mode === mode || point.mode === "mixed");
-  }, [selected, mode]);
+  const allPoints=useMemo(()=>selectedId==='gva-live'?gvaPoints:selected?.estate_mobility_points??[],[selectedId,gvaPoints,selected]);
+  const times=useMemo(()=>[...new Set(allPoints.filter(p=>p.mode===mode&&p.observed_at).map(p=>p.observed_at!))].sort(),[allPoints,mode]);
+  const annual=selectedId==='gva-live'||selected?.source_key==='gva_imd';
+  const points = useMemo(() => allPoints.filter(p=>{
+   if(p.mode!==mode)return false;if(annual)return true;
+   if(timeIndex>0&&p.observed_at!==times[timeIndex-1])return false;
+   if(dayFilter==='all'&&hourFilter==='all')return true;
+   if(!p.observed_at)return false;
+   const d=new Date(p.observed_at),weekday=new Intl.DateTimeFormat('en-US',{timeZone:'Europe/Madrid',weekday:'short'}).format(d),hour=Number(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Madrid',hour:'2-digit',hourCycle:'h23'}).format(d));
+   if(dayFilter==='weekday'&&['Sat','Sun'].includes(weekday))return false;
+   if(dayFilter==='weekend'&&!['Sat','Sun'].includes(weekday))return false;
+   return hourFilter==='all'||hour===Number(hourFilter);
+  }),[allPoints,mode,annual,timeIndex,times,dayFilter,hourFilter]);
+  const compare=datasets.find(d=>d.id===compareId);
+  const comparisonPoints=compare?.estate_mobility_points?.filter(p=>p.mode===mode)??[];
+  const sameUnit=compare?.unit===(selectedId==='gva-live'?'vehicles/day':selected?.unit);
 
   const values = points.map((point) => point.value);
   const p50 = percentile(values, .5);
   const p90 = percentile(values, .9);
   const peak = values.length ? Math.max(...values) : 0;
-  const maxValue = Math.max(1, peak);
-
-  const spanLat = .018;
-  const spanLng = .026;
-  const bounds = {
-    south: center.lat - spanLat,
-    north: center.lat + spanLat,
-    west: center.lng - spanLng,
-    east: center.lng + spanLng,
-  };
-  const osmSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(`${bounds.west},${bounds.south},${bounds.east},${bounds.north}`)}&layer=mapnik&marker=${center.lat},${center.lng}`;
-
+  async function loadGva(){setBusy(true);setMessage('');try{const response=await fetch(`/api/mobility/gva?lat=${center.lat}&lng=${center.lng}&year=${gvaYear}`);const data=await response.json();if(!response.ok)throw new Error(data.error);setGvaPoints(data.points);setGvaLoadedYear(data.year);setGvaLoadedArea(placeLabel);setSelectedId('gva-live');setMode('drive');setMessage(`${data.points.length} tramos · IMD ${data.year}. ${data.note}`);}catch(e){setMessage(e instanceof Error?e.message:'GVA no disponible');}finally{setBusy(false);}}
+  async function saveGva(){if(!user){setMessage('Inicia sesión para conservar esta muestra.');return;}try{await saveMobilityDataset(user,{name:`GVA IMD ${gvaLoadedYear} · ${gvaLoadedArea}`,sourceKey:'gva_imd',mode:'drive',unit:'vehicles/day',metadata:{license:'CC BY — Generalitat Valenciana / ICV',year:gvaLoadedYear,source:'https://terramapas.icv.gva.es/0902_Aforos',retrieved_at:new Date().toISOString()}},gvaPoints);setMessage('Muestra GVA guardada con procedencia.');await refresh();}catch(e){setMessage(String(e));}}
   async function locate() {
     if (!query.trim()) return;
     setBusy(true); setMessage("");
@@ -279,7 +237,7 @@ export function MobilityView({ user }: { user: User | null }) {
         <div className="flow-search">
           <Search size={15} />
           <input value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => event.key === "Enter" && void locate()} aria-label="Buscar ubicación" />
-          <button onClick={locate} disabled={busy}>{busy ? <Loader2 size={14} className="spin" /> : <LocateFixed size={14} />}</button>
+          <button aria-label="Buscar ubicación" onClick={locate} disabled={busy}>{busy ? <Loader2 size={14} className="spin" /> : <LocateFixed size={14} />}</button>
         </div>
         <div className="flow-mode-switch" aria-label="Modo de movilidad">
           {MODE_META.map((item) => <button key={item.key} className={mode === item.key ? "active" : ""} onClick={() => setMode(item.key)}>{item.icon}<span>{item.label}</span></button>)}
@@ -287,25 +245,17 @@ export function MobilityView({ user }: { user: User | null }) {
         <div className="flow-place"><MapPinned size={14} /><span>{placeLabel}</span></div>
       </div>
 
+      <div className="saved-searches"><label>Año IMD<select value={gvaYear} onChange={e=>setGvaYear(Number(e.target.value))}>{Array.from({length:17},(_,i)=>2025-i).map(y=><option key={y}>{y}</option>)}</select></label><button className="ghost-button" disabled={busy} onClick={loadGva}>Cargar tráfico GVA en esta zona</button>{gvaPoints.length>0&&<button className="ghost-button" onClick={saveGva}>Guardar muestra GVA</button>}</div>
+      {!annual&&<div className="market-controls"><label>Momento: {timeIndex?times[timeIndex-1]??'Sin dato':'Todos'}<input type="range" min="0" max={times.length} value={Math.min(timeIndex,times.length)} onChange={e=>setTimeIndex(Number(e.target.value))}/></label><label>Día<select value={dayFilter} onChange={e=>setDayFilter(e.target.value)}><option value="all">Todos</option><option value="weekday">Laborable</option><option value="weekend">Fin de semana</option></select></label><label>Hora · Europe/Madrid<select value={hourFilter} onChange={e=>setHourFilter(e.target.value)}><option value="all">Todas</option>{Array.from({length:24},(_,i)=><option key={i} value={i}>{i}:00</option>)}</select></label></div>}
+      <details className="panel"><summary>Comparación A/B de muestras</summary><label>Muestra B<select value={compareId} onChange={e=>setCompareId(e.target.value)}><option value="">Selecciona otra ubicación</option>{datasets.filter(d=>d.id!==selectedId).map(d=><option key={d.id} value={d.id}>{d.name} · {d.area_label}</option>)}</select></label>{compare&&<p>{sameUnit?`A: N ${points.length} · mediana ${points.length?percentile(points.map(p=>p.value),.5):'sin datos'}. B: N ${comparisonPoints.length} · mediana ${comparisonPoints.length?percentile(comparisonPoints.map(p=>p.value),.5):'sin datos'}. Unidad: ${compare.unit}. Verifica que periodo, resolución y metodología sean comparables; B muestra todos sus registros del modo seleccionado.`:'Unidades distintas: comparación numérica no disponible.'}</p>}</details>
       <div className="flow-layout">
         <section className="flow-map-shell">
           <div className="flow-map-topbar">
-            <div><span className="flow-live-dot" /><strong>{selectedMode.label}</strong><small>{selected ? selected.name : "sin dataset medido"}</small></div>
+            <div><span className="flow-live-dot" /><strong>{selectedMode.label}</strong><small>{selectedId==='gva-live'?`GVA IMD ${gvaLoadedYear}`:selected ? selected.name : "sin dataset medido"}</small></div>
             <div className="flow-legend"><span><i className="low" /> bajo</span><span><i className="mid" /> medio</span><span><i className="high" /> alto</span></div>
           </div>
           <div className="flow-map-stage">
-            <iframe title="Mapa de movilidad" src={osmSrc} loading="lazy" referrerPolicy="no-referrer" />
-            <div className="flow-map-shade" />
-            <div className="flow-heat-layer" aria-hidden="true">
-              {points.map((point, index) => {
-                const x = ((point.lng - bounds.west) / (bounds.east - bounds.west)) * 100;
-                const y = ((bounds.north - point.lat) / (bounds.north - bounds.south)) * 100;
-                if (x < -4 || x > 104 || y < -4 || y > 104) return null;
-                const intensity = Math.max(.08, Math.min(1, point.value / maxValue));
-                const size = 14 + intensity * 54;
-                return <i key={point.id ?? index} className="flow-heat-point" style={{ left: `${x}%`, top: `${y}%`, width: size, height: size, "--heat": intensity } as CSSProperties} title={point.label || String(point.value)} />;
-              })}
-            </div>
+            <PointMap center={center} points={points}/>
             {!points.length && (
               <div className="flow-map-empty">
                 <Waves size={26} />
@@ -315,7 +265,7 @@ export function MobilityView({ user }: { user: User | null }) {
             )}
           </div>
           <div className="flow-map-footer">
-            <span>Base © OpenStreetMap</span>
+            <span>Base © OpenStreetMap{annual&&<> · IMD © Generalitat Valenciana / ICV · CC BY · anual</>}</span>
             <span>Los puntos representan datos agregados · nunca trayectorias individuales</span>
           </div>
         </section>
@@ -341,7 +291,7 @@ export function MobilityView({ user }: { user: User | null }) {
           <div className="flow-dataset-control">
             <label><span>DATASET</span>
               <select value={selectedId} onChange={(event) => setSelectedId(event.target.value)}>
-                <option value="">Sin dataset</option>
+                <option value="">Sin dataset</option>{gvaPoints.length>0&&<option value="gva-live">GVA · consulta actual</option>}
                 {datasets.map((dataset) => <option value={dataset.id} key={dataset.id}>{dataset.name}</option>)}
               </select>
             </label>

@@ -17,8 +17,10 @@ import {
 import { supabase } from "@/lib/supabase";
 import { EstateSidebar, EstateTopbar, type View } from "@/components/estate-shell";
 import { HomeView } from "@/components/estate-home";
-import { ExploreView, MarketView } from "@/components/estate-discovery";
-import { MobilityView } from "@/components/estate-mobility";
+import { MarketIntelligence } from "@/components/estate-market";
+import { ExploreView } from "@/components/estate-discovery";
+import dynamic from "next/dynamic";
+const MobilityView = dynamic(() => import("@/components/estate-mobility").then(m=>m.MobilityView),{loading:()=> <p>Cargando mapa…</p>});
 import { OpportunitiesView } from "@/components/estate-opportunities";
 import { PortfolioView } from "@/components/estate-portfolio";
 import { AnalyzerView } from "@/components/estate-analyzer";
@@ -30,7 +32,7 @@ const BASE_INPUTS: DealInputs = {
   monthlyRent: 0,
   builtAreaM2: 0,
   purchaseTaxPct: 10,
-  ltvPct: 80,
+  ltvPct: 60,
   interestPct: 3.25,
   termYears: 30,
   notaryRegistry: 1100,
@@ -46,7 +48,7 @@ const BASE_INPUTS: DealInputs = {
   managementPct: 0,
   vacancyPct: 5,
   otherMonthly: 0,
-  monthlySavings: 1200,
+  monthlySavings: 0,
   nextCapitalTarget: 20000,
   recoverableCapital: 0,
   targetNetYieldPct: 8,
@@ -57,6 +59,7 @@ const BASE_INPUTS: DealInputs = {
 
 const EMPTY_DRAFT: PropertyDraft = {
   title: "",
+  propertyType: "apartment",
   municipality: "",
   province: "Alicante",
   address: "",
@@ -74,6 +77,7 @@ function draftFromDeal(deal: SavedDeal): PropertyDraft {
   const listing = deal.estate_listings?.[0];
   return {
     title: deal.title,
+    propertyType: deal.property_type ?? "apartment",
     municipality: deal.municipality ?? "",
     province: deal.province ?? "Alicante",
     address: deal.address ?? "",
@@ -118,10 +122,11 @@ function normalizeCondition(value: unknown): PropertyDraft["condition"] {
   return "unknown";
 }
 
-const STAGE_ORDER: EstateStage[] = ["watchlist", "analyzing", "visit", "negotiating", "purchased", "managed", "sold"];
+const STAGE_ORDER: EstateStage[] = ["watchlist", "analyzing", "visit", "negotiating", "financing", "deposit", "purchased", "rehab", "marketing", "managed", "sold"];
 
 type ImportedListing = {
   title: string | null;
+  property_type: PropertyDraft["propertyType"] | null;
   municipality: string | null;
   province: string | null;
   address: string | null;
@@ -166,6 +171,7 @@ export default function EstatePage() {
   const [editingPropertyId, setEditingPropertyId] = useState<string | null>(null);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
 
+  const possibleDuplicates = savedDeals.filter(d=>!editingPropertyId&&(draft.address??"").trim().length>6&&d.address?.trim().toLowerCase()===(draft.address??"").trim().toLowerCase()&&d.municipality?.toLowerCase()===draft.municipality.toLowerCase());
   const analysis = useMemo(() => analyzeDeal(inputs), [inputs]);
   const selectedDeal = useMemo(() => savedDeals.find((deal) => deal.id === selectedPropertyId) ?? null, [savedDeals, selectedPropertyId]);
 
@@ -207,6 +213,7 @@ export default function EstatePage() {
     setDraft({
       ...EMPTY_DRAFT,
       title: candidate.title,
+      propertyType: candidate.property_type ?? "apartment",
       municipality: candidate.municipality ?? "",
       province: candidate.province ?? "Alicante",
       address: candidate.address ?? "",
@@ -259,6 +266,7 @@ export default function EstatePage() {
         listingUrl: data.url ?? importUrl,
         portal: data.portal ?? "other",
         title: listing?.title || current.title,
+        propertyType: listing?.property_type ?? current.propertyType,
         municipality: listing?.municipality || current.municipality,
         province: listing?.province || current.province,
         address: listing?.address || current.address,
@@ -344,18 +352,19 @@ export default function EstatePage() {
           {statusMessage && <button className="toast" onClick={() => setStatusMessage("")}><span className="status-dot" />{statusMessage}<X size={13} /></button>}
           {loadingDeals && user && savedDeals.length === 0 ? <div className="global-loading"><Loader2 size={18} className="spin" /> Cargando…</div> : null}
           {view === "home" && <HomeView deals={savedDeals} onNew={startNewDeal} onExplore={() => selectView("explore")} onOpen={openProperty} onOpportunities={() => selectView("opportunities")} />}
-          {view === "explore" && <ExploreView deals={savedDeals} onNew={startNewDeal} onOpen={openProperty} user={user} onCandidate={startResearchCandidate} />}
-          {view === "market" && <MarketView deals={savedDeals} onNew={startNewDeal} onOpen={openProperty} />}
-          {view === "mobility" && <MobilityView user={user} />}
+          {view === "explore" && <ExploreView key={user?.id??"guest"} deals={savedDeals} onNew={startNewDeal} onOpen={openProperty} user={user} onCandidate={startResearchCandidate} />}
+          {view === "market" && <MarketIntelligence key={user?.id??"guest"} />}
+          {view === "mobility" && <MobilityView key={user?.id??"guest"} user={user} />}
           {view === "opportunities" && <OpportunitiesView deals={savedDeals} onNew={startNewDeal} onOpen={openProperty} onStageChange={changeDealStage} />}
           {view === "portfolio" && <PortfolioView deals={savedDeals} onOpen={openProperty} onOpportunities={() => selectView("opportunities")} />}
+          {view === "analyze" && possibleDuplicates.length>0 && <div className="panel"><p>Coincidencia de dirección: verifica planta, puerta y superficie antes de vincular. No se fusiona automáticamente.</p>{possibleDuplicates.map(d=><button className="ghost-button" key={d.id} onClick={()=>setEditingPropertyId(d.id)}>Guardar este anuncio en {d.title} · {d.built_area_m2??'—'} m² · {d.floor_label??'sin planta'}</button>)}</div>}
           {view === "analyze" && <AnalyzerView draft={draft} setDraft={setDraft} inputs={inputs} updateInput={updateInput} analysis={analysis} importUrl={importUrl} setImportUrl={setImportUrl} importBusy={importBusy} importMessage={importMessage} onImport={handleImport} onSave={handleSave} saving={saving} signedIn={Boolean(user)} step={analyzerStep} setStep={setAnalyzerStep} editing={Boolean(editingPropertyId)} />}
-          {view === "property" && selectedDeal && user && <PropertyWorkspace user={user} deal={selectedDeal} onBack={() => selectView("opportunities")} onReanalyze={() => reanalyzeProperty(selectedDeal)} onStageChange={(stage) => changeDealStage(selectedDeal, stage)} onRefresh={refreshCurrentWorkspace} />}
+          {view === "property" && selectedDeal && user && <PropertyWorkspace key={selectedDeal.id} user={user} deal={selectedDeal} onBack={() => selectView("opportunities")} onReanalyze={() => reanalyzeProperty(selectedDeal)} onStageChange={(stage) => changeDealStage(selectedDeal, stage)} onRefresh={refreshCurrentWorkspace} />}
           {view === "property" && !selectedDeal && <div className="global-loading">Propiedad no disponible. <button className="text-link button-link" onClick={() => selectView("opportunities")}>Volver</button></div>}
         </main>
       </div>
       {sidebarOpen && <button className="sidebar-backdrop" aria-label="Cerrar menú" onClick={() => setSidebarOpen(false)} />}
-      {authOpen && <div className="modal-backdrop" onMouseDown={() => setAuthOpen(false)}><div className="auth-modal" role="dialog" aria-modal="true" aria-label="Acceso a Estate" onMouseDown={(event) => event.stopPropagation()}><button className="icon-button modal-close" onClick={() => setAuthOpen(false)} aria-label="Cerrar"><X size={17} /></button><div className="modal-icon"><LockKeyhole size={20} /></div><span className="eyebrow">ESTATE ACCESS</span><h2>Dataset privado</h2><form className="auth-form" onSubmit={handleSignIn}><label>Correo<input type="email" required value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} /></label><label>Contraseña<input type="password" required minLength={6} value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} /></label>{authMessage && <div className="form-message">{authMessage}</div>}<button className="primary-button full" type="submit" disabled={authBusy}>{authBusy ? <Loader2 size={14} className="spin" /> : <LogIn size={14} />} Entrar</button><button className="ghost-button full" type="button" disabled={authBusy} onClick={handleSignUp}>Crear cuenta</button></form></div></div>}
+      {authOpen && <div className="modal-backdrop" onMouseDown={() => setAuthOpen(false)}><div className="auth-modal" onKeyDown={(event)=>{if(event.key==="Escape")setAuthOpen(false);if(event.key==="Tab"){const nodes=event.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled)');const first=nodes[0],last=nodes[nodes.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}}}} role="dialog" aria-modal="true" aria-label="Acceso a Estate" onMouseDown={(event) => event.stopPropagation()}><button className="icon-button modal-close" onClick={() => setAuthOpen(false)} aria-label="Cerrar"><X size={17} /></button><div className="modal-icon"><LockKeyhole size={20} /></div><span className="eyebrow">ESTATE ACCESS</span><h2>Dataset privado</h2><form className="auth-form" onSubmit={handleSignIn}><label>Correo<input type="email" autoFocus autoComplete="username" required value={authEmail} onChange={(event) => setAuthEmail(event.target.value)} /></label><label>Contraseña<input type="password" autoComplete="current-password" required minLength={6} value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} /></label>{authMessage && <div className="form-message">{authMessage}</div>}<button className="primary-button full" type="submit" disabled={authBusy}>{authBusy ? <Loader2 size={14} className="spin" /> : <LogIn size={14} />} Entrar</button><button className="ghost-button full" type="button" disabled={authBusy} onClick={handleSignUp}>Crear cuenta</button></form></div></div>}
     </div>
   );
 }

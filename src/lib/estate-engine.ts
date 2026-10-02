@@ -1,7 +1,16 @@
-export const ESTATE_ENGINE_VERSION = "estate_financial_v1.0.0";
+export const ESTATE_ENGINE_VERSION = "estate_financial_v2.0.0";
 
 export type DealInputs = {
   purchasePrice: number;
+  financingMode?: "cash" | "mortgage" | "seller";
+  minMonthlyCashFlow?: number;
+  minDscr?: number;
+  marketComparableCeiling?: number;
+  financingLoanLimit?: number;
+  availableCapital?: number;
+  appraisalValue?: number;
+  unexpectedCapex?: number;
+  combinedStress?: { rentPct: number; vacancyPp: number; ratePp: number; renovationPct: number; capex: number };
   marketValueEstimate?: number;
   monthlyRent: number;
   builtAreaM2: number;
@@ -39,6 +48,8 @@ export type StressScenario = {
   dscr: number | null;
   capitalRequired: number;
   passes: boolean;
+  equity: number | null;
+  valuation: number | null;
 };
 
 export type ScoreComponent = {
@@ -68,6 +79,10 @@ export type DealAnalysis = {
   netYieldPct: number;
   cashOnCashPct: number;
   capRatePct: number;
+  capRateBasis: "market_value" | "purchase_price";
+  yieldOnCostPct: number;
+  purchaseCeilings: Record<string, number | null>;
+  limitingCeiling: string | null;
   dscr: number | null;
   maxPurchasePrice: number | null;
   recommendedOpeningOffer: number | null;
@@ -112,7 +127,7 @@ function operationsAt(
   renovationFactor = 1,
 ) {
   const purchasePrice = Math.max(0, input.purchasePrice);
-  const loanAmount = purchasePrice * pct(input.ltvPct);
+  const loanAmount = input.financingMode === "cash" ? 0 : purchasePrice * pct(input.ltvPct);
   const downPayment = purchasePrice - loanAmount;
   const purchaseTax = purchasePrice * pct(input.purchaseTaxPct);
   const acquisitionFixed =
@@ -229,13 +244,14 @@ export function analyzeDeal(raw: DealInputs): DealAnalysis {
     input.purchasePrice > 0 ? (input.monthlyRent * 12 * 100) / input.purchasePrice : 0;
   const netYieldPct =
     base.projectCosts > 0 ? (base.noiMonthly * 12 * 100) / base.projectCosts : 0;
-  const capRatePct = netYieldPct;
+  const capRateValue = input.marketValueEstimate && input.marketValueEstimate > 0 ? input.marketValueEstimate : input.purchasePrice;
+  const capRatePct = capRateValue > 0 ? base.noiMonthly * 12 * 100 / capRateValue : 0;
   const pricePerM2 = input.builtAreaM2 > 0 ? input.purchasePrice / input.builtAreaM2 : 0;
 
   const targetYield = input.targetNetYieldPct / 100;
   const nonPriceCosts =
     base.acquisitionFixed + Math.max(0, input.renovation) + Math.max(0, input.furniture);
-  const maxPurchasePrice =
+  const yieldCeiling =
     targetYield > 0 && base.noiMonthly > 0
       ? Math.max(
           0,
@@ -244,19 +260,31 @@ export function analyzeDeal(raw: DealInputs): DealAnalysis {
         )
       : null;
 
+  // Each ceiling is nullable when the investor has not supplied the constraint.
+  // Zero is an applicable limit, never silently filtered out.
+  const leverage = input.financingMode === "cash" ? 0 : pct(input.ltvPct);
+  const debtPerEuro = mortgagePayment(leverage, input.interestPct, input.termYears);
+  const validLimit = (value: number | undefined) => typeof value === "number" && Number.isFinite(value) && value >= 0;
+  const capitalPerEuro = 1 - leverage + pct(input.purchaseTaxPct);
+  const capitalAfterFixedCosts = (input.availableCapital ?? 0) - nonPriceCosts - Math.max(0, input.reserve);
+  const capitalCeiling = !validLimit(input.availableCapital) ? null
+    : capitalAfterFixedCosts < 0 ? 0
+    : capitalPerEuro > 0 ? capitalAfterFixedCosts / capitalPerEuro : null;
+  const purchaseCeilings: Record<string, number | null> = {
+    yield: yieldCeiling,
+    cashflow: validLimit(input.minMonthlyCashFlow) && debtPerEuro > 0 ? Math.max(0, (base.noiMonthly - input.minMonthlyCashFlow!) / debtPerEuro) : validLimit(input.minMonthlyCashFlow) && base.noiMonthly < input.minMonthlyCashFlow! ? 0 : null,
+    dscr: input.minDscr && input.minDscr > 0 && debtPerEuro > 0 ? Math.max(0, base.noiMonthly / (input.minDscr * debtPerEuro)) : null,
+    market_comps: validLimit(input.marketComparableCeiling) ? input.marketComparableCeiling! : null,
+    financing: validLimit(input.financingLoanLimit) && leverage > 0 ? input.financingLoanLimit! / leverage : null,
+    available_capital: capitalCeiling,
+    appraisal: validLimit(input.appraisalValue) && leverage > 0 ? input.appraisalValue! : null,
+  };
+  const applicable = Object.entries(purchaseCeilings).filter((entry): entry is [string, number] => entry[1] !== null && Number.isFinite(entry[1]));
+  const limiting = applicable.sort((a, b) => a[1] - b[1])[0];
+  const maxPurchasePrice = limiting?.[1] ?? null;
   const negotiationSignal = scoreNegotiation(input.daysOnMarket, input.priceDrops);
-  let openingDiscount = 0.04;
-  if ((input.daysOnMarket ?? 0) >= 120) openingDiscount += 0.02;
-  if ((input.daysOnMarket ?? 0) >= 240) openingDiscount += 0.02;
-  if ((input.priceDrops ?? 0) > 0) openingDiscount += 0.015;
-  if ((input.priceDrops ?? 0) >= 3) openingDiscount += 0.01;
-  openingDiscount = Math.min(0.12, openingDiscount);
-
-  const priceCeilings = [maxPurchasePrice, input.marketValueEstimate]
-    .filter((v): v is number => typeof v === "number" && v > 0);
-  const hardCeiling = priceCeilings.length > 0 ? Math.min(...priceCeilings) : maxPurchasePrice;
-  const recommendedOpeningOffer =
-    hardCeiling && hardCeiling > 0 ? hardCeiling * (1 - openingDiscount) : null;
+  // Opening offer is an explicit strategy assumption, not a seller-motivation inference.
+  const recommendedOpeningOffer = maxPurchasePrice === null ? null : Math.min(input.purchasePrice, maxPurchasePrice) * 0.95;
 
   const monthlyCapitalGeneration =
     Math.max(0, input.monthlySavings) + Math.max(0, base.netMonthlyCashFlow);
@@ -271,30 +299,47 @@ export function analyzeDeal(raw: DealInputs): DealAnalysis {
         ? capitalGap / monthlyCapitalGeneration
         : null;
 
-  const stressDefinitions = [
-    { key: "base", label: "Base", rent: 1, rate: 0, renovation: 1 },
-    { key: "rent_10", label: "Alquiler −10%", rent: 0.9, rate: 0, renovation: 1 },
-    { key: "rent_20", label: "Alquiler −20%", rent: 0.8, rate: 0, renovation: 1 },
-    { key: "rate_2", label: "Interés +2 pp", rent: 1, rate: 2, renovation: 1 },
-    { key: "rehab_30", label: "Reforma +30%", rent: 1, rate: 0, renovation: 1.3 },
+  const combined = input.combinedStress;
+  const stressDefinitions: Array<{key:string; label:string; rent?:number; rate?:number; renovation?:number; vacancy?:number; capex?:number; valueFactor?:number}> = [
+    { key: "base", label: "Base" },
+    { key: "rent_10", label: "Alquiler −10%", rent: .9 },
+    { key: "rent_20", label: "Alquiler −20%", rent: .8 },
+    { key: "vacancy_10", label: "Vacancia +10 pp", vacancy: 10 },
+    { key: "empty_2", label: "2 meses adicionales sin renta", vacancy: 100 / 6 },
+    { key: "rate_1", label: "Interés +1 pp", rate: 1 },
+    { key: "rate_2", label: "Interés +2 pp", rate: 2 },
+    { key: "rehab_15", label: "Reforma +15%", renovation: 1.15 },
+    { key: "rehab_30", label: "Reforma +30%", renovation: 1.3 },
+    { key: "rehab_50", label: "Reforma +50%", renovation: 1.5 },
+    ...(input.unexpectedCapex === undefined ? [] : [{ key: "capex", label: "CAPEX imprevisto", capex: input.unexpectedCapex }]),
+    ...(input.marketValueEstimate ? [{ key: "value_10", label: "Valor de mercado −10%", valueFactor: .9 }] : []),
+    ...(input.appraisalValue ? [{ key: "appraisal_10", label: "Tasación −10%", valueFactor: .9 }] : []),
+    ...(combined ? [{key: "combined", label: "Escenario combinado", rent: Math.max(0,1 + combined.rentPct / 100), vacancy: combined.vacancyPp, rate: combined.ratePp, renovation: Math.max(0,1 + combined.renovationPct / 100), capex: combined.capex}] : []),
   ];
-
   const stress: StressScenario[] = stressDefinitions.map((scenario) => {
-    const result = operationsAt(input, scenario.rent, scenario.rate, scenario.renovation);
+    // A lower appraisal reduces the lender advance; the extra equity is not an expense.
+    const stressedLoan = scenario.key === "appraisal_10"
+      ? Math.min(base.loanAmount, input.appraisalValue! * .9 * leverage) : base.loanAmount;
+    const stressedLtv = input.purchasePrice > 0 ? stressedLoan / input.purchasePrice * 100 : input.ltvPct;
+    const result = operationsAt({...input, ltvPct: stressedLtv, vacancyPct: clamp(input.vacancyPct + (scenario.vacancy ?? 0),0,100)}, scenario.rent ?? 1, scenario.rate ?? 0, scenario.renovation ?? 1);
+    const capex = Math.max(0, scenario.capex ?? 0);
+    const capital = result.capitalRequired + capex;
+    const valuationBase = scenario.key === "appraisal_10" ? input.appraisalValue : input.marketValueEstimate;
+    const valuation = valuationBase ? valuationBase * (scenario.valueFactor ?? 1) : null;
+    const equity = valuation === null ? null : valuation - result.loanAmount;
+    const firstYearCash = result.netMonthlyCashFlow * 12 - capex;
     return {
-      key: scenario.key,
-      label: scenario.label,
-      monthlyCashFlow: round(result.netMonthlyCashFlow),
-      cashOnCashPct: round(result.cashOnCashPct),
+      key: scenario.key, label: scenario.label,
+      monthlyCashFlow: round(firstYearCash / 12),
+      cashOnCashPct: capital > 0 ? round(firstYearCash * 100 / capital) : 0,
       dscr: result.dscr === null ? null : round(result.dscr, 3),
-      capitalRequired: round(result.capitalRequired),
-      passes: result.netMonthlyCashFlow >= 0 && (result.dscr === null || result.dscr >= 1),
+      capitalRequired: round(capital), valuation, equity,
+      passes: firstYearCash >= 0 && (result.dscr === null || result.dscr >= (input.minDscr ?? 1)) && (input.availableCapital === undefined || capital <= input.availableCapital) && (equity === null || equity >= 0),
     };
   });
-
   const adversePasses = stress.slice(1).filter((s) => s.passes).length;
-  const stressStatus: DealAnalysis["stressStatus"] =
-    adversePasses >= 4 ? "green" : adversePasses >= 2 ? "orange" : "red";
+  const adverseCount = stress.length - 1;
+  const stressStatus: DealAnalysis["stressStatus"] = adversePasses === adverseCount ? "green" : adversePasses >= adverseCount / 2 ? "orange" : "red";
 
   const components: ScoreComponent[] = [
     {
@@ -338,10 +383,10 @@ export function analyzeDeal(raw: DealInputs): DealAnalysis {
     {
       key: "stress",
       label: "Resistencia",
-      score: clamp(25 + adversePasses * 18.75, 0, 100),
+      score: clamp(25 + adversePasses / adverseCount * 75, 0, 100),
       confidence: 0.9,
       weight: 15,
-      reason: `${adversePasses}/4 escenarios adversos mantienen cash-flow ≥ 0 y DSCR ≥ 1×.`,
+      reason: `${adversePasses}/${adverseCount} escenarios adversos mantienen cash-flow ≥ 0 y DSCR ≥ 1×.`,
     },
     {
       key: "confidence",
@@ -415,8 +460,8 @@ export function analyzeDeal(raw: DealInputs): DealAnalysis {
     strengths.push(`Cobertura de deuda sólida: DSCR ${round(base.dscr, 2)}×.`);
   if (base.dscr !== null && base.dscr < 1)
     weaknesses.push(`El NOI no cubre completamente la deuda: DSCR ${round(base.dscr, 2)}×.`);
-  if (stressStatus === "green") strengths.push("Supera todos los stress tests definidos en V1.");
-  if (stressStatus === "red") weaknesses.push("Falla la mayoría de escenarios adversos de V1.");
+  if (stressStatus === "green") strengths.push("Supera todos los stress tests definidos.");
+  if (stressStatus === "red") weaknesses.push("Falla la mayoría de escenarios adversos.");
   if (input.dataConfidence < 0.6)
     weaknesses.push("Confianza de datos baja: verificar alquiler, gastos y comparables antes de decidir.");
 
@@ -438,6 +483,10 @@ export function analyzeDeal(raw: DealInputs): DealAnalysis {
     netYieldPct: round(netYieldPct),
     cashOnCashPct: round(base.cashOnCashPct),
     capRatePct: round(capRatePct),
+    capRateBasis: input.marketValueEstimate && input.marketValueEstimate > 0 ? "market_value" : "purchase_price",
+    yieldOnCostPct: round(netYieldPct),
+    purchaseCeilings: Object.fromEntries(Object.entries(purchaseCeilings).map(([key,value]) => [key,value === null ? null : round(value)])),
+    limitingCeiling: limiting?.[0] ?? null,
     dscr: base.dscr === null ? null : round(base.dscr, 3),
     maxPurchasePrice: maxPurchasePrice === null ? null : round(maxPurchasePrice),
     recommendedOpeningOffer:

@@ -1,3 +1,4 @@
+import { reserveProvider } from "@/lib/provider-budget";
 import { NextResponse } from "next/server";
 import { hasOpenAIKey, openAIStructured } from "@/lib/openai-estate";
 import { requireEstateUser } from "@/lib/server-auth";
@@ -19,6 +20,7 @@ const listingSchema = {
   additionalProperties: false,
   properties: {
     title: { type: ["string", "null"] },
+    property_type: { type: ["string", "null"], enum: ["apartment","house","studio","commercial","office","land","building","other",null] },
     municipality: { type: ["string", "null"] },
     province: { type: ["string", "null"] },
     address: { type: ["string", "null"] },
@@ -48,7 +50,7 @@ const listingSchema = {
       },
     },
   },
-  required: ["title", "municipality", "province", "address", "asking_price", "built_area_m2", "usable_area_m2", "bedrooms", "bathrooms", "floor_label", "has_elevator", "has_terrace", "has_garage", "year_built", "condition", "agency_name", "description", "image_urls", "confidence", "evidence"],
+  required: ["title", "property_type", "municipality", "province", "address", "asking_price", "built_area_m2", "usable_area_m2", "bedrooms", "bathrooms", "floor_label", "has_elevator", "has_terrace", "has_garage", "year_built", "condition", "agency_name", "description", "image_urls", "confidence", "evidence"],
 } as const;
 
 export async function POST(request: Request) {
@@ -90,6 +92,7 @@ export async function POST(request: Request) {
   }
 
   try {
+    await reserveProvider(request);
     const listing = await openAIStructured<Record<string, unknown>>({
       model: process.env.OPENAI_ESTATE_RESEARCH_MODEL,
       instructions: "Extrae datos de un anuncio inmobiliario con máxima trazabilidad. Si un campo no está respaldado por la URL o fuentes públicas inequívocas, devuelve null. Nunca inventes valores.",

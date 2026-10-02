@@ -1,3 +1,4 @@
+import { reserveProvider } from "@/lib/provider-budget";
 import { NextResponse } from "next/server";
 import { openAIStructured } from "@/lib/openai-estate";
 import { requireEstateUser } from "@/lib/server-auth";
@@ -60,6 +61,7 @@ export async function POST(request: Request) {
   }
 
   try {
+    await reserveProvider(request);
     const analysis = await openAIStructured<Record<string, unknown>>({
       model: process.env.OPENAI_ESTATE_VISION_MODEL,
       instructions: [

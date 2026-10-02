@@ -1,20 +1,18 @@
 "use client";
 
-import type { CSSProperties, ChangeEvent } from "react";
+import { ProviderControl } from "./estate-provider-control";
+import type { ChangeEvent } from "react";
 import { useEffect, useMemo, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import {
   ArrowDownUp,
   ArrowRight,
-  Building2,
   CircleDollarSign,
-  Database,
   ExternalLink,
   FileSpreadsheet,
   Filter,
   GitCompareArrows,
   Globe2,
-  Landmark,
   Loader2,
   MapPin,
   Radar,
@@ -24,6 +22,7 @@ import {
   Wifi,
   WifiOff,
 } from "lucide-react";
+import { readCsv, csvNumber, canonicalListingUrl } from "@/lib/estate-csv";
 import { analyzeDeal, type DealInputs } from "@/lib/estate-engine";
 import type { ResearchCandidate, SourceStatus } from "@/lib/estate-research";
 import type { SavedDeal } from "@/lib/estate-store";
@@ -35,8 +34,6 @@ import {
   fmtMoney,
   fmtPct,
   listingPrice,
-  median,
-  Metric,
   Panel,
   ScoreDial,
   SectionHead,
@@ -93,26 +90,25 @@ function candidateAnalysis(candidate: ResearchCandidate) {
 }
 
 function parseCsv(text: string): ResearchCandidate[] {
-  const rows = text.split(/\r?\n/).filter((line) => line.trim());
-  if (rows.length < 2) return [];
-  const delimiter = rows[0].includes(";") ? ";" : ",";
-  const headers = rows[0].split(delimiter).map((value) => value.trim().toLowerCase());
-  const numberAt = (values: string[], keys: string[]) => {
-    const index = headers.findIndex((header) => keys.includes(header));
-    if (index < 0) return null;
-    const value = Number((values[index] ?? "").trim().replace(/\./g, "").replace(",", "."));
-    return Number.isFinite(value) ? value : null;
-  };
-  const textAt = (values: string[], keys: string[]) => {
-    const index = headers.findIndex((header) => keys.includes(header));
-    return index < 0 ? null : (values[index] ?? "").trim() || null;
-  };
-  return rows.slice(1).map((row, index) => {
-    const values = row.split(delimiter);
-    const url = textAt(values, ["url", "enlace", "link"]) ?? "";
+  const rows = readCsv(text);
+  const textAt = (row: Record<string,string>, keys: string[]) => keys.map(key=>row[key]).find(value=>value?.trim())?.trim() ?? null;
+  const numberAt = (row: Record<string,string>, keys: string[]) => csvNumber(textAt(row, keys) ?? undefined);
+  const seen = new Set<string>();
+  return rows.map((values, index) => {
+    const rawUrl = textAt(values, ["url", "enlace", "link"]);
+    const url = rawUrl ? canonicalListingUrl(rawUrl) : "";
     return {
       id: `csv-${index}-${Date.now()}`,
       title: textAt(values, ["title", "titulo", "nombre"]) ?? `Importado ${index + 1}`,
+      property_type: (() => {
+        const raw = (textAt(values, ["property_type", "tipo", "tipologia"]) ?? "").toLowerCase();
+        if (raw.includes("local") || raw.includes("comercial")) return "commercial";
+        if (raw.includes("oficina")) return "office";
+        if (raw.includes("casa") || raw.includes("chalet")) return "house";
+        if (raw.includes("estudio")) return "studio";
+        if (raw.includes("edificio")) return "building";
+        return raw ? "other" : null;
+      })(),
       url,
       source: "CSV",
       portal: textAt(values, ["portal", "fuente"]),
@@ -131,7 +127,12 @@ function parseCsv(text: string): ResearchCandidate[] {
       confidence: 0.55,
       evidence: url ? [{ label: "CSV", url }] : [],
     } satisfies ResearchCandidate;
-  }).filter((candidate) => candidate.url || candidate.asking_price);
+  }).filter((candidate) => {
+    if (!(candidate.url || candidate.asking_price)) return false;
+    if (!candidate.url) return true;
+    if (seen.has(candidate.url)) return false;
+    seen.add(candidate.url); return true;
+  });
 }
 
 function SourceOrbit({ sources, busy }: { sources: SourceStatus[]; busy: boolean }) {
@@ -171,7 +172,7 @@ function CandidateCard({ candidate, onUse }: { candidate: ResearchCandidate; onU
         <div><span>RENTA</span><strong>{candidate.monthly_rent_estimate ? `${fmtMoney(candidate.monthly_rent_estimate)}/m` : "—"}</strong></div>
         <div><span>YIELD BR.</span><strong>{fmtPct(quickYield)}</strong></div>
       </div>
-      <div className="candidate-facts"><span>{candidate.built_area_m2 ? `${candidate.built_area_m2} m²` : "— m²"}</span><span>{candidate.bedrooms ?? "—"} hab.</span><span>{candidate.evidence.length} fuentes</span></div>
+      <div className="candidate-facts"><span>{candidate.built_area_m2 ? `${candidate.built_area_m2} m²` : "— m²"}</span><span>{candidate.property_type === "commercial" ? "local" : candidate.property_type === "office" ? "oficina" : `${candidate.bedrooms ?? "—"} hab.`}</span><span>{candidate.evidence.length} fuentes</span></div>
       <div className="research-card-actions">
         <button className="primary-button" onClick={onUse}>Analizar <ArrowRight size={13} /></button>
         {candidate.url && <a href={candidate.url} target="_blank" rel="noreferrer" aria-label="Abrir anuncio"><ExternalLink size={14} /></a>}
@@ -187,6 +188,9 @@ export function ExploreView({ deals, onNew, onOpen, user, onCandidate }: {
   user: User | null;
   onCandidate: (candidate: ResearchCandidate) => void;
 }) {
+  const [searchName,setSearchName]=useState("");
+  const [savedSearches,setSavedSearches]=useState<Array<{id:string;name:string;criteria:{query:string;maxPrice:number;minYield:number;minScore:number;municipalities:string;minBedrooms:number;assetClass:"residential"|"commercial"}}>>([]);
+  const [searchRevision,setSearchRevision]=useState(0);
   const [query, setQuery] = useState("");
   const [maxPrice, setMaxPrice] = useState(180000);
   const [minYield, setMinYield] = useState(0);
@@ -195,12 +199,16 @@ export function ExploreView({ deals, onNew, onOpen, user, onCandidate }: {
   const [selected, setSelected] = useState<string[]>([]);
   const [municipalities, setMunicipalities] = useState("Castalla, Ibi, Onil, Alcoy, Elda, Villena");
   const [minBedrooms, setMinBedrooms] = useState(2);
+  const [assetClass, setAssetClass] = useState<"residential" | "commercial">("residential");
   const [researchBusy, setResearchBusy] = useState(false);
   const [researchMessage, setResearchMessage] = useState("");
   const [researchResults, setResearchResults] = useState<ResearchCandidate[]>([]);
   const [sources, setSources] = useState<SourceStatus[]>([
     { key: "manual", label: "URL / manual", kind: "manual", status: "ready", detail: "Entrada directa" },
   ]);
+
+  useEffect(()=>{let active=true;if(user)supabase.from('estate_saved_searches').select('*').order('created_at',{ascending:false}).limit(50).then(({data,error})=>{if(active){if(error)setResearchMessage(error.message);else setSavedSearches(data??[]);}});return()=>{active=false;};},[user,searchRevision]);
+  async function saveSearch(){if(!user){setResearchMessage('Inicia sesión para guardar búsquedas.');return;}if(!searchName.trim())return;const {error}=await supabase.from('estate_saved_searches').insert({user_id:user.id,name:searchName.trim(),criteria:{query,maxPrice,minYield,minScore,municipalities,minBedrooms,assetClass}});if(error)setResearchMessage(error.message);else{setSearchName('');setSearchRevision(r=>r+1);}}
 
   useEffect(() => {
     void fetch("/api/sources/status").then((response) => response.ok ? response.json() : null).then((data: { sources?: SourceStatus[] } | null) => {
@@ -237,7 +245,7 @@ export function ExploreView({ deals, onNew, onOpen, user, onCandidate }: {
       const response = await fetch("/api/research", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ criteria: { municipalities: municipalities.split(",").map((value) => value.trim()).filter(Boolean), province: "Alicante", maxPrice, minBedrooms, strategy: "long_term", maxResults: 16 } }),
+        body: JSON.stringify({ criteria: { municipalities: municipalities.split(",").map((value) => value.trim()).filter(Boolean), province: "Alicante", maxPrice, minBedrooms: assetClass === "residential" ? minBedrooms : 0, strategy: "long_term", assetClass, maxResults: 16 } }),
       });
       const payload = (await response.json()) as { candidates?: ResearchCandidate[]; error?: string };
       if (!response.ok) throw new Error(payload.error || "Radar no disponible.");
@@ -251,9 +259,11 @@ export function ExploreView({ deals, onNew, onOpen, user, onCandidate }: {
   async function importCsv(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
-    const parsed = parseCsv(await file.text());
-    setResearchResults((current) => [...parsed, ...current].slice(0, 60));
-    setResearchMessage(`${parsed.length} filas importadas`);
+    try {
+      const parsed = parseCsv(await file.text());
+      setResearchResults((current) => [...parsed, ...current.filter(item=>!parsed.some(row=>row.url && row.url === item.url))]);
+      setResearchMessage(`${parsed.length} filas importadas. Revisa y guarda las oportunidades.`);
+    } catch(error) { setResearchMessage(error instanceof Error ? error.message : "CSV no válido."); }
     event.target.value = "";
   }
 
@@ -264,13 +274,19 @@ export function ExploreView({ deals, onNew, onOpen, user, onCandidate }: {
     <div className="view view-explore visual-first">
       <SectionHead eyebrow="DEAL RADAR" title="Radar." action={<button className="primary-button" onClick={onNew}>+ Manual</button>} />
 
+      <div className="saved-searches"><label>Nombre de búsqueda<input value={searchName} onChange={e=>setSearchName(e.target.value)} maxLength={120}/></label><button className="ghost-button" onClick={saveSearch}>Guardar filtros</button>{savedSearches.map(search=><button className="ghost-button" key={search.id} onClick={()=>{const c=search.criteria;setQuery(c.query);setMaxPrice(c.maxPrice);setMinYield(c.minYield);setMinScore(c.minScore);setMunicipalities(c.municipalities);setMinBedrooms(c.minBedrooms);setAssetClass(c.assetClass);}}>{search.name}</button>)}</div>
+      <ProviderControl />
       <div className="radar-layout">
         <Panel className="radar-source-panel"><SourceOrbit sources={sources} busy={researchBusy} /></Panel>
         <Panel className="research-console">
           <div className="visual-panel-head"><span><Sparkles size={15} /> BÚSQUEDA</span><small>{researchMessage}</small></div>
+          <div className="research-asset-switch">
+            <button className={assetClass === "residential" ? "active" : ""} onClick={() => setAssetClass("residential")}>Vivienda</button>
+            <button className={assetClass === "commercial" ? "active" : ""} onClick={() => setAssetClass("commercial")}>Local / oficina</button>
+          </div>
           <div className="research-controls">
             <label className="wide"><span>ZONAS</span><input value={municipalities} onChange={(event) => setMunicipalities(event.target.value)} /></label>
-            <label><span>HAB. ≥</span><input type="number" min="0" max="10" value={minBedrooms} onChange={(event) => setMinBedrooms(Number(event.target.value))} /></label>
+            {assetClass === "residential" ? <label><span>HAB. ≥</span><input type="number" min="0" max="10" value={minBedrooms} onChange={(event) => setMinBedrooms(Number(event.target.value))} /></label> : <label><span>TIPO</span><input value="Comercial" readOnly /></label>}
             <label><span>PRECIO ≤</span><input type="number" min="10000" step="5000" value={maxPrice} onChange={(event) => setMaxPrice(Number(event.target.value))} /></label>
             <button className="scan-button" onClick={runResearch} disabled={researchBusy}>{researchBusy ? <Loader2 size={16} className="spin" /> : <Radar size={16} />} ESCANEAR</button>
             <label className="csv-button" title="CSV: titulo,url,municipio,precio,m2,habitaciones,alquiler,valor_mercado"><input type="file" accept=".csv,text/csv" onChange={importCsv} /><FileSpreadsheet size={15} /> CSV</label>
@@ -319,63 +335,10 @@ export function ExploreView({ deals, onNew, onOpen, user, onCandidate }: {
         </div>
       ) : <Panel className="visual-empty-radar"><Search size={25} /><strong>0 coincidencias</strong><span>Cambia filtros</span></Panel>}
 
+      {selectedDeals.length>1 && <Panel><h3>Comparar con los mismos criterios</h3><div className="comparison-table"><table><thead><tr><th>Métrica</th>{selectedDeals.map(d=><th key={d.id}>{d.title}</th>)}</tr></thead><tbody>{(['Precio','Capital necesario','Cash-flow / mes','Yield sobre coste','DSCR','Máximo compatible','Confianza','Riesgos bloqueantes'] as const).map((label,index)=><tr key={label}><th>{label}</th>{selectedDeals.map(d=>{const o=dealOutput(d);const values=[fmtMoney(dealInput(d)?.purchasePrice),fmtMoney(o?.capitalRequired),fmtMoney(o?.netMonthlyCashFlow),fmtPct(o?.netYieldPct),o?.dscr?.toFixed(2)??'Sin deuda',fmtMoney(o?.maxPurchasePrice),`${Math.round(opportunityScore(d).coverage)}%`,(d.estate_risks??[]).filter(r=>r.is_kill_switch&&!r.resolved_at).length];return <td key={d.id}>{values[index]}</td>;})}</tr>)}</tbody></table></div></Panel>}
       {selectedDeals.length > 0 && (
         <div className="compare-tray"><div className="compare-title"><GitCompareArrows size={16} /><strong>{selectedDeals.length}/3</strong></div><div className="compare-items">{selectedDeals.map((deal) => <button key={deal.id} onClick={() => onOpen(deal)}><span>{deal.title}</span><b>{fmtPct(dealOutput(deal)?.netYieldPct)}</b><small>{Math.round(opportunityScore(deal).score)}</small></button>)}</div><button className="ghost-button" onClick={() => setSelected([])}>×</button></div>
       )}
-    </div>
-  );
-}
-
-type MarketGroup = { municipality: string; count: number; priceM2: number | null; rentM2: number | null; yieldPct: number | null; days: number | null; score: number | null };
-
-export function MarketView({ deals, onNew, onOpen }: { deals: SavedDeal[]; onNew: () => void; onOpen: (deal: SavedDeal) => void }) {
-  const usable = activeDeals(deals).filter((deal) => dealInput(deal) && dealOutput(deal));
-  const groups = useMemo(() => {
-    const byCity = new Map<string, SavedDeal[]>();
-    for (const deal of usable) { const city = deal.municipality?.trim() || "Sin municipio"; byCity.set(city, [...(byCity.get(city) ?? []), deal]); }
-    return [...byCity.entries()].map(([municipality, items]): MarketGroup => {
-      const priceM2 = items.flatMap((deal) => deal.built_area_m2 && listingPrice(deal) ? [listingPrice(deal) / deal.built_area_m2] : []);
-      const rentM2 = items.flatMap((deal) => deal.built_area_m2 && dealInput(deal)?.monthlyRent ? [dealInput(deal)!.monthlyRent / deal.built_area_m2] : []);
-      return { municipality, count: items.length, priceM2: median(priceM2), rentM2: median(rentM2), yieldPct: median(items.map((deal) => dealOutput(deal)!.netYieldPct)), days: median(items.map((deal) => dealInput(deal)?.daysOnMarket ?? 0)), score: median(items.map((deal) => opportunityScore(deal).score)) };
-    }).sort((a, b) => b.count - a.count || (b.yieldPct ?? 0) - (a.yieldPct ?? 0));
-  }, [usable]);
-  const plotDeals = usable.filter((deal) => deal.built_area_m2 && listingPrice(deal) > 0);
-  const maxPriceM2 = Math.max(1, ...plotDeals.map((deal) => listingPrice(deal) / (deal.built_area_m2 || 1)));
-  const maxYield = Math.max(1, ...plotDeals.map((deal) => dealOutput(deal)?.netYieldPct ?? 0));
-  const quality = usable.length >= 10 ? 100 : usable.length >= 3 ? 58 : Math.min(28, usable.length * 12);
-
-  return (
-    <div className="view view-market visual-first">
-      <SectionHead eyebrow="MARKET INTELLIGENCE" title="Mercado." action={<button className="ghost-button" onClick={onNew}>+ Muestra</button>} />
-      <div className="market-visual-top">
-        <div className="market-quality-ring" style={{ "--quality": `${quality * 3.6}deg` } as CSSProperties}><strong>{usable.length}</strong><span>muestras</span><small>{usable.length >= 10 ? "útil" : usable.length >= 3 ? "orientativa" : "insuficiente"}</small></div>
-        <div className="market-icon-metrics">
-          <Metric label="ZONAS" value={groups.length} />
-          <Metric label="€/m²" value={fmtMoney(median(usable.flatMap((deal) => deal.built_area_m2 ? [listingPrice(deal) / deal.built_area_m2] : [])))} />
-          <Metric label="YIELD" value={fmtPct(median(usable.map((deal) => dealOutput(deal)!.netYieldPct)))} />
-          <Metric label="EVIDENCIA" value={`${Math.round(usable.reduce((sum, deal) => sum + opportunityScore(deal).coverage, 0) / Math.max(1, usable.length))}%`} />
-        </div>
-      </div>
-
-      <div className="market-layout">
-        <Panel className="market-plane">
-          <div className="visual-panel-head"><span><Landmark size={15} /> €/m² ↔ YIELD</span><small>mejor zona ↖</small></div>
-          <div className="scatter-frame"><div className="scatter-axis y">YIELD ↑</div><div className="scatter-axis x">€/m² →</div><div className="scatter-grid" />
-            {plotDeals.map((deal) => { const out = dealOutput(deal)!; const priceM2 = listingPrice(deal) / (deal.built_area_m2 || 1); const left = Math.min(94, Math.max(4, (priceM2 / maxPriceM2) * 88)); const bottom = Math.min(90, Math.max(6, (out.netYieldPct / maxYield) * 82)); return <button key={deal.id} className="scatter-point" style={{ left: `${left}%`, bottom: `${bottom}%`, "--point-score": opportunityScore(deal).score } as CSSProperties} onClick={() => onOpen(deal)} title={`${deal.title} · ${fmtMoney(priceM2)}/m² · ${fmtPct(out.netYieldPct)}`}><span>{Math.round(opportunityScore(deal).score)}</span></button>; })}
-            {!plotDeals.length && <div className="scatter-empty"><CircleDollarSign size={26} /><strong>Sin comparables</strong><span>Radar → guardar ≥ 3</span></div>}
-          </div>
-        </Panel>
-        <Panel className="market-source-map">
-          <div className="visual-panel-head"><span><Database size={15} /> EVIDENCIA</span></div>
-          <div className="evidence-ladder"><div className={usable.length >= 10 ? "active" : ""}><b>10+</b><i /><span>ÚTIL</span></div><div className={usable.length >= 3 && usable.length < 10 ? "active" : ""}><b>3–9</b><i /><span>ORIENTA</span></div><div className={usable.length < 3 ? "active" : ""}><b>0–2</b><i /><span>NO CONCLUYE</span></div></div>
-          <div className="market-source-icons"><span className="live"><Database size={14} /><b>{usable.length}</b><small>propias</small></span><span><Globe2 size={14} /><b>API</b><small>externas</small></span><span><Building2 size={14} /><b>WEB</b><small>agencias</small></span></div>
-        </Panel>
-      </div>
-
-      <Panel className="market-table-panel compact-market-table">
-        <div className="visual-panel-head"><span><MapPin size={15} /> MICROMERCADOS</span></div>
-        {groups.length ? <div className="market-table"><div className="market-row market-head"><span>Zona</span><span>N</span><span>€/m²</span><span>Renta/m²</span><span>Yield</span><span>Score</span></div>{groups.map((group) => <div className="market-row" key={group.municipality}><strong>{group.municipality}</strong><span>{group.count}</span><span>{fmtMoney(group.priceM2)}</span><span>{group.rentM2 === null ? "—" : `${group.rentM2.toFixed(1)} €`}</span><span>{fmtPct(group.yieldPct)}</span><span>{group.score === null ? "—" : Math.round(group.score)}</span></div>)}</div> : <div className="market-empty-strip"><MapPin size={18} /><span>Guarda operaciones para construir el mapa real.</span></div>}
-      </Panel>
     </div>
   );
 }
