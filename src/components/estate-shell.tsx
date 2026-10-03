@@ -62,7 +62,7 @@ export function EstateSidebar({ view, open, dealCount, onSelect, onClose }: {
       </nav>
       <div className="sidebar-rule" />
       <div className="sidebar-flow-icons" aria-label="Encontrar, validar, comprar, operar"><span>◎</span><i /><span>◈</span><i /><span>◆</span><i /><span>↻</span></div>
-      <div className="sidebar-foot"><div className="system-status"><span className="live-dot" /><span>Estate v2.0</span><small>online</small></div></div>
+      <div className="sidebar-foot"><div className="system-status"><span className="live-dot" /><span>Estate v2.0.1</span><small>online</small></div></div>
     </aside>
   );
 }
@@ -80,7 +80,7 @@ export function EstateTopbar({ view, propertyTitle, authReady, signedIn, onMenu,
   return (
     <header className="topbar">
       <div className="topbar-left"><button className="icon-button mobile-menu" onClick={onMenu} aria-label="Abrir menú"><Menu size={18} /></button><div className="breadcrumb"><span>Estate</span><ChevronRight size={12} /><strong>{view === "property" && propertyTitle ? propertyTitle : NAMES[view]}</strong></div></div>
-      <div className="topbar-actions"><span className="engine-pill"><Activity size={12} /> v2.0</span>{authReady && (signedIn ? <button className="icon-button" onClick={onLogout} aria-label="Cerrar sesión" title="Cerrar sesión"><LogOut size={16} /></button> : <button className="ghost-button" onClick={onLogin}><LogIn size={14} /> Entrar</button>)}<button className="primary-button compact" onClick={onNew}><Plus size={15} /> Analizar</button></div>
+      <div className="topbar-actions"><span className="engine-pill"><Activity size={12} /> v2.0.1</span>{authReady && (signedIn ? <button className="icon-button" onClick={onLogout} aria-label="Cerrar sesión" title="Cerrar sesión"><LogOut size={16} /></button> : <button className="ghost-button" onClick={onLogin}><LogIn size={14} /> Entrar</button>)}<button className="primary-button compact" onClick={onNew}><Plus size={15} /> Analizar</button></div>
     </header>
   );
 }

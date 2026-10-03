@@ -113,7 +113,7 @@ export function ScoreDial({ score, label, size = "md" }: { score: number; label?
       aria-label={`Score ${number.format(safe)} de 100`}
     >
       <div className="score-dial-inner">
-        <strong>{number.format(safe)}</strong>
+        <strong>{size==="sm"?Math.round(safe):number.format(safe)}</strong>
         <small>/100</small>
       </div>
       {label && <span>{label}</span>}

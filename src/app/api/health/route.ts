@@ -8,7 +8,8 @@ export async function GET() {
     {
       ok: true,
       product: "Firekworks Estate",
-      version: "2.0.0",
+      version: "2.0.1",
+      commit: process.env.VERCEL_GIT_COMMIT_SHA ?? null,
       engine: ESTATE_ENGINE_VERSION,
       timestamp: new Date().toISOString(),
     },
