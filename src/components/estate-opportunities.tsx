@@ -123,7 +123,7 @@ export function OpportunitiesView({
     <div className="view view-opportunities visual-first v14-view">
       <SectionHead
         eyebrow="ACQUISITION"
-        title="Pipeline."
+        title="¿Qué tengo que hacer después?"
         action={
           <button className="primary-button" onClick={onNew}>
             <Plus size={14} /> Oportunidad
@@ -146,6 +146,7 @@ export function OpportunitiesView({
           ).length;
           return (
             <button
+              title={column.prompt}
               aria-pressed={stageFilter === column.key}
               onClick={() =>
                 setStageFilter(stageFilter === column.key ? null : column.key)
@@ -159,7 +160,6 @@ export function OpportunitiesView({
               </div>
               <span>
                 <strong>{column.label}</strong>
-                <small>{column.prompt}</small>
               </span>
               {index < COLUMNS.length - 1 && <ArrowRight size={13} />}
             </button>
@@ -172,18 +172,10 @@ export function OpportunitiesView({
           <b>{visible.length}</b> activas
         </span>
         <span>
-          <b>{visible.filter((deal) => deal.stage === "visit").length}</b>{" "}
-          visitas
-        </span>
-        <span>
-          <b>{visible.filter((deal) => deal.stage === "negotiating").length}</b>{" "}
-          negociación
-        </span>
-        <span>
           <b>{discarded.length}</b> descartes
         </span>
-        <span className="risk-rule">
-          <ShieldAlert size={13} /> Riesgo bloqueante = no avanzar
+        <span className="risk-rule" title="Resuelve los riesgos bloqueantes antes de avanzar">
+          <ShieldAlert size={13} /> {visible.filter(d=>blockerCount(d)>0).length} bloqueadas
         </span>
       </div>
 
@@ -263,20 +255,10 @@ export function OpportunitiesView({
                               <strong>{fmtMoney(listingPrice(deal))}</strong>
                               <span>{out ? fmtPct(out.netYieldPct) : "—"}</span>
                             </div>
-                            <div className="kanban-signal-bars">
-                              {score.components.map((factor) => (
-                                <i
-                                  key={factor.key}
-                                  style={{
-                                    height: `${Math.max(4, (factor.score ?? 0) * 0.16)}px`,
-                                  }}
-                                  title={`${factor.label} ${factor.score ?? "—"}`}
-                                />
-                              ))}
-                            </div>
+
                             <div className="kanban-data-line">
                               <i style={{ width: `${score.coverage}%` }} />
-                              <span>{score.coverage}% evidencia</span>
+                              <span>{score.coverage}% mínimos</span>
                             </div>
                             {blockers > 0 && (
                               <div className="kanban-blocker">

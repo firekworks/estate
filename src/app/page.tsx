@@ -6,7 +6,8 @@ import type { User } from "@supabase/supabase-js";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, LockKeyhole, LogIn, X } from "lucide-react";
-import { analyzeDeal, type DealInputs } from "@/lib/estate-engine";
+import { type DealInputs } from "@/lib/estate-engine";
+import { analyzeReadyDeal, ESSENTIAL_COSTS } from "@/lib/estate-readiness";
 import type { ResearchCandidate } from "@/lib/estate-research";
 import {
   loadSavedDeals,
@@ -221,7 +222,7 @@ export default function EstatePage() {
         (draft.address ?? "").trim().toLowerCase() &&
       d.municipality?.toLowerCase() === draft.municipality.toLowerCase(),
   );
-  const analysis = useMemo(() => analyzeDeal(inputs), [inputs]);
+  const analysis = useMemo(() => analyzeReadyDeal(draft, inputs), [draft, inputs]);
   const selectedDeal = useMemo(
     () => savedDeals.find((deal) => deal.id === selectedPropertyId) ?? null,
     [savedDeals, selectedPropertyId],
@@ -233,7 +234,10 @@ export default function EstatePage() {
     try {
       const rows = await loadSavedDeals(activeUser);
       if (activeUserId.current === activeUser.id) setSavedDeals(rows);
+      return true;
     } catch (error) {
+      if (activeUserId.current !== activeUser.id) return false;
+      console.error("Estate load deals", error);
       setDealsError(true);
       setStatusMessage(
         humanError(
@@ -241,8 +245,9 @@ export default function EstatePage() {
           "No se pudieron cargar tus operaciones. Puedes reintentar.",
         ),
       );
+      return false;
     } finally {
-      setLoadingDeals(false);
+      if (activeUserId.current === activeUser.id) setLoadingDeals(false);
     }
   }, []);
 
@@ -276,6 +281,9 @@ export default function EstatePage() {
     value: DealInputs[K],
   ) {
     setInputs((current) => ({ ...current, [key]: value }));
+    const costChanged=(ESSENTIAL_COSTS as readonly string[]).includes(key);
+    const evidenceKey=costChanged?"costs":key==="purchasePrice"?"price":key==="monthlyRent"?"rent":key==="builtAreaM2"?"area":null;
+    if(evidenceKey) setDraft(current=>{const evidence={...current.features?.evidence};delete evidence[evidenceKey];return {...current,features:{...current.features,...(costChanged?{costsReviewed:false}:{}),evidence}};});
   }
   function selectView(next: View) {
     setView(next);
@@ -414,6 +422,7 @@ export default function EstatePage() {
         },
       }));
       if (listing) {
+        setDraft(current=>{const evidence={...current.features?.evidence};if(listing.asking_price!==null)delete evidence.price;if(listing.built_area_m2!==null)delete evidence.area;return {...current,features:{...current.features,evidence}};});
         setInputs((current) => ({
           ...current,
           purchasePrice: listing.asking_price ?? current.purchasePrice,
@@ -425,7 +434,7 @@ export default function EstatePage() {
         }));
       }
       setImportMessage(
-        `${(data.portal ?? "fuente").toUpperCase()} · ${data.extraction?.status === "enriched" ? "ficha extraída" : "URL guardada"} · ${data.extraction?.reason ?? "revisa los datos"}`,
+        `${(data.portal ?? "fuente").toUpperCase()} · ${data.extraction?.status === "enriched" ? "ficha extraída" : "URL añadida a la ficha"} · ${data.extraction?.reason ?? "revisa los datos"}`,
       );
     } catch (error) {
       setImportMessage(humanError(error, "No se pudo procesar la URL."));
@@ -439,24 +448,27 @@ export default function EstatePage() {
       setAuthOpen(true);
       return;
     }
+    if (!analysis) { setAnalyzerStep(5); return; }
     setSaving(true);
     setStatusMessage("");
     const wasEditing = Boolean(editingPropertyId);
     try {
-      const propertyId = await saveDeal(
+      const {propertyId, imageWarning} = await saveDeal(
         user,
         draft,
         inputs,
         analysis,
         editingPropertyId,
       );
-      await refreshDeals(user);
+      if (activeUserId.current !== user.id) return;
+      setEditingPropertyId(propertyId);
+      const loaded = await refreshDeals(user);
+      if (activeUserId.current !== user.id) return;
+      if (!loaded) { setStatusMessage("Operación guardada. No se pudo volver a cargar; reintenta desde Inicio."); selectView("home"); return; }
       setSelectedPropertyId(propertyId);
       setEditingPropertyId(null);
       setStatusMessage(
-        wasEditing
-          ? "Versión guardada."
-          : "Workspace creado · fotos y microzona se enriquecen cuando hay IA disponible.",
+        imageWarning ? "Operación guardada. Algunas fotos no se han añadido; puedes subirlas en Inmueble." : wasEditing ? "Versión guardada." : "Workspace creado.",
       );
       selectView("property");
     } catch (error) {
@@ -531,6 +543,8 @@ export default function EstatePage() {
     activeUserId.current = null;
     await supabase.auth.signOut();
     setSavedDeals([]);
+    setDraft(EMPTY_DRAFT);
+    setInputs(BASE_INPUTS);
     setSelectedPropertyId(null);
     setEditingPropertyId(null);
     selectView("home");

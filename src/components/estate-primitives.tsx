@@ -11,6 +11,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import type { DealAnalysis, DealInputs } from "@/lib/estate-engine";
+import { savedAnalysisReady } from "@/lib/estate-readiness";
 import type { EvidenceKind, SavedDeal } from "@/lib/estate-store";
 
 export const money = new Intl.NumberFormat("es-ES", {
@@ -34,7 +35,7 @@ export function latestAnalysis(deal: SavedDeal) {
 }
 
 export function dealOutput(deal: SavedDeal): DealAnalysis | null {
-  return latestAnalysis(deal)?.outputs ?? null;
+  return savedAnalysisReady(deal) ? latestAnalysis(deal)?.outputs ?? null : null;
 }
 
 export function dealInput(deal: SavedDeal): DealInputs | null {
@@ -104,7 +105,8 @@ export function stageTone(stage: string) {
   return "neutral";
 }
 
-export function ScoreDial({ score, label, size = "md" }: { score: number; label?: string; size?: "sm" | "md" | "lg" }) {
+export function ScoreDial({ score, label, size = "md" }: { score: number | null; label?: string; size?: "sm" | "md" | "lg" }) {
+  if (score === null) return <span className="pending-score">Pendiente de validar</span>;
   const safe = Math.max(0, Math.min(100, score || 0));
   return (
     <div

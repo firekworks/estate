@@ -1,0 +1,226 @@
+[
+  {
+    "label": "Inicio",
+    "width": 1440,
+    "height": 900,
+    "words": 100,
+    "overflow": false
+  },
+  {
+    "label": "Radar",
+    "width": 1440,
+    "height": 900,
+    "words": 110,
+    "overflow": false
+  },
+  {
+    "label": "Mercado",
+    "width": 1440,
+    "height": 900,
+    "words": 95,
+    "overflow": false
+  },
+  {
+    "label": "Flujo",
+    "width": 1440,
+    "height": 900,
+    "words": 139,
+    "overflow": false
+  },
+  {
+    "label": "Pipeline",
+    "width": 1440,
+    "height": 900,
+    "words": 217,
+    "overflow": false
+  },
+  {
+    "label": "Cartera",
+    "width": 1440,
+    "height": 900,
+    "words": 133,
+    "overflow": false
+  },
+  {
+    "label": "Analizar",
+    "width": 1440,
+    "height": 900,
+    "words": 56,
+    "overflow": false
+  },
+  {
+    "label": "Workspace",
+    "width": 1440,
+    "height": 900,
+    "words": 82,
+    "overflow": false
+  },
+  {
+    "label": "Inicio",
+    "width": 1512,
+    "height": 982,
+    "words": 100,
+    "overflow": false
+  },
+  {
+    "label": "Radar",
+    "width": 1512,
+    "height": 982,
+    "words": 110,
+    "overflow": false
+  },
+  {
+    "label": "Mercado",
+    "width": 1512,
+    "height": 982,
+    "words": 95,
+    "overflow": false
+  },
+  {
+    "label": "Flujo",
+    "width": 1512,
+    "height": 982,
+    "words": 139,
+    "overflow": false
+  },
+  {
+    "label": "Pipeline",
+    "width": 1512,
+    "height": 982,
+    "words": 217,
+    "overflow": false
+  },
+  {
+    "label": "Cartera",
+    "width": 1512,
+    "height": 982,
+    "words": 133,
+    "overflow": false
+  },
+  {
+    "label": "Analizar",
+    "width": 1512,
+    "height": 982,
+    "words": 56,
+    "overflow": false
+  },
+  {
+    "label": "Workspace",
+    "width": 1512,
+    "height": 982,
+    "words": 82,
+    "overflow": false
+  },
+  {
+    "label": "Inicio",
+    "width": 1280,
+    "height": 800,
+    "words": 100,
+    "overflow": false
+  },
+  {
+    "label": "Radar",
+    "width": 1280,
+    "height": 800,
+    "words": 110,
+    "overflow": false
+  },
+  {
+    "label": "Mercado",
+    "width": 1280,
+    "height": 800,
+    "words": 95,
+    "overflow": false
+  },
+  {
+    "label": "Flujo",
+    "width": 1280,
+    "height": 800,
+    "words": 139,
+    "overflow": false
+  },
+  {
+    "label": "Pipeline",
+    "width": 1280,
+    "height": 800,
+    "words": 217,
+    "overflow": false
+  },
+  {
+    "label": "Cartera",
+    "width": 1280,
+    "height": 800,
+    "words": 133,
+    "overflow": false
+  },
+  {
+    "label": "Analizar",
+    "width": 1280,
+    "height": 800,
+    "words": 56,
+    "overflow": false
+  },
+  {
+    "label": "Workspace",
+    "width": 1280,
+    "height": 800,
+    "words": 82,
+    "overflow": false
+  },
+  {
+    "label": "Inicio",
+    "width": 390,
+    "height": 844,
+    "words": 100,
+    "overflow": false
+  },
+  {
+    "label": "Radar",
+    "width": 390,
+    "height": 844,
+    "words": 110,
+    "overflow": false
+  },
+  {
+    "label": "Mercado",
+    "width": 390,
+    "height": 844,
+    "words": 95,
+    "overflow": false
+  },
+  {
+    "label": "Flujo",
+    "width": 390,
+    "height": 844,
+    "words": 139,
+    "overflow": false
+  },
+  {
+    "label": "Pipeline",
+    "width": 390,
+    "height": 844,
+    "words": 215,
+    "overflow": false
+  },
+  {
+    "label": "Cartera",
+    "width": 390,
+    "height": 844,
+    "words": 133,
+    "overflow": false
+  },
+  {
+    "label": "Analizar",
+    "width": 390,
+    "height": 844,
+    "words": 50,
+    "overflow": false
+  },
+  {
+    "label": "Workspace",
+    "width": 390,
+    "height": 844,
+    "words": 82,
+    "overflow": false
+  }
+]

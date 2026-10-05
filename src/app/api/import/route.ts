@@ -85,7 +85,7 @@ export async function POST(request: Request) {
       host: parsed.hostname,
       extraction: {
         status: "manual_required",
-        reason: user ? "Fuente guardada. Configura OPENAI_API_KEY para extracción asistida." : "Fuente guardada. Inicia sesión para extracción asistida.",
+        reason: user ? "Extracción asistida no disponible. Completa los datos manualmente." : "Inicia sesión para extracción asistida o completa los datos manualmente.",
       },
       listing: null,
     });
@@ -112,11 +112,12 @@ export async function POST(request: Request) {
       listing,
     });
   } catch (error) {
+    console.error("Estate import failed", error);
     return NextResponse.json({
       url: parsed.toString(),
       portal: match?.portal ?? "other",
       host: parsed.hostname,
-      extraction: { status: "manual_required", reason: error instanceof Error ? error.message : "No se pudo enriquecer la URL." },
+      extraction: { status: "manual_required", reason: "No se pudo extraer el anuncio. La URL sigue disponible; completa los datos manualmente." },
       listing: null,
     });
   }

@@ -1,0 +1,50 @@
+[
+  {
+    "view": "Inicio",
+    "before": 162,
+    "after": 100,
+    "reduction": 38
+  },
+  {
+    "view": "Radar",
+    "before": 155,
+    "after": 110,
+    "reduction": 29
+  },
+  {
+    "view": "Mercado",
+    "before": 349,
+    "after": 95,
+    "reduction": 73
+  },
+  {
+    "view": "Flujo",
+    "before": 172,
+    "after": 139,
+    "reduction": 19
+  },
+  {
+    "view": "Pipeline",
+    "before": 231,
+    "after": 217,
+    "reduction": 6
+  },
+  {
+    "view": "Cartera",
+    "before": 202,
+    "after": 133,
+    "reduction": 34
+  },
+  {
+    "view": "Analizar",
+    "before": 180,
+    "after": 56,
+    "reduction": 69
+  },
+  {
+    "view": "Workspace",
+    "before": 212,
+    "after": 82,
+    "reduction": 61
+  }
+]

@@ -425,7 +425,7 @@ export function MobilityView({ user }: { user: User | null }) {
     <div className="view view-mobility visual-first v14-view">
       <SectionHead
         eyebrow="LOCATION FLOW"
-        title="Flujo."
+        title="¿Cómo se mueve la gente alrededor?"
         action={
           <label className="flow-import-button">
             <input type="file" accept=".csv,text/csv" onChange={importCsv} />
@@ -699,7 +699,7 @@ export function MobilityView({ user }: { user: User | null }) {
             )}
           </div>
 
-          <div className="flow-provider-list">
+          <details className="flow-provider-disclosure"><summary>Fuentes disponibles</summary><div className="flow-provider-list">
             {modeProviders.map((provider) => (
               <div
                 key={provider.key}
@@ -729,13 +729,13 @@ export function MobilityView({ user }: { user: User | null }) {
               </div>
             ))}
           </div>
-
+</details>
           <div className="flow-source-note">
             <Gauge size={14} />
             <span>
               {mode === "drive"
-                ? "GVA IMD sirve para volumen anual por carretera; Google sirve para congestión/ETA, no para contar peatones."
-                : "Para afluencia peatonal real hace falta aforo propio o dataset de movilidad licenciado."}
+                ? "IMD anual · vehículos/día. No peatones ni tiempo real."
+                : points.length ? "Muestra de aforo · contrasta fuente y periodo." : "Sin aforo peatonal. Importa una muestra para evaluar."}
             </span>
           </div>
         </aside>

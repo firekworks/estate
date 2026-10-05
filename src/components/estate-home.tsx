@@ -105,11 +105,11 @@ export function HomeView({
     <div className="view decision-cockpit">
       <SectionHead
         eyebrow="01 / DECIDIR"
-        title="Qué hago hoy"
+        title="¿Qué requiere mi atención?"
         action={
-          <button className="primary-button" onClick={onNew}>
+          deals.length ? <button className="ghost-button" onClick={onNew}>
             <Plus size={16} /> Analizar activo
-          </button>
+          </button> : undefined
         }
       />
       {!deals.length ? (
@@ -163,22 +163,7 @@ export function HomeView({
               ))}
             </aside>
           </div>
-          <div className="investment-loop" aria-label="Ciclo de inversión">
-            {[
-              "Encontrar",
-              "Validar",
-              "Comprar",
-              "Mejorar",
-              "Explotar",
-              "Reinvertir",
-            ].map((s, i) => (
-              <div key={s}>
-                <span>0{i + 1}</span>
-                <strong>{s}</strong>
-                {i < 5 && <ArrowRight size={14} />}
-              </div>
-            ))}
-          </div>
+
         </>
       ) : (
         <>
@@ -258,7 +243,7 @@ export function HomeView({
                       <strong>{deal.title}</strong>
                       <small>
                         {deal.municipality} · {stageLabel(deal.stage)} ·{" "}
-                        {score.coverage}% cobertura
+                        {score.coverage}% mínimos
                       </small>
                     </span>
                     <strong>{fmtMoney(listingPrice(deal))}</strong>
@@ -269,8 +254,8 @@ export function HomeView({
                 <p className="compact-empty">No hay oportunidades abiertas.</p>
               )}
             </Panel>
-            <Panel>
-              <h2>Evidencia pendiente</h2>
+            <details className="panel cockpit-detail">
+              <summary>Evidencia pendiente</summary>
               {active
                 .filter((d) => completenessForDeal(d) < 70)
                 .slice(0, 3)
@@ -287,9 +272,9 @@ export function HomeView({
                     <b>{completenessForDeal(deal)}%</b>
                   </button>
                 ))}
-            </Panel>
-            <Panel>
-              <h2>Capital y desviaciones</h2>
+            </details>
+            <details className="panel cockpit-detail">
+              <summary>Capital y desviaciones</summary>
               {actual.length ? (
                 actual.slice(0, 3).map(({ deal, row }) => {
                   const forecast = (
@@ -331,9 +316,9 @@ export function HomeView({
                   <ArrowRight size={16} />
                 </button>
               )}
-            </Panel>
-            <Panel>
-              <h2>Cambios de precio</h2>
+            </details>
+            <details className="panel cockpit-detail">
+              <summary>Cambios de precio</summary>
               {changes.length ? (
                 changes.slice(0, 4).map(({ deal, change }) => (
                   <button
@@ -369,7 +354,7 @@ export function HomeView({
                   Sin cambios de precio registrados.
                 </p>
               )}
-            </Panel>
+            </details>
           </div>
         </>
       )}

@@ -20,7 +20,6 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { readCsv, csvNumber, canonicalListingUrl } from "@/lib/estate-csv";
-import { analyzeDeal, type DealInputs } from "@/lib/estate-engine";
 import type { ResearchCandidate, SourceStatus } from "@/lib/estate-research";
 import type { SavedDeal } from "@/lib/estate-store";
 import { opportunityScore } from "@/lib/estate-opportunity-score";
@@ -42,55 +41,6 @@ function activeDeals(deals: SavedDeal[]) {
   return deals.filter(
     (deal) => deal.stage !== "discarded" && deal.stage !== "sold",
   );
-}
-
-const RESEARCH_BASE: DealInputs = {
-  purchasePrice: 0,
-  marketValueEstimate: 0,
-  monthlyRent: 0,
-  builtAreaM2: 0,
-  purchaseTaxPct: 10,
-  ltvPct: 80,
-  interestPct: 3.25,
-  termYears: 30,
-  notaryRegistry: 1100,
-  appraisal: 350,
-  financingFees: 0,
-  renovation: 0,
-  furniture: 0,
-  reserve: 2500,
-  communityMonthly: 0,
-  ibiAnnual: 0,
-  insuranceAnnual: 240,
-  maintenanceMonthly: 35,
-  managementPct: 0,
-  vacancyPct: 5,
-  otherMonthly: 0,
-  monthlySavings: 1200,
-  nextCapitalTarget: 20000,
-  recoverableCapital: 0,
-  targetNetYieldPct: 8,
-  daysOnMarket: 0,
-  priceDrops: 0,
-  dataConfidence: 0.4,
-};
-
-function candidateAnalysis(candidate: ResearchCandidate) {
-  if (
-    !candidate.asking_price ||
-    !candidate.monthly_rent_estimate ||
-    !candidate.built_area_m2
-  )
-    return null;
-  return analyzeDeal({
-    ...RESEARCH_BASE,
-    purchasePrice: candidate.asking_price,
-    marketValueEstimate: candidate.market_value_estimate ?? 0,
-    monthlyRent: candidate.monthly_rent_estimate,
-    builtAreaM2: candidate.built_area_m2,
-    daysOnMarket: candidate.days_on_market ?? 0,
-    dataConfidence: Math.max(0.2, Math.min(0.85, candidate.confidence * 0.8)),
-  });
 }
 
 function parseCsv(text: string): ResearchCandidate[] {
@@ -176,11 +126,6 @@ function CandidateCard({
   candidate: ResearchCandidate;
   onUse: () => void;
 }) {
-  const analysis = candidateAnalysis(candidate);
-  const quickYield =
-    candidate.asking_price && candidate.monthly_rent_estimate
-      ? (candidate.monthly_rent_estimate * 12 * 100) / candidate.asking_price
-      : null;
   return (
     <article className="research-card">
       <div className="research-card-top">
@@ -206,12 +151,7 @@ function CandidateCard({
           <small>fotos</small>
         </div>
         <div className="candidate-score">
-          {analysis ? (
-            <ScoreDial score={analysis.score} size="sm" />
-          ) : (
-            <ScoreDial score={0} size="sm" />
-          )}
-          <small>{analysis ? "pre-score" : "faltan datos"}</small>
+          <span className="pending-score">Pendiente de validar</span>
         </div>
       </div>
       <h3>{candidate.title}</h3>
@@ -236,7 +176,7 @@ function CandidateCard({
         </div>
         <div>
           <span>YIELD BR.</span>
-          <strong>{fmtPct(quickYield)}</strong>
+          <strong>{"Pendiente"}</strong>
         </div>
       </div>
       <div className="candidate-facts">
@@ -393,7 +333,7 @@ export function ExploreView({
         const input = dealInput(deal);
         const out = dealOutput(deal);
         const score = opportunityScore(deal);
-        if (!input || !out) return false;
+        if (!input) return false;
         if (
           assetClass === "commercial"
             ? !["commercial", "office", "building", "land"].includes(
@@ -409,14 +349,14 @@ export function ExploreView({
         return (
           (!q || haystack.includes(q)) &&
           input.purchasePrice <= maxPrice &&
-          out.netYieldPct >= minYield &&
-          score.score >= minScore
+          (minYield === 0 || (out !== null && out.netYieldPct >= minYield)) &&
+          (minScore === 0 || (score.score !== null && score.score >= minScore))
         );
       })
       .sort((a, b) => {
         const aOut = dealOutput(a)!;
         const bOut = dealOutput(b)!;
-        if (sort === "yield") return bOut.netYieldPct - aOut.netYieldPct;
+        if (sort === "yield") return (bOut?.netYieldPct ?? -Infinity) - (aOut?.netYieldPct ?? -Infinity);
         if (sort === "price") return listingPrice(a) - listingPrice(b);
         return opportunityScore(b).rankScore - opportunityScore(a).rankScore;
       });
@@ -513,9 +453,9 @@ export function ExploreView({
     <div className="view view-explore visual-first">
       <SectionHead
         eyebrow="DEAL RADAR"
-        title="Radar."
+        title="¿Qué oportunidades merece revisar?"
         action={
-          <button className="primary-button" onClick={onNew}>
+          <button className="ghost-button" onClick={onNew}>
             + Manual
           </button>
         }
@@ -761,12 +701,9 @@ export function ExploreView({
         <div className="deal-card-grid visual-deal-grid">
           {filtered.map((deal) => {
             const input = dealInput(deal)!;
-            const out = dealOutput(deal)!;
+            const out = dealOutput(deal);
             const score = opportunityScore(deal);
             const checked = selected.includes(deal.id);
-            const rent = deal.estate_market_estimates?.find((e) =>
-              e.estimate_type.includes("rent"),
-            );
             return (
               <article className="deal-card" key={deal.id}>
                 <button
@@ -817,46 +754,20 @@ export function ExploreView({
                   </div>
                   <div className="deal-kpis">
                     <span>
-                      <b>{fmtPct(out.netYieldPct)}</b> yield
+                      <b>{fmtPct(out?.netYieldPct)}</b> yield
                     </span>
                     <span
                       className={
-                        out.netMonthlyCashFlow >= 0 ? "positive" : "negative"
+                        (out?.netMonthlyCashFlow ?? 0) >= 0 ? "positive" : "negative"
                       }
                     >
-                      <b>{fmtMoney(out.netMonthlyCashFlow)}</b>/m
+                      <b>{fmtMoney(out?.netMonthlyCashFlow)}</b>/m
                     </span>
                     <span>
-                      <b>{score.coverage}%</b> evidencia
+                      <b>{score.coverage}%</b> mínimos
                     </span>
                   </div>
-                  <div className="asset-source-line">
-                    <span>
-                      Renta{" "}
-                      {rent?.value_low != null && rent?.value_high != null
-                        ? `${fmtMoney(rent.value_low)}–${fmtMoney(rent.value_high)}`
-                        : fmtMoney(input.monthlyRent)}
-                      /mes · estimada
-                    </span>
-                    <span>
-                      {input.daysOnMarket ?? "—"} días ·{" "}
-                      {input.priceDrops ?? "—"} bajadas
-                    </span>
-                    <small>
-                      {deal.estate_listings?.[0]?.portal ?? "Fuente manual"}
-                    </small>
-                  </div>
-                  <div className="mini-factor-line">
-                    {score.components.map((factor) => (
-                      <i
-                        key={factor.key}
-                        style={{
-                          height: `${Math.max(5, (factor.score ?? 0) * 0.22)}px`,
-                        }}
-                        title={`${factor.label}: ${factor.score ?? "—"}`}
-                      />
-                    ))}
-                  </div>
+
                 </button>
               </article>
             );
@@ -932,7 +843,7 @@ export function ExploreView({
               <button key={deal.id} onClick={() => onOpen(deal)}>
                 <span>{deal.title}</span>
                 <b>{fmtPct(dealOutput(deal)?.netYieldPct)}</b>
-                <small>{Math.round(opportunityScore(deal).score)}</small>
+                <small>{opportunityScore(deal).score ?? "Pendiente"}</small>
               </button>
             ))}
           </div>

@@ -1,10 +1,12 @@
 "use client";
 
 import { humanError } from '@/lib/estate-errors';
+import { DecisionSummary } from "./estate-decision";
+import { draftForReadiness } from "@/lib/estate-readiness";
 import { RenovationDesk } from "./estate-renovation";
 import { OperationsDesk } from "./estate-operations";
 import type { ChangeEvent } from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import type { User } from "@supabase/supabase-js";
 import {
@@ -46,7 +48,6 @@ import {
 } from "@/lib/estate-store";
 import {
   completenessForDeal,
-  DataMeter,
   dealInput,
   dealOutput,
   EvidenceChip,
@@ -56,8 +57,6 @@ import {
   KpiBar,
   Metric,
   Panel,
-  RiskFlag,
-  ScoreDial,
   stageLabel,
   StatusPill,
 } from "@/components/estate-primitives";
@@ -116,8 +115,6 @@ function zoneAverage(zone?: ZoneAssessment) {
 }
 
 function PropertyHero({ deal, onBack, onReanalyze, onStageChange }: { deal: SavedDeal; onBack: () => void; onReanalyze: () => void; onStageChange: (stage: EstateStage) => void }) {
-  const out = dealOutput(deal);
-  const input = dealInput(deal);
   const blockers = (deal.estate_risks ?? []).filter((risk) => risk.is_kill_switch && !risk.resolved_at).length;
   return (
     <div className="property-hero">
@@ -132,14 +129,7 @@ function PropertyHero({ deal, onBack, onReanalyze, onStageChange }: { deal: Save
           <button className="ghost-button" onClick={onReanalyze}><Sparkles size={14} /> Reanalizar</button>
         </div>
       </div>
-      <div className="property-hero-kpis">
-        <div className="hero-score">{out ? <ScoreDial score={out.score} label={out.verdict} size="md" /> : <ScoreDial score={0} label="Sin análisis" size="md" />}</div>
-        <Metric label="Precio" value={fmtMoney(input?.purchasePrice)} />
-        <Metric label="Yield neta" value={fmtPct(out?.netYieldPct)} />
-        <Metric label="Cash-flow" value={`${fmtMoney(out?.netMonthlyCashFlow)}/mes`} tone={(out?.netMonthlyCashFlow ?? 0) >= 0 ? "good" : "bad"} />
-        <Metric label="Máximo" value={fmtMoney(out?.maxPurchasePrice)} tone="accent" />
-        <div className="hero-data-meter"><DataMeter value={completenessForDeal(deal)} label="ficha" /></div>
-      </div>
+
     </div>
   );
 }
@@ -176,7 +166,7 @@ export function PropertyWorkspace({
       {tab === "operations" && <OperationsDesk key={deal.id} user={user} deal={deal} onRefresh={onRefresh} />}
       {busy && <div className="workspace-busy"><Loader2 size={14} className="spin" /> Guardando…</div>}
 
-      {tab === "decision" && <DecisionTab deal={deal} onGo={setTab} />}
+      {tab === "decision" && <DecisionTab deal={deal} onGo={setTab} onReanalyze={onReanalyze} />}
       {tab === "property" && <PropertyTabView user={user} deal={deal} run={run} />}
       {tab === "zone" && <ZoneTab user={user} deal={deal} run={run} />}
       {tab === "returns" && <ReturnsTab deal={deal} />}
@@ -187,45 +177,23 @@ export function PropertyWorkspace({
   );
 }
 
-function DecisionTab({ deal, onGo }: { deal: SavedDeal; onGo: (tab: PropertyTab) => void }) {
-  const out = dealOutput(deal);
-  const input = dealInput(deal);
-  const missing = missingEvidence(deal);
-  const action = nextStageAction(deal);
-  const blockers = (deal.estate_risks ?? []).filter((risk) => risk.is_kill_switch && !risk.resolved_at);
-  return (
-    <div className="workspace-grid decision-workspace">
-      <Panel className={`decision-command command-${action.tone}`}>
-        <span className="eyebrow">SIGUIENTE DECISIÓN</span>
-        <h2>{action.label}</h2><p>{action.detail}</p>
-        <div className="command-price"><span>Precio pedido <b>{fmtMoney(input?.purchasePrice)}</b></span><ArrowRight size={14} /><span>Límite Estate <b>{fmtMoney(out?.maxPurchasePrice)}</b></span></div>
-        {out?.recommendedOpeningOffer ? <div className="opening-offer"><CircleDollarSign size={15} /><span>Apertura orientativa</span><strong>{fmtMoney(out.recommendedOpeningOffer)}</strong><small>no es una tasación ni una oferta automática</small></div> : null}
-      </Panel>
-
-      <Panel className="evidence-debt">
-        <div className="panel-head"><div><span className="eyebrow">DATA DEBT</span><h3>Qué falta verificar</h3></div><Database size={17} /></div>
-        <div className="evidence-list">
-          {missing.slice(0, 7).map((item) => <button key={item.label} onClick={() => onGo(item.tab)}><span className={item.critical ? "critical" : ""}>{item.critical ? <AlertTriangle size={13} /> : <CheckCircle2 size={13} />}</span><strong>{item.label}</strong><small>{item.critical ? "clave" : "pendiente"}</small><ArrowRight size={13} /></button>)}
-          {!missing.length && <div className="evidence-complete"><CheckCircle2 size={18} /><div><strong>Ficha suficientemente completa.</strong><p>Ahora la incertidumbre principal debería venir de la realidad de mercado, visita y documentación.</p></div></div>}
-        </div>
-      </Panel>
-
-      <Panel className="decision-stress">
-        <div className="panel-head"><div><span className="eyebrow">STRESS TEST</span><h3>Intentar romper la operación</h3></div><Gauge size={17} /></div>
-        <div className="stress-cards">{out?.stress.filter((scenario) => scenario.key !== "base").map((scenario) => <div className={scenario.passes ? "pass" : "fail"} key={scenario.key}><span>{scenario.label}</span><strong>{fmtMoney(scenario.monthlyCashFlow)}</strong><small>{scenario.dscr === null ? "sin deuda" : `DSCR ${scenario.dscr.toFixed(2)}×`}</small></div>) ?? <p>Sin análisis.</p>}</div>
-      </Panel>
-
-      <Panel className="decision-risks-mini">
-        <div className="panel-head"><div><span className="eyebrow">KILL SWITCH</span><h3>Bloqueantes</h3></div><ShieldAlert size={17} /></div>
-        {blockers.length ? <div className="risk-stack">{blockers.map((risk) => <RiskFlag key={risk.id} title={risk.title} kill severity={risk.severity} />)}</div> : <div className="risk-clear"><Check size={18} /><div><strong>Sin bloqueantes abiertos.</strong><p>Eso no significa “sin riesgo”; significa que ninguno ha sido marcado como impeditivo.</p></div></div>}
-        <button className="text-link button-link" onClick={() => onGo("risk")}>Abrir due diligence <ArrowRight size={13} /></button>
-      </Panel>
-    </div>
-  );
+function DecisionTab({ deal, onGo, onReanalyze }: { deal: SavedDeal; onGo: (tab: PropertyTab) => void; onReanalyze: () => void }) {
+  const input=dealInput(deal), out=dealOutput(deal), missing=missingEvidence(deal);
+  const blockers=(deal.estate_risks??[]).filter(r=>r.is_kill_switch&&!r.resolved_at);
+  return <div className="workspace-grid decision-workspace"><Panel>
+    {input ? <DecisionSummary blocked={blockers.length>0} draft={draftForReadiness(deal)} inputs={input} analysis={out} onContinue={onReanalyze}/> : <><h2>Análisis incompleto</h2><button className="primary-button" onClick={onReanalyze}>Continuar análisis</button></>}
+  </Panel><aside className="decision-rail"><span className="eyebrow">SIGUIENTE</span><h2>{blockers.length?'Resolver bloqueantes':nextStageAction(deal).label}</h2>
+    {blockers.length>0&&<button className="primary-button" onClick={()=>onGo('risk')}>{blockers.length} bloqueantes · Revisar</button>}
+    {missing.slice(0,3).map(item=><button className="attention-row" key={item.label} onClick={()=>onGo(item.tab)}>{item.label}<ArrowRight size={14}/></button>)}
+    <details><summary>Toda la evidencia pendiente ({missing.length})</summary>{missing.slice(3).map(item=><button className="attention-row" key={item.label} onClick={()=>onGo(item.tab)}>{item.label}<ArrowRight size={14}/></button>)}</details>
+    <button className="ghost-button" onClick={()=>onGo('operations')}>Operativa e historial</button>
+  </aside></div>;
 }
 
 function PropertyTabView({ user, deal, run }: { user: User; deal: SavedDeal; run: (task: () => Promise<void>) => Promise<void> }) {
   const [uploading, setUploading] = useState(false);
+  const [visionAvailable,setVisionAvailable]=useState(false);
+  useEffect(()=>{let active=true;void fetch('/api/sources/status').then(r=>r.ok?r.json():null).then(data=>{if(active)setVisionAvailable(data?.sources?.some((s:{key:string;status:string})=>s.key==='vision'&&['ready','needs_setup'].includes(s.status))??false);}).catch(()=>{});return ()=>{active=false;};},[]);
   const images = deal.estate_property_images ?? [];
   const input = dealInput(deal);
   const mapQuery = encodeURIComponent([deal.address, deal.municipality, deal.province].filter(Boolean).join(", "));
@@ -235,7 +203,7 @@ function PropertyTabView({ user, deal, run }: { user: User; deal: SavedDeal; run
     if (!files.length) return;
     setUploading(true);
     try {
-      await run(async () => { for (const file of files.slice(0, 12)) await uploadPropertyImage(user, deal.id, file); });
+      await run(async () => { for (const file of files.slice(0, 12)) await uploadPropertyImage(user, deal.id, file, visionAvailable); });
     } finally { setUploading(false); event.target.value = ""; }
   }
 
@@ -257,7 +225,7 @@ function PropertyTabView({ user, deal, run }: { user: User; deal: SavedDeal; run
           <Fact label="Terraza" value={deal.has_terrace === null ? "Sin verificar" : deal.has_terrace ? "Sí" : "No"} />
           <Fact label="Garaje" value={deal.has_garage === null ? "Sin verificar" : deal.has_garage ? "Sí" : "No"} />
         </div>
-        <button className="ghost-button" onClick={() => run(() => updatePropertyWorkspace(user, deal.id, { notes: deal.notes }))}><Save size={13} /> Ficha sincronizada</button>
+        <span className="muted-copy">Ficha guardada · {new Date(deal.updated_at).toLocaleDateString("es-ES")}</span>
       </Panel>
 
       <Panel className="utilities-panel">
@@ -277,7 +245,7 @@ function PropertyTabView({ user, deal, run }: { user: User; deal: SavedDeal; run
 
       <Panel className="photo-desk">
         <div className="panel-head"><div><span className="eyebrow">PHOTO DESK</span><h3>Revisar lo que el anuncio enseña — y lo que oculta</h3></div><label className="upload-button"><input type="file" accept="image/*" multiple onChange={handleUpload} />{uploading ? <Loader2 size={14} className="spin" /> : <Upload size={14} />} Subir fotos</label></div>
-        {images.length ? <div className="photo-grid">{images.map((image) => <PhotoCard key={image.id} user={user} image={image} run={run} />)}</div> : <div className="photo-empty"><Camera size={27} /><div><strong>Añade fotos de anuncio o visita.</strong><p>Estate ya conserva cada imagen por propiedad y permite etiquetar estancia y estado. El análisis visual automático quedará separado de la valoración financiera para no fingir precisión sin proveedor AI configurado.</p></div></div>}
+        {images.length ? <div className="photo-grid">{images.map((image) => <PhotoCard visionAvailable={visionAvailable} key={image.id} user={user} image={image} run={run} />)}</div> : <div className="photo-empty"><Camera size={27} /><div><strong>Añade fotos de anuncio o visita.</strong><p>Las fotos quedan guardadas en este inmueble.</p></div></div>}
       </Panel>
 
       <Panel className="address-panel">
@@ -292,8 +260,8 @@ function PropertyTabView({ user, deal, run }: { user: User; deal: SavedDeal; run
 function Fact({ label, value }: { label: string; value: string | number }) { return <div className="fact"><span>{label}</span><strong>{value}</strong><EvidenceChip kind="fact" /></div>; }
 function Utility({ label, value }: { label: string; value?: string }) { return <div className="utility-row"><span>{label}</span><strong className={!value ? "missing" : ""}>{value || "Sin verificar"}</strong></div>; }
 
-function PhotoCard({ user, image, run }: { user: User; image: PropertyImage; run: (task: () => Promise<void>) => Promise<void> }) {
-  return <article className="photo-card"><div className="photo-frame">{image.preview_url ? <Image src={image.preview_url} alt={image.room_type || "Foto del inmueble"} fill sizes="(max-width: 680px) 50vw, 180px" unoptimized /> : <Camera size={22} />}<button onClick={() => run(() => deletePropertyImage(user, image))} aria-label="Eliminar foto"><Trash2 size={12} /></button></div><select value={image.room_type || "unknown"} onChange={(event) => run(() => updatePropertyImageAssessment(user, image.id, { room_type: event.target.value }))}><option value="unknown">Sin estancia</option><option value="living_room">Salón</option><option value="kitchen">Cocina</option><option value="bedroom">Dormitorio</option><option value="bathroom">Baño</option><option value="facade">Fachada</option><option value="common_area">Comunes</option><option value="terrace">Terraza</option></select><label><span>Estado {image.condition_score ?? "—"}/100</span><input type="range" min="0" max="100" step="5" value={image.condition_score ?? 50} onChange={(event) => run(() => updatePropertyImageAssessment(user, image.id, { condition_score: Number(event.target.value), analysis: { ...(image.analysis ?? {}), status: "manual_reviewed" }, confidence: 1 }))} /></label><button className="ghost-button" onClick={() => run(() => analyzeStoredPropertyImage(user,image))}>Analizar foto con IA</button><p>{image.analysis?.status === "needs_human_review" ? "Estimación IA · pendiente de revisión" : image.analysis?.status === "manual_reviewed" ? "Revisada manualmente" : "Sin análisis IA"}</p>{image.analysis?.summary ? <p>{String(image.analysis.summary)}</p> : null}{image.confidence!==null&&<small>Confianza {Math.round(image.confidence*100)}% · observación visual</small>}{(['issues','positives','renovation_signals'] as const).map(key=>Array.isArray(image.analysis?.[key])?<details key={key}><summary>{key==='issues'?'Señales visibles':key==='positives'?'Puntos positivos':'Partidas a inspeccionar'}</summary><ul>{(image.analysis[key] as unknown[]).map((item,index)=><li key={index}>{typeof item==='string'?item:JSON.stringify(item)}</li>)}</ul></details>:null)}{Array.isArray(image.analysis?.manual_checks) && <ul>{image.analysis.manual_checks.map((check,index)=><li key={index}>{String(check)}</li>)}</ul>}{image.analysis?.status === "needs_human_review" && <button className="ghost-button" onClick={()=>run(()=>updatePropertyImageAssessment(user,image.id,{analysis:{...image.analysis,status:"manual_reviewed",reviewed_at:new Date().toISOString()}}))}>Confirmar revisión visual</button>}</article>;
+function PhotoCard({ user, image, run, visionAvailable }: { visionAvailable:boolean; user: User; image: PropertyImage; run: (task: () => Promise<void>) => Promise<void> }) {
+  return <article className="photo-card"><div className="photo-frame">{image.preview_url ? <Image src={image.preview_url} alt={image.room_type || "Foto del inmueble"} fill sizes="(max-width: 680px) 50vw, 180px" unoptimized /> : <Camera size={22} />}<button onClick={() => run(() => deletePropertyImage(user, image))} aria-label="Eliminar foto"><Trash2 size={12} /></button></div><select value={image.room_type || "unknown"} onChange={(event) => run(() => updatePropertyImageAssessment(user, image.id, { room_type: event.target.value }))}><option value="unknown">Sin estancia</option><option value="living_room">Salón</option><option value="kitchen">Cocina</option><option value="bedroom">Dormitorio</option><option value="bathroom">Baño</option><option value="facade">Fachada</option><option value="common_area">Comunes</option><option value="terrace">Terraza</option></select><label><span>Estado {image.condition_score ?? "—"}/100</span><input type="range" min="0" max="100" step="5" value={image.condition_score ?? 50} onChange={(event) => run(() => updatePropertyImageAssessment(user, image.id, { condition_score: Number(event.target.value), analysis: { ...(image.analysis ?? {}), status: "manual_reviewed" }, confidence: 1 }))} /></label><button className="ghost-button" disabled={!visionAvailable} onClick={() => run(() => analyzeStoredPropertyImage(user,image))}>{visionAvailable?"Analizar foto con IA":"Análisis IA no disponible"}</button><p>{image.analysis?.status === "needs_human_review" ? "Estimación IA · pendiente de revisión" : image.analysis?.status === "manual_reviewed" ? "Revisada manualmente" : "Sin análisis IA"}</p>{image.analysis?.summary ? <p>{String(image.analysis.summary)}</p> : null}{image.confidence!==null&&<small>Confianza {Math.round(image.confidence*100)}% · observación visual</small>}{(['issues','positives','renovation_signals'] as const).map(key=>Array.isArray(image.analysis?.[key])?<details key={key}><summary>{key==='issues'?'Señales visibles':key==='positives'?'Puntos positivos':'Partidas a inspeccionar'}</summary><ul>{(image.analysis[key] as unknown[]).map((item,index)=><li key={index}>{typeof item==='string'?item:typeof item==='object' && item!==null && 'description' in item?String(item.description):'Observación pendiente de revisión'}</li>)}</ul></details>:null)}{Array.isArray(image.analysis?.manual_checks) && <ul>{image.analysis.manual_checks.map((check,index)=><li key={index}>{String(check)}</li>)}</ul>}{image.analysis?.status === "needs_human_review" && <button className="ghost-button" onClick={()=>run(()=>updatePropertyImageAssessment(user,image.id,{analysis:{...image.analysis,status:"manual_reviewed",reviewed_at:new Date().toISOString()}}))}>Confirmar revisión visual</button>}</article>;
 }
 
 function ZoneTab({ user, deal, run }: { user: User; deal: SavedDeal; run: (task: () => Promise<void>) => Promise<void> }) {
