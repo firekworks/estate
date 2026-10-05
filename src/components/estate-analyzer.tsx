@@ -480,6 +480,8 @@ export function AnalyzerView({
 }) {
   const readiness = analysisReadiness(draft, inputs);
   const canSave = readiness.calculable;
+  const completedSteps = STEPS.map((_, index) => readiness.state !== "EMPTY" &&
+    (index === 5 ? readiness.calculable : !readiness.missing.some(item => item.step === index)));
 
   let content: ReactNode;
   if (step === 0) {
@@ -508,10 +510,11 @@ export function AnalyzerView({
           <button
             key={item.label}
             aria-label={item.label+" · "+item.helper}
-            className={`${step === index ? "active" : ""} ${index < step ? "done" : ""}`}
+            aria-current={step === index ? "step" : undefined}
+            className={`${step === index ? "active" : ""} ${completedSteps[index] ? "done" : ""}`}
             onClick={() => setStep(index)}
           >
-            <i>{index < step ? <Check size={13} /> : item.icon}</i>
+            <i>{completedSteps[index] ? <Check size={13} /> : item.icon}</i>
             <span><strong>{item.label}</strong></span>
           </button>
         ))}
