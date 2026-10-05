@@ -159,7 +159,7 @@ export function PortfolioView({
     <div className="view portfolio-os">
       <SectionHead
         eyebrow="06 / MEDIR"
-        title="Cartera"
+        title="¿Cómo está rindiendo mi capital?"
         action={
           periods.length ? (
             <label>
@@ -231,7 +231,7 @@ export function PortfolioView({
               note={`${covered.length}/${assets.length} activos · ${period || "sin cierres"}`}
             />
           </div>
-          <div className="portfolio-kpis">
+          <details className="panel"><summary>Ocupación, XIRR y métricas de capital</summary><div className="portfolio-kpis">
             <Metric label="NOI registrado / mes" value={fmtMoney(noi)} />
             <Metric label="Ocupación documentada" value={fmtPct(occupied)} />
             <Metric
@@ -248,7 +248,7 @@ export function PortfolioView({
               }
               note="Media por activo · supuestos guardados"
             />
-          </div>
+          </div></details>
           <Panel>
             <h2>Previsión frente a realidad</h2>
             <p>
@@ -417,8 +417,7 @@ export function PortfolioView({
             />
           )}
 
-          <Panel>
-            <h2>Error de previsión · revisión del modelo</h2>
+          <details className="panel"><summary>Error de previsión · revisión del modelo</summary>
             <label>
               Agrupar por
               <select
@@ -443,7 +442,7 @@ export function PortfolioView({
                 </span>
               </div>
             ))}
-          </Panel>
+          </details>
         </>
       )}
     </div>

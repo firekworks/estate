@@ -1,0 +1,4552 @@
+[
+  {
+    "file": "src/components/estate-access.tsx",
+    "line": 43,
+    "text": "ESPACIO PRIVADO",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-access.tsx",
+    "line": 60,
+    "text": "Iniciar sesión",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-access.tsx",
+    "line": 67,
+    "text": "0",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-access.tsx",
+    "line": 81,
+    "text": "Cargando tu espacio",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 187,
+    "text": "URL del anuncio",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 188,
+    "text": "Pega URL de Idealista, Fotocasa, agencia…",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 190,
+    "text": "Importar anuncio",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 198,
+    "text": "TIPO DE ACTIVO",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 216,
+    "text": "Nombre interno",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 219,
+    "text": "Piso centro · oportunidad 01",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 223,
+    "text": "Municipio",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 226,
+    "text": "Castalla",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 230,
+    "text": "Provincia",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 233,
+    "text": "Alicante",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 237,
+    "text": "Dirección / zona",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 240,
+    "text": "Calle, barrio o referencia",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 244,
+    "text": "Sobre la extracción",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 247,
+    "text": "Verifica la fuente.",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 248,
+    "text": "La URL identifica la fuente. Estate no rellena datos de un portal si no existe un conector autorizado.",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 269,
+    "text": "Superficie construida",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 270,
+    "text": "Superficie útil",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 271,
+    "text": "Año",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 273,
+    "text": "Dormitorios",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 276,
+    "text": "Planta",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 276,
+    "text": "2ª",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 281,
+    "text": "EDIFICIO Y EXTRAS",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 283,
+    "text": "Ascensor",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 284,
+    "text": "Exterior",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 285,
+    "text": "Terraza",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 286,
+    "text": "Garaje",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 287,
+    "text": "Trastero",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 288,
+    "text": "Gas",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 294,
+    "text": "ESTADO",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 308,
+    "text": "INSTALACIONES",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 310,
+    "text": "Calefacción",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 310,
+    "text": "Gas / eléctrica / no",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 311,
+    "text": "Agua caliente",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 311,
+    "text": "Termo / gas…",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 312,
+    "text": "Electricidad",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 312,
+    "text": "Revisada / antigua…",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 313,
+    "text": "Fontanería",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 313,
+    "text": "Revisada / antigua…",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 335,
+    "text": "Precio anunciado",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 336,
+    "text": "Valor razonable",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 340,
+    "text": "Confianza de los datos de mercado",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 340,
+    "text": "%",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 342,
+    "text": "Sube la confianza solo cuando exista evidencia: comparables, tasación, alquileres equivalentes o una fuente verificable.",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 345,
+    "text": "Días publicado",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 346,
+    "text": "Bajadas de precio",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 350,
+    "text": "ESTRATEGIA DE ALQUILER",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 364,
+    "text": "INQUILINO OBJETIVO",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 384,
+    "text": "ITP",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 385,
+    "text": "Notaría + registro",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 386,
+    "text": "Tasación",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 388,
+    "text": "PRESET EDITABLE",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 391,
+    "text": "FINANCIACIÓN",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 392,
+    "text": "préstamo",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 395,
+    "text": "LTV",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 396,
+    "text": "Interés",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 397,
+    "text": "Plazo",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 401,
+    "text": "Banco",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 402,
+    "text": "Entrada",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 405,
+    "text": "Límites de inversión y stress combinado",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 405,
+    "text": "Los campos vacíos no aplican. Cero es un límite explícito. La tasación limita el precio financiable con el LTV indicado.",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 407,
+    "text": "Otros costes financiación",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 423,
+    "text": "Comunidad",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 424,
+    "text": "IBI",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 425,
+    "text": "Seguro",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 426,
+    "text": "Mantenimiento",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 427,
+    "text": "Vacancia",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 428,
+    "text": "Gestión",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 432,
+    "text": "ANTES DE ALQUILAR",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 432,
+    "text": "Capital de puesta en marcha",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 436,
+    "text": "Reforma inicial",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 437,
+    "text": "Mobiliario",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 438,
+    "text": "Colchón",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 440,
+    "text": "El desglose real de reforma vive después dentro del workspace de esta propiedad.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 494,
+    "text": "He revisado los costes y los importes a cero",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 496,
+    "text": "Registrar evidencia verificada",
+    "location": "disclosure",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 496,
+    "text": "Registra una fuente comprobada para cada dato. No convierte una estimación en certeza.",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 496,
+    "text": "· fuente verificada",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 496,
+    "text": "Documento, comparable o referencia",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 523,
+    "text": "0",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 529,
+    "text": "Atrás",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 542,
+    "text": "Siguiente",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 553,
+    "text": "Contexto de la operación",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 554,
+    "text": "OPERACIÓN",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 555,
+    "text": "Precio",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 555,
+    "text": "Renta",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 555,
+    "text": "Superficie",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-analyzer.tsx",
+    "line": 555,
+    "text": "Revisar datos",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-asset-map.tsx",
+    "line": 39,
+    "text": "/",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-asset-map.tsx",
+    "line": 39,
+    "text": "activos con coordenadas verificadas",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-asset-map.tsx",
+    "line": 47,
+    "text": "·",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-asset-map.tsx",
+    "line": 49,
+    "text": "Ubicación pendiente",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 25,
+    "text": "RESISTENCIA",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 33,
+    "text": "Escenarios superados",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 42,
+    "text": "Ver escenarios",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 47,
+    "text": "Escenarios de resistencia",
+    "location": "disclosure",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 50,
+    "text": "Escenarios de resistencia",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 55,
+    "text": "Cerrar",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 62,
+    "text": "/mes",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 64,
+    "text": "·",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 100,
+    "text": "Análisis incompleto",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 101,
+    "text": "cobertura",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 111,
+    "text": "Continuar análisis",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 162,
+    "text": "Confianza",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 162,
+    "text": "%",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 166,
+    "text": "Máximo",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 168,
+    "text": "Cash-flow",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 171,
+    "text": "Yield neta",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 180,
+    "text": "Bloqueantes",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 183,
+    "text": "Hay riesgos abiertos que impiden avanzar. Revisa el registro de riesgos.",
+    "location": "disclosure",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 200,
+    "text": "Supuestos y límites",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 202,
+    "text": "Estimación orientativa, no tasación. Confianza declarada y cobertura son independientes del score.",
+    "location": "disclosure",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-decision.tsx",
+    "line": 233,
+    "text": "Ver decisión",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 151,
+    "text": "fotos",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 154,
+    "text": "Pendiente de validar",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 166,
+    "text": "PRECIO",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 170,
+    "text": "RENTA",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 178,
+    "text": "YIELD BR.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 193,
+    "text": "fuentes",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 197,
+    "text": "Analizar",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 204,
+    "text": "Abrir anuncio",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 456,
+    "text": "¿Qué oportunidades merece revisar?",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 459,
+    "text": "+ Manual",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 468,
+    "text": "Zonas de búsqueda",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 471,
+    "text": "Municipio o zona",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 479,
+    "text": "Vivienda",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 485,
+    "text": "Comercial",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 493,
+    "text": "Filtros",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 497,
+    "text": "Fuentes",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 501,
+    "text": "Fuentes y capacidades",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 518,
+    "text": "Última sincronización:",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 536,
+    "text": "Buscar",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 542,
+    "text": "Precio máximo €",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 551,
+    "text": "Yield mínima %",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 560,
+    "text": "Score mínimo",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 571,
+    "text": "Habitaciones mínimas",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 585,
+    "text": "Búsquedas guardadas",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 589,
+    "text": "Nombre",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 601,
+    "text": "Guardar filtros actuales",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 625,
+    "text": "Importar CSV",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 632,
+    "text": "SEÑALES WEB",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 654,
+    "text": "Filtrar activos guardados",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 655,
+    "text": "Filtrar activos guardados",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 658,
+    "text": "activos",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 660,
+    "text": "Orden",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 665,
+    "text": "Score",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 666,
+    "text": "Yield",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 667,
+    "text": "Precio",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 675,
+    "text": "Lista",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 681,
+    "text": "Mapa",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 690,
+    "text": "0 guardadas",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 691,
+    "text": "Radar web → Analizar → Guardar",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 713,
+    "text": "Comparar",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 730,
+    "text": "Sin fotografía",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 757,
+    "text": "yield",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 764,
+    "text": "/m",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 767,
+    "text": "%",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 767,
+    "text": "mínimos",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 779,
+    "text": "0 coincidencias",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 780,
+    "text": "Cambia filtros",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 786,
+    "text": "Comparar con los mismos criterios",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 791,
+    "text": "Métrica",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 839,
+    "text": "/4",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-discovery.tsx",
+    "line": 851,
+    "text": "×",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 108,
+    "text": "¿Qué requiere mi atención?",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 111,
+    "text": "Analizar activo",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 119,
+    "text": "TU PRIMERA DECISIÓN",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 122,
+    "text": "01",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 125,
+    "text": "Un activo.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 127,
+    "text": "Toda la perspectiva.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 130,
+    "text": "Añade una oportunidad y contrasta precio, riesgo y capital antes de avanzar.",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 135,
+    "text": "Añadir oportunidad",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 138,
+    "text": "Explorar Radar",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 142,
+    "text": "Hechos",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 144,
+    "text": "Estimaciones",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 146,
+    "text": "Decisión",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 151,
+    "text": "ESPACIO DE TRABAJO",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 152,
+    "text": "Sin activos",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 172,
+    "text": "oportunidades",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 175,
+    "text": "bloqueos",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 178,
+    "text": "acciones",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 181,
+    "text": "activos con cierres",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 187,
+    "text": "Necesita atención",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 196,
+    "text": "Bloqueada",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 214,
+    "text": "·",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 225,
+    "text": "Todo al día. Define el siguiente paso desde cada inmueble.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 231,
+    "text": "Top oportunidades",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 231,
+    "text": "ajustado por evidencia",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 245,
+    "text": "·",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 245,
+    "text": "·",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 246,
+    "text": "% mínimos",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 254,
+    "text": "No hay oportunidades abiertas.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 258,
+    "text": "Evidencia pendiente",
+    "location": "disclosure",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 270,
+    "text": "Validar hechos, comparables y riesgos",
+    "location": "disclosure",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 272,
+    "text": "%",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 277,
+    "text": "Capital y desviaciones",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 296,
+    "text": "· equity",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 308,
+    "text": "vs. previsión",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 315,
+    "text": "Registrar compra y primer cierre",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 321,
+    "text": "Cambios de precio",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 332,
+    "text": "·",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 333,
+    "text": "→",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-home.tsx",
+    "line": 354,
+    "text": "Sin cambios de precio registrados.",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 174,
+    "text": "¿Cuánto vale y alquila realmente?",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 177,
+    "text": "Importar CSV",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 184,
+    "text": "Municipio",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 188,
+    "text": "Todos los municipios",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 192,
+    "text": "Activo",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 202,
+    "text": "Operación",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 207,
+    "text": "Alquiler",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 208,
+    "text": "Venta",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 212,
+    "text": "Muestra mínima",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 228,
+    "text": "Muestra no disponible",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 237,
+    "text": "Reintentar",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 244,
+    "text": "P25 · prudente",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 245,
+    "text": "P50 · mediana",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 246,
+    "text": "P75 · superior",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 247,
+    "text": "N · recientes únicos",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 249,
+    "text": "Confianza de muestra",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 263,
+    "text": "DISTRIBUCIÓN",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 275,
+    "text": "Importe",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 281,
+    "text": "€/m²",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 290,
+    "text": "Histograma de la muestra reciente",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 338,
+    "text": "anuncios · últimos 180 días · no son transacciones cerradas",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 345,
+    "text": "Construye tu muestra de mercado",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 346,
+    "text": "Importa comparables de la misma zona y tipología.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 358,
+    "text": "Calidad y fuentes ·",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 358,
+    "text": "testigos",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 360,
+    "text": "Recientes / filtrados",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 362,
+    "text": "/",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 366,
+    "text": "Dispersión IQR / P50",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 374,
+    "text": "Similitud evaluada",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 382,
+    "text": "Última observación",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 388,
+    "text": "Fuentes",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 398,
+    "text": "Ver comparables (",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 398,
+    "text": ")",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 400,
+    "text": "Comparables",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 401,
+    "text": "testigos",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 408,
+    "text": "Zona / fuente",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 409,
+    "text": "Precio",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 410,
+    "text": "m²",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 411,
+    "text": "€/m²",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 412,
+    "text": "Distancia",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 413,
+    "text": "Fecha",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 414,
+    "text": "Similitud",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 422,
+    "text": "↗",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 429,
+    "text": "Sin coordenadas",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 443,
+    "text": "Sin comparables para estos filtros.",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 450,
+    "text": "Formato de importación y procedencia",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 452,
+    "text": "CSV: municipality,property_type,transaction_type,price,area_m2,source,url,observed_at. Fecha AAAA-MM-DD; rent o sale. No se infiere similitud ni distancia.",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-market.tsx",
+    "line": 456,
+    "text": "Los feeds comerciales requieren contrato e integración validada.",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 428,
+    "text": "¿Cómo se mueve la gente alrededor?",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 432,
+    "text": "Importar aforo",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 444,
+    "text": "Buscar ubicación",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 447,
+    "text": "Buscar ubicación",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 458,
+    "text": "Modo de movilidad",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 479,
+    "text": "Año IMD",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 490,
+    "text": "Cargar tráfico GVA en esta zona",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 494,
+    "text": "Guardar muestra GVA",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 516,
+    "text": "bajo",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 519,
+    "text": "medio",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 522,
+    "text": "alto",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 537,
+    "text": "Momento:",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 548,
+    "text": "Día",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 553,
+    "text": "Todos",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 554,
+    "text": "Laborable",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 555,
+    "text": "Fin de semana",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 559,
+    "text": "Hora · Europe/Madrid",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 564,
+    "text": "Todas",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 567,
+    "text": ":00",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 575,
+    "text": "Comparación A/B de muestras",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 577,
+    "text": "Muestra B",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 582,
+    "text": "Selecciona otra ubicación",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 587,
+    "text": "·",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 618,
+    "text": "Base © OpenStreetMap",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 620,
+    "text": "· IMD © Generalitat Valenciana / ICV · CC BY · anual",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 624,
+    "text": "Los puntos representan datos agregados · nunca trayectorias individuales",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 633,
+    "text": "LENTE",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 651,
+    "text": "P90",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 655,
+    "text": "PUNTOS",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 659,
+    "text": "MEDIANA",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 667,
+    "text": "PICO",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 679,
+    "text": "DATASET",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 684,
+    "text": "Sin dataset",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 686,
+    "text": "GVA · consulta actual",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 696,
+    "text": "Eliminar dataset",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 702,
+    "text": "Fuentes disponibles",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 751,
+    "text": "GVA IMD",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 752,
+    "text": "abierto",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 756,
+    "text": "MyTraffic",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 757,
+    "text": "footfall",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 761,
+    "text": "CARTO · Vodafone",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 762,
+    "text": "250 m",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 766,
+    "text": "Kido",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 767,
+    "text": "flow",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 771,
+    "text": "Nommon",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-mobility.tsx",
+    "line": 772,
+    "text": "OD",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 462,
+    "text": "Operativa del inmueble",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 480,
+    "text": "N",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 480,
+    "text": "·",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 486,
+    "text": "· últimos 180 días",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 489,
+    "text": "P25",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 489,
+    "text": "· P50",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 489,
+    "text": "· P75",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 496,
+    "text": "Registra flujos reales entre inversor y operación. No repitas como distribución el alquiler que sigue dentro de la operación; no se agregan automáticamente los cierres mensuales.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 503,
+    "text": "Pedido",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 503,
+    "text": "· Mercado",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 504,
+    "text": "· Máximo",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 505,
+    "text": "· Apertura (supuesto −5%)",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 551,
+    "text": "Comprobaciones en visita",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 561,
+    "text": "Sin comprobar",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 562,
+    "text": "Comprobado",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 564,
+    "text": "Requiere inspección / riesgo",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 566,
+    "text": "No aplica",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 571,
+    "text": "Visita finalizada",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 574,
+    "text": "Al finalizar se registran riesgos bloqueantes para los hallazgos que requieren inspección y una tarea de seguimiento. Incorpora los presupuestos al reanalizar: no se inventarán costes.",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 590,
+    "text": "Historial",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 592,
+    "text": "Sin registros. Los datos aparecerán después de guardarlos.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 620,
+    "text": "Cash-flow real del mes",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 644,
+    "text": "Escenarios guardados (",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 644,
+    "text": ")",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 647,
+    "text": "·",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 648,
+    "text": "· refinanciación",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 649,
+    "text": "· venta",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 657,
+    "text": "Historial del inmueble (",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 657,
+    "text": ")",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 660,
+    "text": "·",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 758,
+    "text": "Estrategia ·",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 772,
+    "text": "Supuestos editables. La deuda inicial es la del análisis, sustitúyela por el saldo actual. No representa aprobación bancaria.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 802,
+    "text": "Capital liberado",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 802,
+    "text": "· cuota",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 803,
+    "text": "· cash-flow",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 804,
+    "text": "/mes · DSCR",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 805,
+    "text": ".",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 810,
+    "text": "Neto de venta después de deuda y costes:",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 810,
+    "text": ".",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 815,
+    "text": "Proyección de mantener",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 817,
+    "text": "NOI constante, amortización mensual y CAPEX anual. Apreciación y descuento son supuestos; impuestos y gastos de venta se mantienen al importe introducido, sin simulación fiscal.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 845,
+    "text": "Cash-flow acumulado:",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 845,
+    "text": ". Neto de venta al final:",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 846,
+    "text": ". Valor actual de mantener:",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 847,
+    "text": ". Venta hoy:",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 848,
+    "text": ". Diferencia descontada:",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 849,
+    "text": ".",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 855,
+    "text": "Año",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 856,
+    "text": "Valor supuesto",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 857,
+    "text": "Deuda",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 858,
+    "text": "Cash-flow anual",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 876,
+    "text": "Faltan datos válidos para proyectar: valor, NOI, horizonte entero entre 1 y 50 años y plazo si hay deuda.",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-operations.tsx",
+    "line": 883,
+    "text": "Guardar escenario de estrategia",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-opportunities.tsx",
+    "line": 126,
+    "text": "¿Qué tengo que hacer después?",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-opportunities.tsx",
+    "line": 129,
+    "text": "Oportunidad",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-opportunities.tsx",
+    "line": 135,
+    "text": "Buscar",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-opportunities.tsx",
+    "line": 139,
+    "text": "Activo o municipio",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-opportunities.tsx",
+    "line": 172,
+    "text": "activas",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-opportunities.tsx",
+    "line": 175,
+    "text": "descartes",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-opportunities.tsx",
+    "line": 177,
+    "text": "Resuelve los riesgos bloqueantes antes de avanzar",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-opportunities.tsx",
+    "line": 178,
+    "text": "bloqueadas",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-opportunities.tsx",
+    "line": 189,
+    "text": "Primera oportunidad",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-opportunities.tsx",
+    "line": 190,
+    "text": "Radar → análisis → visita → oferta → compra",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-opportunities.tsx",
+    "line": 193,
+    "text": "Empezar",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-opportunities.tsx",
+    "line": 243,
+    "text": "Sin fotografía",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-opportunities.tsx",
+    "line": 261,
+    "text": "% mínimos",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-opportunities.tsx",
+    "line": 285,
+    "text": "días en fase",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-opportunities.tsx",
+    "line": 296,
+    "text": "Cambiar etapa",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-opportunities.tsx",
+    "line": 303,
+    "text": "Descartar",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-opportunities.tsx",
+    "line": 305,
+    "text": "Abrir",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-opportunities.tsx",
+    "line": 312,
+    "text": "—",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-opportunities.tsx",
+    "line": 328,
+    "text": "descartadas · historial conservado",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-point-map.tsx",
+    "line": 97,
+    "text": "Mapa de aforos agregados",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 162,
+    "text": "¿Cómo está rindiendo mi capital?",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 166,
+    "text": "Periodo",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 183,
+    "text": "TU PATRIMONIO, EN CONTEXTO",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 184,
+    "text": "De oportunidad a activo.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 185,
+    "text": "Registra tu primera compra para medir resultados reales.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 187,
+    "text": "Abrir Pipeline",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 193,
+    "text": "Capital",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 194,
+    "text": "Valor · Deuda · Equity",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 199,
+    "text": "Resultados",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 200,
+    "text": "Cash-flow · Ocupación · XIRR",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 205,
+    "text": "Estrategia",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 206,
+    "text": "HOLD / REFINANCE / SELL",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 214,
+    "text": "GAV documentado",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 215,
+    "text": "Deuda actual",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 217,
+    "text": "Equity",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 223,
+    "text": "LTV",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 229,
+    "text": "Cash-flow real registrado",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 234,
+    "text": "Ocupación, XIRR y métricas de capital",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 235,
+    "text": "NOI registrado / mes",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 236,
+    "text": "Ocupación documentada",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 238,
+    "text": "XIRR de flujos inversor",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 243,
+    "text": "Capital velocity prevista",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 253,
+    "text": "Previsión frente a realidad",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 255,
+    "text": "Importes mensuales. Sin cierre registrado se muestra «Sin datos».",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 259,
+    "text": "Activo",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 260,
+    "text": "Previsto",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 261,
+    "text": "Real",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 262,
+    "text": "Desviación",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 263,
+    "text": "CAPEX",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 302,
+    "text": "Capital documentado",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 314,
+    "text": "Deuda",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 315,
+    "text": "Equity",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 320,
+    "text": "Completa valor y saldo de deuda en cada cierre.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 323,
+    "text": "Distribución por municipio",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 333,
+    "text": "Cash-flow mensual",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 339,
+    "text": "Cash-flow real por mes",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 366,
+    "text": ":",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 366,
+    "text": "·",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 366,
+    "text": "/",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 367,
+    "text": "activos",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 375,
+    "text": "El primer cierre iniciará la serie.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 381,
+    "text": "Mapa de activos",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 385,
+    "text": "Activos y estrategia",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 420,
+    "text": "Error de previsión · revisión del modelo",
+    "location": "disclosure",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 422,
+    "text": "Agrupar por",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 427,
+    "text": "Municipio",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 428,
+    "text": "Tipo de activo",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 429,
+    "text": "Estrategia",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 433,
+    "text": "Cash-flow mensual antes de CAPEX extraordinario frente a la previsión guardada. No modifica modelos automáticamente. Meses del mismo activo no son observaciones independientes.",
+    "location": "disclosure",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 441,
+    "text": "N",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 441,
+    "text": "cierres · error medio",
+    "location": "disclosure",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-portfolio.tsx",
+    "line": 441,
+    "text": "/mes",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-primitives.tsx",
+    "line": 109,
+    "text": "Pendiente de validar",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-primitives.tsx",
+    "line": 119,
+    "text": "/100",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-primitives.tsx",
+    "line": 130,
+    "text": "%",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 121,
+    "text": "Oportunidades",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 128,
+    "text": "Etapa de la operación",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 128,
+    "text": "Radar",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 128,
+    "text": "Análisis",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 128,
+    "text": "Visita",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 128,
+    "text": "Negociación",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 128,
+    "text": "Comprada",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 128,
+    "text": "En cartera",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 128,
+    "text": "Descartada",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 128,
+    "text": "Vendida",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 129,
+    "text": "Reanalizar",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 164,
+    "text": "Secciones del inmueble",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 167,
+    "text": "Guardando…",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 184,
+    "text": "Análisis incompleto",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 184,
+    "text": "Continuar análisis",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 185,
+    "text": "SIGUIENTE",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 186,
+    "text": "bloqueantes · Revisar",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 188,
+    "text": "Toda la evidencia pendiente (",
+    "location": "disclosure",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 188,
+    "text": ")",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 189,
+    "text": "Operativa e historial",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 213,
+    "text": "FICHA FÍSICA",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 213,
+    "text": "Qué existe realmente",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 215,
+    "text": "Construidos",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 216,
+    "text": "Útiles",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 217,
+    "text": "Dormitorios",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 218,
+    "text": "Baños",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 219,
+    "text": "Planta",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 220,
+    "text": "Ascensor",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 221,
+    "text": "Año",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 222,
+    "text": "Energía",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 223,
+    "text": "Orientación",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 224,
+    "text": "Estado",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 225,
+    "text": "Terraza",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 226,
+    "text": "Garaje",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 228,
+    "text": "Ficha guardada ·",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 232,
+    "text": "INSTALACIONES",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 232,
+    "text": "Lo caro de descubrir tarde",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 234,
+    "text": "Electricidad",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 235,
+    "text": "Fontanería",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 236,
+    "text": "Calefacción",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 237,
+    "text": "Agua caliente",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 238,
+    "text": "Climatización",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 239,
+    "text": "Gas",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 240,
+    "text": "Internet",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 241,
+    "text": "Comunidad",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 243,
+    "text": "Una instalación “sin dato” debe tratarse como incertidumbre, no como buen estado.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 247,
+    "text": "PHOTO DESK",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 247,
+    "text": "Revisar lo que el anuncio enseña — y lo que oculta",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 247,
+    "text": "Subir fotos",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 248,
+    "text": "Añade fotos de anuncio o visita.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 248,
+    "text": "Las fotos quedan guardadas en este inmueble.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 252,
+    "text": "UBICACIÓN",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 253,
+    "text": "La dirección exacta enlaza el inmueble con su microzona. Sin coordenadas o un proveedor geoespacial no se inventan distancias ni servicios cercanos.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 254,
+    "text": "Abrir en Google Maps",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 264,
+    "text": "Eliminar foto",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 264,
+    "text": "Sin estancia",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 264,
+    "text": "Salón",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 264,
+    "text": "Cocina",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 264,
+    "text": "Dormitorio",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 264,
+    "text": "Baño",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 264,
+    "text": "Fachada",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 264,
+    "text": "Comunes",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 264,
+    "text": "Terraza",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 264,
+    "text": "Estado",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 264,
+    "text": "/100",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 264,
+    "text": "Confianza",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 264,
+    "text": "% · observación visual",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 264,
+    "text": "Confirmar revisión visual",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 276,
+    "text": "MICROZONA",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 276,
+    "text": "Evaluación manual y trazable hasta conectar fuentes geoespaciales.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 276,
+    "text": "/100",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 280,
+    "text": "EVALUACIÓN",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 280,
+    "text": "Valida la zona con evidencia",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 282,
+    "text": "Guardar evaluación",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 285,
+    "text": "A 15 MINUTOS",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 285,
+    "text": "Qué hace vivible la ubicación",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 287,
+    "text": "Notas / evidencias",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 287,
+    "text": "Ej.: bus cada 30 min, Mercadona a 8 min andando, calle ruidosa viernes noche…",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 290,
+    "text": "TENANT FIT",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 290,
+    "text": "¿Para quién funciona esta zona?",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 291,
+    "text": "Perfil objetivo:",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 291,
+    "text": "Estrategia:",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 291,
+    "text": "La renta no se valida solo por €/m²: debe existir un inquilino razonable para ese producto y esa microzona.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 299,
+    "text": "Esta propiedad no tiene un análisis guardado.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 305,
+    "text": "CASH-FLOW WATERFALL",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 305,
+    "text": "De la renta al bolsillo",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 306,
+    "text": "Alquiler",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 306,
+    "text": "Vacancia",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 306,
+    "text": "Gastos operativos",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 306,
+    "text": "NOI",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 306,
+    "text": "Hipoteca",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 306,
+    "text": "Cash-flow",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 308,
+    "text": "RETORNOS",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 308,
+    "text": "Las métricas que importan",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 308,
+    "text": "Yield bruta",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 308,
+    "text": "Yield neta",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 308,
+    "text": "Cash-on-cash",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 308,
+    "text": "Cap rate",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 308,
+    "text": "DSCR",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 308,
+    "text": "Capital Velocity",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 309,
+    "text": "CAPITAL STACK",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 309,
+    "text": "Qué dinero se inmoviliza",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 309,
+    "text": "Préstamo",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 309,
+    "text": "Entrada",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 309,
+    "text": "Adquisición",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 309,
+    "text": "Proyecto",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 309,
+    "text": "Capital total",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 310,
+    "text": "DISCIPLINA DE PRECIO",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 310,
+    "text": "Máximo compatible con objetivo",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 310,
+    "text": "Pedido",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 310,
+    "text": "Mercado",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 310,
+    "text": "El precio máximo es un output de tu objetivo de rentabilidad; no es una tasación oficial.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "RISK REGISTER",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Riesgos con dueño y estado",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "· confianza",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "% ·",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "·",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "No has registrado riesgos.",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Esto no significa que no existan. Registra también lo que necesitas descartar.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "DUE DILIGENCE",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Evidencias a revisar antes de comprar",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Registra y verifica los documentos en Operativa. Resolver un riesgo no verifica automáticamente toda su categoría.",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "REGISTRAR",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Añadir riesgo",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Riesgo",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Ej.: posible derrama fachada",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Categoría",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Legal",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Técnico",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Edificio",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Comunidad",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Mercado",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Alquiler",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Ambiental",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Ocupación",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Financiabilidad",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Responsable",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Plazo",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Fuente / evidencia",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Confianza 0–1",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Severidad",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Bloquea la compra",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 321,
+    "text": "Añadir riesgo",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 329,
+    "text": "EXECUTION PLAN",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 329,
+    "text": "La operación como procedimiento",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 329,
+    "text": "Ahora",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 329,
+    "text": "NEGOCIACIÓN",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 329,
+    "text": "Precio y argumento",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 329,
+    "text": "Pide",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 329,
+    "text": "Apertura orientativa",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 329,
+    "text": "Máximo",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 329,
+    "text": "La apertura debe apoyarse en evidencia: días publicado, bajadas, reforma, comparables, estado y riesgos. Estate no negocia por porcentaje fijo.",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 329,
+    "text": "RENTAL GO-TO-MARKET",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 329,
+    "text": "Cómo encontrar al inquilino",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 329,
+    "text": "Perfil objetivo",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 329,
+    "text": "El canal es parte de la tesis: si el inquilino objetivo no existe en la microzona, el alquiler esperado pierde confianza.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 329,
+    "text": "REGLA DE CIERRE",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 329,
+    "text": "No comprar porque “parece barato”.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-property.tsx",
+    "line": 329,
+    "text": "Compra cuando precio, demanda, estado, financiación, riesgo y plan de salida estén suficientemente probados juntos.",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-provider-control.tsx",
+    "line": 56,
+    "text": "Control de proveedores y gasto",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-provider-control.tsx",
+    "line": 64,
+    "text": "·",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-provider-control.tsx",
+    "line": 64,
+    "text": "/",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-provider-control.tsx",
+    "line": 65,
+    "text": "solicitudes · reservado",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-provider-control.tsx",
+    "line": 65,
+    "text": "€ /",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-provider-control.tsx",
+    "line": 66,
+    "text": "€ ·",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-provider-control.tsx",
+    "line": 66,
+    "text": "€/llamada",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-provider-control.tsx",
+    "line": 70,
+    "text": "Sin presupuesto habilitado: llamadas de pago bloqueadas.",
+    "location": "disclosure",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 14,
+    "text": "Presupuesto de reforma",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 14,
+    "text": "Total de partidas:",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 14,
+    "text": "· provisión del análisis:",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 14,
+    "text": ".",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 14,
+    "text": "Margen hasta valor de mercado estimado:",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 14,
+    "text": ". Es un techo orientativo antes de beneficio; depende de una valoración válida, no un presupuesto recomendado.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 14,
+    "text": "La reforma supera el margen disponible hasta el valor estimado.",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 15,
+    "text": "Matriz de retorno de reforma · todas las mejoras son estimaciones",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 15,
+    "text": "Partida",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 15,
+    "text": "Coste",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 15,
+    "text": "Renta / mes",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 15,
+    "text": "Valor",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 15,
+    "text": "Riesgo reducido",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 15,
+    "text": "Recuperación por renta",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 15,
+    "text": "Fuente",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 15,
+    "text": "·",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 15,
+    "text": "%",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 15,
+    "text": "Presupuesto",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 15,
+    "text": "Eliminar",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 16,
+    "text": "Añadir partida",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 16,
+    "text": "Categoría",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 16,
+    "text": "Descripción",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 16,
+    "text": "Ejecución",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 16,
+    "text": "Profesional",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 16,
+    "text": "DIY",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 16,
+    "text": "Híbrido",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 16,
+    "text": "No cuentes dos veces materiales/mano de obra ya incluidos en el precio unitario. Total:",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 16,
+    "text": ".",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 16,
+    "text": "Horas DIY",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 16,
+    "text": "Renta adicional estimada €/mes",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 16,
+    "text": "Valor adicional estimado €",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 16,
+    "text": "Reducción de riesgo estimada 0–100",
+    "location": "candidate-visible",
+    "review": "context-critical"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 16,
+    "text": "Confianza 0–1",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 16,
+    "text": "URL presupuesto proveedor",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 16,
+    "text": "Profesional obligatorio",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-renovation.tsx",
+    "line": 16,
+    "text": "Guardar partida",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-shell.tsx",
+    "line": 51,
+    "text": "Estate",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-shell.tsx",
+    "line": 51,
+    "text": "Investment OS",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-shell.tsx",
+    "line": 51,
+    "text": "Cerrar menú",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-shell.tsx",
+    "line": 52,
+    "text": "INVESTMENT LOOP",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-shell.tsx",
+    "line": 53,
+    "text": "Navegación principal",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-shell.tsx",
+    "line": 64,
+    "text": "Encontrar, validar, comprar, operar",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-shell.tsx",
+    "line": 64,
+    "text": "◎",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-shell.tsx",
+    "line": 64,
+    "text": "◈",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-shell.tsx",
+    "line": 64,
+    "text": "◆",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-shell.tsx",
+    "line": 64,
+    "text": "↻",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-shell.tsx",
+    "line": 65,
+    "text": "Estate v2.0.2",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-shell.tsx",
+    "line": 65,
+    "text": "online",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-shell.tsx",
+    "line": 82,
+    "text": "Abrir menú",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-shell.tsx",
+    "line": 82,
+    "text": "Estate",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-shell.tsx",
+    "line": 83,
+    "text": "v2.0.2",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-shell.tsx",
+    "line": 83,
+    "text": "Cerrar sesión",
+    "location": "candidate-visible",
+    "review": "accessible-name"
+  },
+  {
+    "file": "src/components/estate-shell.tsx",
+    "line": 83,
+    "text": "Cerrar sesión",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-shell.tsx",
+    "line": 83,
+    "text": "Entrar",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  },
+  {
+    "file": "src/components/estate-shell.tsx",
+    "line": 83,
+    "text": "Analizar",
+    "location": "candidate-visible",
+    "review": "decision-or-disclosure"
+  }
+]

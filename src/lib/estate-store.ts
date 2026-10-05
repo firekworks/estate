@@ -1,5 +1,6 @@
 import type { User } from "@supabase/supabase-js";
 import type { DealAnalysis, DealInputs } from "@/lib/estate-engine";
+import { analysisReadiness } from "./estate-readiness";
 import { canonicalListingUrl } from "@/lib/estate-csv";
 import { supabase } from "@/lib/supabase";
 
@@ -39,6 +40,7 @@ export type ZoneAssessment = {
 };
 
 export type PropertyFeatures = {
+  costsReviewed?: boolean;
   commercial?: { frontage?: number; visibility?: string; parking?: string; access?: string; licensing?: string; power?: string; emergencyExit?: string; ventilation?: string; anchors?: string; flowScore?: number; flowConfidence?: number };
   exterior?: boolean | null;
   furnished?: boolean | null;
@@ -288,14 +290,16 @@ async function syncRemoteImages(user: User, propertyId: string, urls: string[]) 
 }
 
 export async function saveDeal(user: User, draft: PropertyDraft, input: DealInputs, analysis: DealAnalysis, existingPropertyId?: string | null) {
+  if (!analysisReadiness(draft, input).calculable) throw new Error("Completa los datos y revisa los costes antes de guardar el análisis.");
   const {data,error}=await supabase.rpc("estate_save_analysis",{
     p_property:propertyPayload(user,draft,input),p_inputs:input,p_outputs:analysis,
     p_listing:{url:draft.listingUrl?.trim()?canonicalListingUrl(draft.listingUrl):null,portal:draft.portal||"manual"},p_property_id:existingPropertyId??null,
   });
   throwIfError(error);
   if(typeof data!=="string") throw new Error("No se confirmó la propiedad guardada.");
-  await syncRemoteImages(user,data,draft.features?.sourceImageUrls??[]);
-  return data;
+  let imageWarning = false;
+  try { await syncRemoteImages(user,data,draft.features?.sourceImageUrls??[]); } catch(error) { console.error("Estate image sync", error); imageWarning = true; }
+  return { propertyId: data, imageWarning };
 }
 
 export async function loadSavedDeals(user: User): Promise<SavedDeal[]> {
@@ -374,7 +378,7 @@ type VisionAnalysis = {
   manual_checks?: string[];
 };
 
-export async function uploadPropertyImage(user: User, propertyId: string, file: File) {
+export async function uploadPropertyImage(user: User, propertyId: string, file: File, visionAvailable = false) {
   const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]+/g, "-").slice(-80);
   const path = `${user.id}/${propertyId}/${crypto.randomUUID()}-${safeName || "photo.jpg"}`;
   const { error: uploadError } = await supabase.storage.from("estate-property-images").upload(path, file, { cacheControl: "3600", upsert: false });
@@ -384,7 +388,7 @@ export async function uploadPropertyImage(user: User, propertyId: string, file: 
   try {
     const token = await bearerToken();
     const { data: signed } = await supabase.storage.from("estate-property-images").createSignedUrl(path, 10 * 60);
-    if (token && signed?.signedUrl) {
+    if (visionAvailable && token && signed?.signedUrl) {
       const response = await fetch("/api/vision", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },

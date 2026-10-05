@@ -171,7 +171,7 @@ export function MarketIntelligence({ user }: { user: User | null }) {
     <div className="view market-intelligence">
       <SectionHead
         eyebrow="03 / CONTRASTAR"
-        title="Market Intelligence"
+        title="¿Cuánto vale y alquila realmente?"
         action={
           <label className="upload-button">
             <Upload size={15} /> Importar CSV
@@ -354,8 +354,8 @@ export function MarketIntelligence({ user }: { user: User | null }) {
                 </div>
               )}
             </Panel>
-            <aside className="sample-quality">
-              <span className="eyebrow">CALIDAD DE MUESTRA</span>
+            <details className="sample-quality">
+              <summary>Calidad y fuentes · {sample.length} testigos</summary>
               <div>
                 <span>Recientes / filtrados</span>
                 <strong>
@@ -393,9 +393,9 @@ export function MarketIntelligence({ user }: { user: User | null }) {
                   <span key={s}>{s}</span>
                 ))}
               </div>
-            </aside>
+            </details>
           </div>
-          <Panel className="comparable-ledger">
+          <details className="panel comparable-ledger"><summary>Ver comparables ({sample.length})</summary>
             <div className="panel-head">
               <h2>Comparables</h2>
               <span>{sample.length} testigos</span>
@@ -443,7 +443,7 @@ export function MarketIntelligence({ user }: { user: User | null }) {
                 Sin comparables para estos filtros.
               </p>
             )}
-          </Panel>
+          </details>
         </>
       )}
       <details className="panel">

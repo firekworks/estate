@@ -8,31 +8,26 @@ import {
   Check,
   CircleDollarSign,
   Database,
-  Gauge,
-  Home,
   Loader2,
   MapPin,
   Save,
   Search,
   ShieldCheck,
-  Sparkles,
   Target,
   Wrench,
 } from "lucide-react";
 import type { DealAnalysis, DealInputs } from "@/lib/estate-engine";
 import type { EvidenceKind, PropertyDraft, PropertyFeatures } from "@/lib/estate-store";
 import {
-  DataMeter,
   EvidenceChip,
   fmtMoney,
   fmtPct,
-  Metric,
   Panel,
-  ScoreDial,
   SectionHead,
 } from "@/components/estate-primitives";
 
-const ceilingLabels:Record<string,string>={yield:"Rentabilidad objetivo",cashflow:"Cash-flow mínimo",dscr:"Cobertura de deuda",market_comps:"Comparables",financing:"Financiación",available_capital:"Capital disponible",appraisal:"Tasación"};
+import { analysisReadiness } from "@/lib/estate-readiness";
+import { DecisionSummary } from "./estate-decision";
 
 const STEPS = [
   { label: "Captura", helper: "Qué estás mirando", icon: <Search size={15} /> },
@@ -77,8 +72,8 @@ function NumberField({
           type="number"
           min={min}
           step={step}
-          value={value ?? ""}
-          onChange={(event) => onChange(Number(event.target.value))}
+          value={typeof value === "number" && Number.isFinite(value) ? value : ""}
+          onChange={(event) => onChange(event.target.value===""?NaN:Number(event.target.value))}
         />
         {suffix ? <small>{suffix}</small> : null}
       </div>
@@ -165,35 +160,6 @@ function patchFeatures(
   }));
 }
 
-function requiredProgress(draft: PropertyDraft, inputs: DealInputs) {
-  const residential = !["commercial", "office", "building", "land"].includes(draft.propertyType ?? "apartment");
-  const checks = [
-    Boolean(draft.title.trim()),
-    Boolean(draft.municipality.trim()),
-    Boolean(inputs.builtAreaM2),
-    residential ? draft.bedrooms !== undefined : true,
-    residential ? draft.bathrooms !== undefined : true,
-    Boolean(inputs.purchasePrice),
-    Boolean(inputs.monthlyRent),
-    Boolean(inputs.marketValueEstimate),
-    inputs.ltvPct >= 0,
-    inputs.purchaseTaxPct >= 0,
-    inputs.communityMonthly >= 0,
-    inputs.ibiAnnual >= 0,
-  ];
-  return Math.round((checks.filter(Boolean).length / checks.length) * 100);
-}
-
-function essentialsMissing(draft: PropertyDraft, inputs: DealInputs) {
-  const missing: string[] = [];
-  if (!draft.title.trim()) missing.push("nombre");
-  if (!draft.municipality.trim()) missing.push("municipio");
-  if (!inputs.builtAreaM2) missing.push("superficie");
-  if (!inputs.purchasePrice) missing.push("precio");
-  if (!inputs.monthlyRent) missing.push("alquiler estimado");
-  return missing;
-}
-
 function StepCapture({
   draft,
   setDraft,
@@ -218,6 +184,7 @@ function StepCapture({
         <input
           value={importUrl}
           onChange={(event) => setImportUrl(event.target.value)}
+          aria-label="URL del anuncio"
           placeholder="Pega URL de Idealista, Fotocasa, agencia…"
         />
         <button aria-label="Importar anuncio" onClick={onImport} disabled={importBusy || !importUrl.trim()}>
@@ -274,13 +241,13 @@ function StepCapture({
           kind="fact"
         />
       </div>
-      <div className="step-explainer">
+      <details className="step-explainer"><summary>Sobre la extracción</summary>
         <ShieldCheck size={16} />
         <div>
-          <strong>Capturar no es analizar.</strong>
+          <strong>Verifica la fuente.</strong>
           <p>La URL identifica la fuente. Estate no rellena datos de un portal si no existe un conector autorizado.</p>
         </div>
-      </div>
+      </details>
     </div>
   );
 }
@@ -409,7 +376,7 @@ function StepPurchase({
 }: {
   inputs: DealInputs;
   updateInput: <K extends keyof DealInputs>(key: K, value: DealInputs[K]) => void;
-  analysis: DealAnalysis;
+  analysis: DealAnalysis | null;
 }) {
   return (
     <div className="step-content">
@@ -422,7 +389,7 @@ function StepPurchase({
       <div className="finance-block">
         <div className="finance-block-head">
           <span className="subsection-title">FINANCIACIÓN</span>
-          <strong>{fmtMoney(analysis.loanAmount)} préstamo</strong>
+          <strong>{fmtMoney(analysis?.loanAmount)} préstamo</strong>
         </div>
         <div className="field-grid three">
           <NumberField label="LTV" value={inputs.ltvPct} suffix="%" step={0.5} kind="assumption" onChange={(value) => updateInput("ltvPct", value)} />
@@ -476,70 +443,6 @@ function StepOperation({
   );
 }
 
-function StepDecision({
-  analysis,
-  canSave,
-  missing,
-}: {
-  analysis: DealAnalysis;
-  canSave: boolean;
-  missing: string[];
-}) {
-  const message =
-    analysis.verdict === "NEGOCIAR"
-      ? "Los números permiten negociar."
-      : analysis.verdict === "VISITAR"
-        ? "Merece validar sobre el terreno."
-        : analysis.verdict === "ANALIZAR"
-          ? "Faltan evidencias antes de desplazarte."
-          : analysis.verdict === "MONITORIZAR"
-            ? "No compite todavía."
-            : "No pasa el filtro actual.";
-
-  return (
-    <div className="step-content decision-step">
-      <div className="decision-hero">
-        <ScoreDial score={analysis.score} label={analysis.verdict} size="lg" />
-        <div>
-          <span className="eyebrow">DECISIÓN PROVISIONAL</span>
-          <h2>{message}</h2>
-          <p>{Math.round(analysis.scoreCoverage * 100)}% de cobertura · motor {analysis.engineVersion}</p>
-        </div>
-      </div>
-      <div className="decision-metrics">
-        <Metric label="Capital requerido" value={fmtMoney(analysis.capitalRequired)} />
-        <Metric label="Cash-flow" value={`${fmtMoney(analysis.netMonthlyCashFlow)}/mes`} tone={analysis.netMonthlyCashFlow >= 0 ? "good" : "bad"} />
-        <Metric label="Yield neta" value={fmtPct(analysis.netYieldPct)} />
-        <Metric label="Precio máximo" value={fmtMoney(analysis.maxPurchasePrice)} tone="accent" />
-      </div>
-      <div className="decision-columns">
-        <div>
-          <span className="subsection-title">A FAVOR</span>
-          {analysis.strengths.length ? analysis.strengths.map((item) => (
-            <div className="decision-line good" key={item}><Check size={13} />{item}</div>
-          )) : <p className="muted-copy">No hay fortalezas suficientes todavía.</p>}
-        </div>
-        <div>
-          <span className="subsection-title">EN CONTRA</span>
-          {analysis.weaknesses.length ? analysis.weaknesses.map((item) => (
-            <div className="decision-line bad" key={item}><Gauge size={13} />{item}</div>
-          )) : <p className="muted-copy">No hay debilidades críticas registradas.</p>}
-        </div>
-      </div>
-      <div className="stress-matrix">
-        {analysis.stress.filter((scenario) => scenario.key !== "base").map((scenario) => (
-          <div className={scenario.passes ? "pass" : "fail"} key={scenario.key}>
-            <span>{scenario.label}</span>
-            <strong>{fmtMoney(scenario.monthlyCashFlow)}</strong>
-            <small>{scenario.passes ? "resiste" : "falla"}</small>
-          </div>
-        ))}
-      </div>
-      {!canSave ? <div className="save-blocked">Faltan datos mínimos: {missing.join(", ")}.</div> : null}
-    </div>
-  );
-}
-
 export function AnalyzerView({
   draft,
   setDraft,
@@ -562,7 +465,7 @@ export function AnalyzerView({
   setDraft: Dispatch<SetStateAction<PropertyDraft>>;
   inputs: DealInputs;
   updateInput: <K extends keyof DealInputs>(key: K, value: DealInputs[K]) => void;
-  analysis: DealAnalysis;
+  analysis: DealAnalysis | null;
   importUrl: string;
   setImportUrl: (value: string) => void;
   importBusy: boolean;
@@ -575,9 +478,8 @@ export function AnalyzerView({
   setStep: (step: number) => void;
   editing: boolean;
 }) {
-  const missing = essentialsMissing(draft, inputs);
-  const progress = requiredProgress(draft, inputs);
-  const canSave = missing.length === 0;
+  const readiness = analysisReadiness(draft, inputs);
+  const canSave = readiness.calculable;
 
   let content: ReactNode;
   if (step === 0) {
@@ -589,18 +491,16 @@ export function AnalyzerView({
   } else if (step === 3) {
     content = <StepPurchase inputs={inputs} updateInput={updateInput} analysis={analysis} />;
   } else if (step === 4) {
-    content = <StepOperation inputs={inputs} updateInput={updateInput} />;
+    content = <><StepOperation inputs={inputs} updateInput={updateInput} /><label className="cost-review"><input type="checkbox" checked={draft.features?.costsReviewed===true} onChange={e=>setDraft(current=>({...current,features:{...current.features,costsReviewed:e.target.checked}}))}/>He revisado los costes y los importes a cero</label></>;
   } else {
-    content = <StepDecision analysis={analysis} canSave={canSave} missing={missing} />;
+    content = <><DecisionSummary draft={draft} inputs={inputs} analysis={analysis} onContinue={setStep} />{analysis&&<details className="evidence-validation"><summary>Registrar evidencia verificada</summary><p>Registra una fuente comprobada para cada dato. No convierte una estimación en certeza.</p>{([ ["price","Precio"],["area","Superficie"],["rent","Alquiler"],["costs","Costes"] ] as const).map(([key,label])=><label className="field" key={key}>{label} · fuente verificada<input value={draft.features?.evidence?.[key]?.source??""} placeholder="Documento, comparable o referencia" onChange={e=>setDraft(current=>({...current,features:{...current.features,evidence:{...current.features?.evidence,[key]:{kind:"fact",source:e.target.value,observedAt:new Date().toISOString()}}}}))}/></label>)}</details>}</>;
   }
 
   return (
     <div className="view view-analyzer">
       <SectionHead
         eyebrow={editing ? "NUEVA VERSIÓN" : "UNDERWRITING"}
-        title={editing ? `Reanaliza ${draft.title}.` : "Una decisión. Seis pasos."}
-        copy="Primero hechos. Después mercado. Luego financiación y operación. El score llega al final, no al principio."
-        action={<DataMeter value={progress} label="mínimos" />}
+        title={editing ? `Revisar ${draft.title}` : "¿Tiene sentido esta operación?"}
       />
 
       <div className="analyzer-stepper">
@@ -612,7 +512,7 @@ export function AnalyzerView({
             onClick={() => setStep(index)}
           >
             <i>{index < step ? <Check size={13} /> : item.icon}</i>
-            <span><strong>{item.label}</strong><small>{item.helper}</small></span>
+            <span><strong>{item.label}</strong></span>
           </button>
         ))}
       </div>
@@ -630,7 +530,7 @@ export function AnalyzerView({
             </button>
             <div className="analyzer-footer-note">
               {step < 5
-                ? "Los cambios recalculan el underwriting en tiempo real."
+                ? ""
                 : signedIn
                   ? editing
                     ? "Guardar crea una nueva versión sobre la misma propiedad."
@@ -650,32 +550,9 @@ export function AnalyzerView({
           </div>
         </Panel>
 
-        <aside className="live-underwriting">
-          <div className="live-head">
-            <div><span className="eyebrow">LIVE UNDERWRITING</span><h3>{draft.title || "Sin nombre"}</h3></div>
-            {inputs.purchasePrice>0 && inputs.monthlyRent>0 ? <ScoreDial score={analysis.score} size="sm" /> : <span>Faltan precio y renta</span>}
-          </div>
-          <div className="live-metrics">
-            <Metric label="Capital" value={fmtMoney(analysis.capitalRequired)} />
-            <Metric label="Cash-flow" value={fmtMoney(analysis.netMonthlyCashFlow)} tone={analysis.netMonthlyCashFlow >= 0 ? "good" : "bad"} />
-            <Metric label="Yield" value={fmtPct(analysis.netYieldPct)} />
-            <Metric label="Cuota" value={fmtMoney(analysis.mortgageMonthly)} />
-          </div>
-          <div className="price-discipline">
-            <span>Precio pedido</span>
-            <strong>{fmtMoney(inputs.purchasePrice)}</strong>
-            <div className="discipline-track">
-              <i style={{ width: `${analysis.maxPurchasePrice && inputs.purchasePrice ? Math.min(100, (analysis.maxPurchasePrice / inputs.purchasePrice) * 100) : 0}%` }} />
-            </div>
-            <div><small>máximo</small><b>{fmtMoney(analysis.maxPurchasePrice)}</b></div>
-          </div>
-          <div className="ceiling-list"><strong>Techo limitante: {ceilingLabels[analysis.limitingCeiling??'']??'sin datos aplicables'}</strong>{Object.entries(analysis.purchaseCeilings).map(([key,value])=><div key={key}><span>{ceilingLabels[key]??key}</span><b>{fmtMoney(value)}</b></div>)}</div>
-          <DataMeter value={Math.round(analysis.scoreCoverage * 100)} label="cobertura del cálculo financiero" />
-          <div className={`stress-badge stress-${analysis.stressStatus}`}>
-            <Sparkles size={14} />
-            <div><span>Stress test</span><strong>{analysis.stressStatus === "green" ? "Resistente" : analysis.stressStatus === "orange" ? "Frágil" : "No resiste"}</strong></div>
-          </div>
-          <div className="live-rule"><Home size={14} /><span>Reforma, fotos, zona y riesgos se profundizan dentro del workspace de la propiedad.</span></div>
+        <aside className="decision-rail" aria-label="Contexto de la operación">
+          <span className="eyebrow">OPERACIÓN</span><h3>{draft.title || "Nuevo inmueble"}</h3>
+          {step !== 5 ? <DecisionSummary compact draft={draft} inputs={inputs} analysis={analysis} onContinue={setStep}/> : <><dl><div><dt>Precio</dt><dd>{inputs.purchasePrice>0?fmtMoney(inputs.purchasePrice):"—"}</dd></div><div><dt>Renta</dt><dd>{inputs.monthlyRent>0?`${fmtMoney(inputs.monthlyRent)}/mes`:"—"}</dd></div><div><dt>Superficie</dt><dd>{inputs.builtAreaM2>0?`${inputs.builtAreaM2} m²`:"—"}</dd></div></dl><button className="ghost-button" onClick={()=>setStep(0)}>Revisar datos</button></>}
         </aside>
       </div>
     </div>

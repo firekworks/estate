@@ -343,7 +343,7 @@ export function OperationsDesk({
       if (active) {
         if (a.error || b.error)
           setMessage(
-            a.error?.message ?? b.error?.message ?? "Error de historial",
+            humanError(a.error ?? b.error, "No se pudo cargar el historial. Vuelve a abrir el inmueble."),
           );
         else {
           setHistory(a.data ?? []);

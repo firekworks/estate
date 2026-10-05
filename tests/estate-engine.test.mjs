@@ -144,3 +144,8 @@ test("financing zero is a real ceiling only for financed deals",()=>{assert.equa
   assert.ok(stressed.monthlyCashFlow>result.netMonthlyCashFlow);
   closeTo(stressed.equity,BASE.purchasePrice*.9-result.loanAmount*.9);
  });
+
+test('confidence changes evidence coverage, never economic score or cash-flow',()=>{
+ const low=analyzeDeal({...BASE,dataConfidence:.2}),high=analyzeDeal({...BASE,dataConfidence:1});
+ assert.equal(low.score,high.score);assert.equal(low.verdict,high.verdict);assert.equal(low.netMonthlyCashFlow,high.netMonthlyCashFlow);assert.ok(low.scoreCoverage<high.scoreCoverage);
+});

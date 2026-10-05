@@ -70,7 +70,7 @@ export const deals = [
   year_built: 1992,
   energy_rating: "D",
   condition: "good",
-  features: { rentalStrategy: "long_term" },
+  features: { rentalStrategy: "long_term", costsReviewed: true },
   notes: "Fixture de QA local",
   updated_at: "2026-10-01T12:00:00Z",
   stage_entered_at: "2026-09-20T12:00:00Z",

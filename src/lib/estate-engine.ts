@@ -1,4 +1,4 @@
-export const ESTATE_ENGINE_VERSION = "estate_financial_v2.0.0";
+export const ESTATE_ENGINE_VERSION = "estate_financial_v2.0.1";
 
 export type DealInputs = {
   purchasePrice: number;
@@ -422,17 +422,10 @@ export function analyzeDeal(raw: DealInputs): DealAnalysis {
     });
   }
 
-  const weighted = components.reduce(
-    (acc, item) => {
-      const effectiveWeight = item.weight * item.confidence;
-      acc.total += item.score * effectiveWeight;
-      acc.weight += effectiveWeight;
-      acc.nominalWeight += item.weight;
-      return acc;
-    },
-    { total: 0, weight: 0, nominalWeight: 0 },
-  );
-  const score = weighted.weight > 0 ? weighted.total / weighted.weight : 0;
+  // Confidence describes evidence quality, never investment performance.
+  const investmentComponents = components.filter(item => item.key !== "confidence");
+  const scoreWeight = investmentComponents.reduce((sum, item) => sum + item.weight, 0);
+  const score = scoreWeight > 0 ? investmentComponents.reduce((sum, item) => sum + item.score * item.weight, 0) / scoreWeight : 0;
   const nominalWeight = components.reduce((sum, item) => sum + item.weight, 0);
   const scoreCoverage =
     nominalWeight > 0

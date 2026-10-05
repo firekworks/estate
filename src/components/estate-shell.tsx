@@ -55,14 +55,14 @@ export function EstateSidebar({ view, open, dealCount, onSelect, onClose }: {
           <button key={item.key} className={`nav-item ${view === item.key ? "active" : ""}`} onClick={() => onSelect(item.key)} title={item.description}>
             <span className="nav-step-number">{String(index + 1).padStart(2, "0")}</span>
             <span className="nav-icon">{item.icon}</span>
-            <span className="nav-copy"><strong>{item.label}</strong><small>{item.description}</small></span>
+            <span className="nav-copy"><strong>{item.label}</strong></span>
             {item.key === "opportunities" && dealCount > 0 ? <span className="nav-count">{dealCount}</span> : <ChevronRight size={13} className="nav-chevron" />}
           </button>
         ))}
       </nav>
       <div className="sidebar-rule" />
       <div className="sidebar-flow-icons" aria-label="Encontrar, validar, comprar, operar"><span>◎</span><i /><span>◈</span><i /><span>◆</span><i /><span>↻</span></div>
-      <div className="sidebar-foot"><div className="system-status"><span className="live-dot" /><span>Estate v2.0.1</span><small>online</small></div></div>
+      <div className="sidebar-foot"><div className="system-status"><span className="live-dot" /><span>Estate v2.0.2</span><small>online</small></div></div>
     </aside>
   );
 }
@@ -80,7 +80,7 @@ export function EstateTopbar({ view, propertyTitle, authReady, signedIn, onMenu,
   return (
     <header className="topbar">
       <div className="topbar-left"><button className="icon-button mobile-menu" onClick={onMenu} aria-label="Abrir menú"><Menu size={18} /></button><div className="breadcrumb"><span>Estate</span><ChevronRight size={12} /><strong>{view === "property" && propertyTitle ? propertyTitle : NAMES[view]}</strong></div></div>
-      <div className="topbar-actions"><span className="engine-pill"><Activity size={12} /> v2.0.1</span>{authReady && (signedIn ? <button className="icon-button" onClick={onLogout} aria-label="Cerrar sesión" title="Cerrar sesión"><LogOut size={16} /></button> : <button className="ghost-button" onClick={onLogin}><LogIn size={14} /> Entrar</button>)}<button className="primary-button compact" onClick={onNew}><Plus size={15} /> Analizar</button></div>
+      <div className="topbar-actions"><span className="engine-pill"><Activity size={12} /> v2.0.2</span>{authReady && (signedIn ? <button className="icon-button" onClick={onLogout} aria-label="Cerrar sesión" title="Cerrar sesión"><LogOut size={16} /></button> : <button className="ghost-button" onClick={onLogin}><LogIn size={14} /> Entrar</button>)}<button className="ghost-button compact" onClick={onNew}><Plus size={15} /> Analizar</button></div>
     </header>
   );
 }

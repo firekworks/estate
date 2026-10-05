@@ -1,9 +1,10 @@
+import { savedAnalysisReady, analysisReadiness, draftForReadiness } from "./estate-readiness.ts";
 import type { SavedDeal } from "./estate-store";
 export type OpportunityScoreComponent = { key: string; label: string; score: number | null; confidence: number; weight: number; reason: string };
-export type OpportunityScore = { score: number; rankScore: number; coverage: number; blocked: boolean; components: OpportunityScoreComponent[] };
+export type OpportunityScore = { score: number | null; rankScore: number; coverage: number; blocked: boolean; components: OpportunityScoreComponent[] };
 const clamp = (v:number)=>Math.max(0,Math.min(100,Number.isFinite(v)?v:0));
 export function opportunityScore(deal: SavedDeal): OpportunityScore {
-  const latest = deal.estate_deal_analyses?.[0], input=latest?.inputs, out=latest?.outputs, zone=deal.features?.zone;
+  const latest = deal.estate_deal_analyses?.[0], input=latest?.inputs, out=savedAnalysisReady(deal)?latest?.outputs:null, zone=deal.features?.zone;
   const confidence = Math.max(0,Math.min(1,latest?.data_confidence ?? 0));
   const zc = Math.max(0,Math.min(1,zone?.confidence ?? 0));
   const risks=deal.estate_risks ?? [];
@@ -36,7 +37,8 @@ export function opportunityScore(deal: SavedDeal): OpportunityScore {
   const nominal=components.reduce((s,c)=>s+c.weight,0);
   const effective=components.reduce((s,c)=>s+(c.score===null?0:c.weight*c.confidence),0);
   const coverage=nominal?effective/nominal:0;
-  const raw=effective?components.reduce((s,c)=>s+(c.score ?? 0)*c.weight*c.confidence,0)/effective:0;
-  const score=blocked?0:Math.round(raw*10)/10;
-  return {score,rankScore:blocked?0:Math.round(score*coverage*10)/10,coverage:Math.round(coverage*100),blocked,components};
+  const observed=components.reduce((s,c)=>s+(c.score===null?0:c.weight),0);
+  const raw=observed?components.reduce((s,c)=>s+(c.score ?? 0)*c.weight,0)/observed:0;
+  const score=!savedAnalysisReady(deal)?null:blocked?0:Math.round(raw*10)/10;
+  return {score,rankScore:blocked?0:Math.round((score??0)*coverage*10)/10,coverage:input?analysisReadiness(draftForReadiness(deal),input).coverage:0,blocked,components};
 }
