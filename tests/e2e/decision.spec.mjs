@@ -22,6 +22,7 @@ test("empty, incomplete, estimated and validated; cost changes revoke review; st
     "Decisión",
   ]) {
     await step(page, label);
+    await expect(page.locator(".analyzer-stepper .done")).toHaveCount(0);
     await expect(page.locator(".view-analyzer .score-dial")).toHaveCount(0);
     await expect(
       page.getByRole("button", { name: "Ver escenarios" }),
@@ -48,6 +49,7 @@ test("empty, incomplete, estimated and validated; cost changes revoke review; st
     page.locator('[data-calculation-state="ESTIMATED"]'),
   ).toBeVisible();
   await step(page, "Decisión");
+  await expect(page.locator(".analyzer-stepper .done")).toHaveCount(6);
   await expect(page.locator(".view-analyzer .score-dial")).toHaveCount(1);
   await expect(page.locator(".stress-matrix")).not.toBeVisible();
   await page.getByRole("button", { name: "Ver escenarios" }).click();
